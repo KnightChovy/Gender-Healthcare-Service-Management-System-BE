@@ -1,87 +1,234 @@
-### Bộ code base để bắt đầu học khóa Full Stack MERN Pro (VIẾT CÁC REST API CHUẨN CHỈNH) - Lập Trình qua dự án thực tế Trello Clone trên kênh YouTube TrungQuanDev của mình nhé các bạn!
-### Base project for my Full Stack MERN Pro Course - Build Trello App on YouTube!
+# 🏥 Gender Healthcare Service Management System - Backend
 
-- Playlist khóa Pro: https://www.youtube.com/playlist?list=PLP6tw4Zpj-RJP2-YrhtkWqObMQ-AA4TDy
+![Node.js](https://img.shields.io/badge/Node.js-18.x-green)
+![Express](https://img.shields.io/badge/Express-4.18.2-blue)
+![MongoDB](https://img.shields.io/badge/MongoDB-Ready-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-- Playlist khóa Advanced: https://youtube.com/playlist?list=PLP6tw4Zpj-RJbPQfTZ0eCAXH_mHQiuf2G&si=zmt9y6TYo-e3sIwv
+A robust backend system for managing gender healthcare services, built with Express.js and MongoDB.
 
-### Hướng dẫn clone Repo code này về máy các bạn chuẩn nhất ở video này:
+## 📋 Table of Contents
 
-- Cấu trúc dự án nâng cao, chuẩn thực tế, có Babel, ESLint...vv | NodeJS + MongoDB. Link: https://youtu.be/8hhXamKIdsY
+- [Overview](#overview)
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [Development Guidelines](#development-guidelines)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+
+## 🔍 Overview
+
+The Gender Healthcare Service Management System is designed to provide comprehensive healthcare management specifically focused on gender-related medical services. This backend system supports user management, appointment scheduling, medical records, and various healthcare service operations.
+
+## ✨ Features
+
+- User authentication and authorization
+- Patient profile management
+- Appointment scheduling and management
+- Medical records storage and retrieval
+- Healthcare service catalog
+- Provider management
+- Analytics and reporting
+
+## 🏗️ System Architecture
+
+This application follows a modern MVC architecture:
+
+- **Express.js**: Web application framework
+- **MongoDB**: NoSQL database for data storage
+- **RESTful API**: Standardized API endpoints
+- **JWT Authentication**: Secure user authentication
+- **Middleware-based**: Request validation and processing
+
+## 📂 Project Structure
+
+```
+gender-healthcare-service-management-system-be/
+├── src/                      # Source code
+│   ├── config/               # Configuration files
+│   ├── controllers/          # Request handlers
+│   ├── middlewares/          # Express middlewares
+│   ├── models/               # Database models
+│   ├── providers/            # External service providers
+│   ├── routes/               # API routes (v1, v2)
+│   ├── services/             # Business logic
+│   ├── sockets/              # WebSocket implementations
+│   ├── utils/                # Utility functions
+│   ├── validations/          # Request validation
+│   └── server.js             # Application entry point
+├── .babelrc                  # Babel configuration
+├── .env.example              # Example environment variables
+├── .eslintrc.cjs             # ESLint configuration
+├── .gitignore                # Git ignore file
+├── jsconfig.json             # JavaScript configuration
+├── package.json              # Project dependencies
+└── README.md                 # Project documentation
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js >= 18.16.0
+- npm = v9.8.1 or yarn = v1.22.19
+- MongoDB (local or Atlas)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/gender-healthcare-service-management-system-be.git
+   cd gender-healthcare-service-management-system-be
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   # or with yarn
+   yarn install
+   ```
+
+### Configuration
+
+1. Create a `.env` file based on `.env.example`:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the `.env` file with your own configuration:
+   ```
+   MONGODB_URI='your-mongodb-connection-string'
+   DATABASE_NAME='your-database-name'
+   APP_HOST='localhost'
+   APP_PORT=8017
+   ```
+
+### Running the Application
+
+#### Development mode
+
+```bash
+npm run dev
+# or with yarn
+yarn dev
+```
+
+#### Production mode
+
+```bash
+npm run production
+# or with yarn
+yarn production
+```
+
+## 📝 API Documentation
+
+### API Versioning
+
+The API is versioned to ensure backward compatibility:
+
+- V1 API: `/api/v1/`
+- V2 API: `/api/v2/`
+
+### Available Endpoints
+
+#### Authentication
+- `POST /api/v1/auth/register` - Register a new user
+- `POST /api/v1/auth/login` - User login
+
+#### Users
+- `GET /api/v1/users` - Get all users
+- `GET /api/v1/users/:id` - Get user by ID
+- `PATCH /api/v1/users/:id` - Update user
+- `DELETE /api/v1/users/:id` - Delete user
+
+#### Healthcare Services
+- `GET /api/v1/services` - Get all services
+- `POST /api/v1/services` - Create new service
+- `GET /api/v1/services/:id` - Get service by ID
+- `PATCH /api/v1/services/:id` - Update service
+- `DELETE /api/v1/services/:id` - Delete service
+
+#### Appointments
+- `GET /api/v1/appointments` - Get all appointments
+- `POST /api/v1/appointments` - Create new appointment
+- `GET /api/v1/appointments/:id` - Get appointment by ID
+- `PATCH /api/v1/appointments/:id` - Update appointment
+- `DELETE /api/v1/appointments/:id` - Delete appointment
+
+## 🛠️ Development Guidelines
+
+### Code Style
+
+This project uses ESLint for code linting. Run the linter with:
+
+```bash
+npm run lint
+# or with yarn
+yarn lint
+```
+
+### Branching Strategy
+
+- `main` - Production-ready code
+- `develop` - Development branch
+- `feature/feature-name` - For new features
+- `bugfix/bug-name` - For bug fixes
+
+### Commit Messages
+
+Follow the conventional commits specification:
+
+- `feat:` - A new feature
+- `fix:` - A bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, etc.)
+- `refactor:` - Code changes that neither fix bugs nor add features
+- `test:` - Adding or modifying tests
+- `chore:` - Changes to build process or auxiliary tools
+
+## 🚢 Deployment
+
+### Build for Production
+
+```bash
+npm run build
+# or with yarn
+yarn build
+```
+
+### Deployment Platforms
+
+The application can be deployed to:
+- Heroku
+- AWS Elastic Beanstalk
+- Digital Ocean
+- Any Node.js compatible hosting service
+
+## 👥 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-### 🎁 DOWNLOAD FULL SOURCE CODE của toàn bộ dự án (Pro & Advanced) cũng như Donate ủng hộ mình ly cafe nếu bạn muốn 🤝
+### 👨‍💻 Developed by
 
-👉 Đầu tiên cần phải làm rõ một điều: Mình KHÔNG BÁN CODE cũng như KHÔNG BÁN KHÓA HỌC gì ở đây hết. Bởi vì mình đã cung cấp đầy đủ mọi tài nguyên cần thiết cho trường hợp bạn muốn học FREE Miễn Phí từ đầu rồi.
+Gender Healthcare Service Management System Team
 
-👉 ĐIỀU QUAN TRỌNG TIẾP THEO: Bạn cần phải hiểu rõ về lý do tại sao mình lại chia ra 3 gói Donate cũng như sự khác nhau giữa 3 gói này là gì. Mọi thông tin mình đều đã công khai ở bài viết trên blog chính chủ từ mình nhé, bởi vì nội dung khá dài. Bạn nên dành thời gian đọc nó trước khi bắt đầu khóa học cực kỳ chất lượng này.
-
-👉 Link bài viết: 👇
-
-🌐 https://trungquandev.com/khoa-hoc-lap-trinh-full-stack-mern-100-du-an-thuc-te-chat-luong/
-
-**🥉 FREE PACK (No Sponsor)**
-
-• 🌟 Download on Ko-fi: https://ko-fi.com/s/8e56e2c5d0
-
-• 🌟 Download on Buy Me a Coffee: https://buymeacoffee.com/codetq/e/318762
-
-**🥈 GOLD PACK (Gold Sponsor)**
-
-• 🌟 Download on Ko-fi: https://ko-fi.com/s/e41c325ca4
-
-• 🌟 Download on Buy Me a Coffee: https://buymeacoffee.com/codetq/e/191152
-
-**🥇 DIAMOND PACK (Diamond Sponsor - VIP)**
-
-• 🌟 Download on Ko-fi: https://ko-fi.com/s/27670843df
-
-• 🌟 Download on Buy Me a Coffee: https://buymeacoffee.com/codetq/e/318750
-
-**🏆 HOẶC NẾU BẠN KHÔNG CÓ THẺ VISA THANH TOÁN QUỐC TẾ THÌ CÓ THỂ LIÊN HỆ TRỰC TIẾP VỚI MÌNH TẠI ĐÂY ĐỂ LẤY TÀI NGUYÊN HỌC TẬP NHÉ 👇**
-
-**🌐 Facebook TrungQuanDev: 👉 https://facebook.com/trungquandev**
-
-**👑 Lưu ý: Video hướng dẫn chi tiết cách Install Source Code (Pro & Advanced) đều đã có trong 2 Playlists của khóa học rồi nhé.**
-
----
-
-### Requirements - Thông tin của bộ Code Base này - Chuẩn các phiên bản dưới đây để bắt đầu học: (Semantic Versioning)
-
-```
-* nodejs >= 18.16.0
-* npm = v9.8.1
-* yarn = v1.22.19
-
-* "express": "^4.18.2"
-* "nodemon": "^3.0.1"
-* "eslint": "^8.47.0"
-
-* "@babel/runtime": "^7.22.10"
-* "@babel/cli": "^7.22.10"
-* "@babel/core": "^7.22.10"
-* "@babel/eslint-parser": "^7.22.10"
-* "@babel/node": "^7.22.10"
-* "@babel/plugin-transform-runtime": "^7.22.10"
-* "@babel/preset-env": "^7.22.10"
-* "babel-plugin-module-resolver": "^5.0.0"
-```
-
-### About Me - Thông tin về mình:
-
-Author: **Trungquandev - Một Lập Trình Viên** && **CodeTQ - ASMR Programming**
-
-Blog: https://trungquandev.com/
-
-CV: https://cv.trungquandev.com/
-
-YouTube 01 (Trungquandev - Một Lập Trình Viên): https://www.youtube.com/@trungquandev
-
-YouTube 02 (CodeTQ - ASMR Programming): https://www.youtube.com/@code-tq
-
-"Learning new everyday not the copycat of yesterday!"
-
-"A bit of fragrance clings to the hand that gives flowers!"
-
-Thanks for watching!
+*"Providing inclusive healthcare services for all"*
