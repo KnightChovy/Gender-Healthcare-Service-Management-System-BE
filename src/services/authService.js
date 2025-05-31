@@ -1,49 +1,75 @@
 import { findOne } from '~/models/userModel'
 import { jwtHelper } from '~/helpers/jwt'
 import { env } from '~/config/environment'
+import { refreshTokenModel } from '~/models/refreshTokenModel'
+
 const accessTokenLife = env.ACCESS_TOKEN_LIFE || '1h'
-const accessTokenSecret = env.ACCESS_TOKEN_SECRET || 'your-access-token-secret'
+const accessTokenSecret = env.ACCESS_TOKEN_SECRET || 'hp-token-secret'
 const refreshTokenLife = env.REFRESH_TOKEN_LIFE || '3650d'
 const refreshTokenSecret = env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret'
-let tokenList = {}
 
-const login = async (email, password) => {
+const login = async (username, password) => {
   try {
-     console.log('email:', email)
-    const user = await findOne(email)
-    console.log('User found:', user)
-    // if (!user) {
-    //   throw new Error('User not found')
-    // }
-    // const isMatch = user.password === password
-    // if (!isMatch) {
-    //   throw new Error('Invalid password')
-    // }
+    const user = await findOne(username)
+    if (!user) {
+      throw new Error('User not found')
+    }
+    const isMatch = user.password === password
+    if (!isMatch) {
+      throw new Error('Invalid password')
+    }
+
+    // Generate tokens
     const accessToken = await jwtHelper.generateToken(user, accessTokenSecret, accessTokenLife)
     const refreshToken = await jwtHelper.generateToken(user, refreshTokenSecret, refreshTokenLife)
-    tokenList[refreshToken] = { accessToken, refreshToken }
-    return { accessToken, refreshToken }
+
+    // Store refresh token in database
+    await refreshTokenModel.createRefreshToken(user.user_id, refreshToken)
+
+    // Return tokens and user information
+    return {
+      accessToken,
+      refreshToken,
+      user
+    }
   } catch (error) {
     console.error('Login error:', error)
     throw new Error('Login failed: ' + error.message)
   }
-
 }
 
 const refreshToken = async (refreshTokenFromClient) => {
-  if (refreshTokenFromClient && (tokenList[refreshTokenFromClient])) {
-    try {
-      const decoded = await jwtHelper.verifyToken(refreshTokenFromClient, refreshTokenSecret)
-      const user = decoded.data
-      const accessToken = await jwtHelper.generateToken(user, accessTokenSecret, accessTokenLife)
-      return accessToken
-    } catch (error) {
+  try {
+    // Verify the refresh token
+    const decoded = await jwtHelper.verifyToken(refreshTokenFromClient, refreshTokenSecret)
+    const user = decoded.data
+
+    // Check if refresh token exists in database
+    const storedToken = await refreshTokenModel.findRefreshTokenByUserId(user.id)
+    if (!storedToken || storedToken.token !== refreshTokenFromClient) {
       throw new Error('Invalid refresh token')
     }
+
+    // Generate new access token
+    const accessToken = await jwtHelper.generateToken(user, accessTokenSecret, accessTokenLife)
+    return accessToken
+  } catch (error) {
+    throw new Error('Invalid refresh token')
+  }
+}
+
+const logout = async (refreshTokenFromClient) => {
+  try {
+    // Delete refresh token from database
+    await refreshTokenModel.deleteRefreshToken(refreshTokenFromClient)
+    return true
+  } catch (error) {
+    throw new Error('Logout failed: ' + error.message)
   }
 }
 
 export const authService = {
   login,
-  refreshToken
+  refreshToken,
+  logout
 }

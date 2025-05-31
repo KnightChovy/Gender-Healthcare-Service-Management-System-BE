@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 //  * @param secretSignature
 //  * @param tokenLife
 //  */
-let generateToken = (user, secretSignature, tokenLife) => {
+const generateToken = (user, secretSignature, tokenLife) => {
   return new Promise((resolve, reject) => {
     // Định nghĩa những thông tin của user mà bạn muốn lưu vào token ở đây
     const userData = {
@@ -34,9 +34,12 @@ let generateToken = (user, secretSignature, tokenLife) => {
 //  * @param {*} token 
 //  * @param {*} secretKey 
 //  */
-let verifyToken = (token, secretKey) => {
+const verifyToken = (token, secretKey) => {
+      console.log('verifyToken', token, secretKey)
+
   return new Promise((resolve, reject) => {
     jwt.verify(token, secretKey, (error, decoded) => {
+      // Nếu có lỗi trong quá trình xác thực token, trả về lỗic
       if (error) {
         return reject(error)
       }
@@ -45,6 +48,6 @@ let verifyToken = (token, secretKey) => {
   })
 }
 export const jwtHelper = {
-  generateToken: generateToken,
-  verifyToken: verifyToken
-};
+  generateToken,
+  verifyToken
+}

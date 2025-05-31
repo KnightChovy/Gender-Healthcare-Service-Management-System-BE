@@ -41,11 +41,11 @@ const findAllUsers = async () => {
   }
 }
 
-export const findOne = async (email) => {
+export const findOne = async (username) => {
   try {
     const UserModel = initUserModel()
-    const user = await UserModel.findOne({ where: { email } })
-    console.log('Searching for user with email:', email)
+    const user = await UserModel.findOne({ where: { username } })
+    console.log('Searching for user with email:', username)
     return user
   } catch (error) {
     throw new Error('Failed to retrieve users')

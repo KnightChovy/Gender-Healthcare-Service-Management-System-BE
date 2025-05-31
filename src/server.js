@@ -14,7 +14,7 @@ const startServer = () => {
   app.use(express.json())
   app.use(cors())
 
-  //app.use('/v1', API_V1)
+  app.use('/v1', API_V1)
 
   app.post('/login', authController.login)
 

@@ -2,7 +2,7 @@
   "name": "nodejs-expressjs-mongodb-base-project",
   "private": true,
   "version": "1.0.0",
-  "author": "TrungQuanDev - Một Lập Trình Viên",
+  "author": "Hoang Phuc",
   "description": "https://youtube.com/@trungquandev",
   "engines": {
     "node": ">=18.x"

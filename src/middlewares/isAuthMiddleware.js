@@ -22,7 +22,6 @@ let isAuth = async (req, res, next) => {
       message: 'No token provided.'
     })
   }
-
 }
 
-export default isAuth
+export default isAuth 
