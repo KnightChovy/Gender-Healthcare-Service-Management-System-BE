@@ -12,6 +12,50 @@ const getAllUsers = async (req, res) => {
   }
 }
 
+const createUser = async (req, res) => {
+  try {
+    // Validation đã được thực hiện ở middleware, nên data đã hợp lệ khi đến đây
+    const userData = req.body;
+    const newUser = await userService.createUser(userData);
+    res.status(StatusCodes.CREATED).json({
+      message: 'User created successfully',
+      user: newUser,
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
+};
+
+const updateUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const userData = req.body;
+    // Gọi service để cập nhật user
+    const updatedUser = await userService.updateUser(userId, userData);
+
+    res.status(StatusCodes.OK).json({
+      message: 'Cập nhật người dùng thành công',
+      user: updatedUser,
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
+};
+
 export const userController = {
-  getAllUsers
-}
+  getAllUsers,
+  createUser,
+  updateUser,
+};
