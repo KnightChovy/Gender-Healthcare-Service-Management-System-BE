@@ -5,12 +5,12 @@ import { StatusCodes } from 'http-status-codes';
 const userSchema = Joi.object({
   user_id: Joi.string()
     .pattern(/^U[0-9]{6}$/)
-    .max(7)
+    .max(20) // Tăng max length để chấp nhận IDs khi số user tăng
     .allow(null, '') // Cho phép null khi tạo mới vì sẽ được tạo tự động
     .messages({
       'string.pattern.base':
         'ID người dùng phải có dạng U + 6 chữ số (ví dụ: U123456)',
-      'string.max': 'ID người dùng không được quá 7 ký tự',
+      'string.max': 'ID người dùng không được quá 20 ký tự',
     }),
 
   username: Joi.string().max(20).required().messages({
@@ -50,7 +50,7 @@ const userSchema = Joi.object({
       'string.max': 'Số điện thoại không được quá 11 ký tự',
     }),
 
-  gender: Joi.string().valid('male', 'female').max(6).allow(null, '').messages({
+  gender: Joi.string().valid('male', 'female').max(10).allow(null, '').messages({
     'any.only': 'Giới tính phải là: male hoặc female',
   }),
 

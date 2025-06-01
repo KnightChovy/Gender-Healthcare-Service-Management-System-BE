@@ -24,7 +24,7 @@ const initUserModel = () => {
           validate: { isEmail: true },
         },
         phone: { type: DataTypes.STRING(15), allowNull: true },
-        gender: { type: DataTypes.STRING(5), allowNull: true },
+        gender: { type: DataTypes.STRING(10), allowNull: true },
         birthday: { type: DataTypes.DATE, allowNull: true },
         avatar: { type: DataTypes.STRING(255), allowNull: true },
         address: { type: DataTypes.STRING(255), allowNull: true },
@@ -90,7 +90,7 @@ const createUser = async (userData) => {
       if (latestUser) {
         // Nếu đã có user, lấy số từ ID cuối cùng và tăng lên 1
         const lastId = latestUser.user_id;
-       
+
         if (lastId.startsWith('U')) {
           const numPart = parseInt(lastId.substring(1));
           console.log('Last user ID:', lastId, 'Parsed number:', numPart);
