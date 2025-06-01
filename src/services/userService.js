@@ -1,0 +1,94 @@
+import ApiError from '~/utils/ApiError';
+import { userModel } from '~/models/userModel';
+import { hashPassword } from '~/utils/crypto';
+
+const getAllUsers = async () => {
+  try {
+    const findAllUsers = await userModel.findAllUsers();
+    if (!findAllUsers) {
+      throw new ApiError(404, 'No users found');
+    }
+    return findAllUsers;
+  } catch (error) {
+    throw new ApiError(500, 'Failed to retrieve users');
+  }
+};
+
+const createUser = async (userData) => {
+  try {
+    // Kiểm tra user đã tồn tại chưa
+    const existingUser = await userModel.findOne(userData.username);
+    if (existingUser) {
+      throw new ApiError(409, 'User with this username already exists');
+    }
+
+    // Nếu không có user_id, sẽ được tạo tự động trong model
+    // Các trường khác sẽ được xử lý theo giá trị mặc định
+
+    // Hash mật khẩu trước khi lưu sử dụng hàm có sẵn từ crypto.js
+    userData.password = hashPassword(userData.password);
+
+    // Tạo user mới
+    const newUser = await userModel.createUser(userData);
+    if (!newUser) {
+      throw new ApiError(500, 'Failed to create user');
+    }
+
+    return newUser;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, 'Failed to create user');
+  }
+};
+
+const updateUser = async (userId, userData) => {
+  try {
+    // Kiểm tra user có tồn tại không
+    const existingUser = await userModel.findById(userId);
+    if (!existingUser) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    // Nếu cập nhật mật khẩu, hash nó sử dụng hàm từ crypto.js
+    if (userData.password) {
+      userData.password = hashPassword(userData.password);
+    }
+
+    // Cập nhật user
+    const updatedUser = await userModel.updateUser(userId, userData);
+    if (!updatedUser) {
+      throw new ApiError(500, 'Failed to update user');
+    }
+
+    return updatedUser;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, 'Failed to update user');
+  }
+};
+
+const getUserById = async (userId) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+    return user;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, 'Failed to retrieve user');
+  }
+};
+
+export const userService = {
+  getAllUsers,
+  createUser,
+  updateUser,
+  getUserById,
+};
