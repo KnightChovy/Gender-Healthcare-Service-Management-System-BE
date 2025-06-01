@@ -20,7 +20,9 @@ const startServer = () => {
 
   app.listen(8017, 'localhost', () => {
     // eslint-disable-next-line no-console
-    console.log(`I am running at ${env.HOST_NAME}:${env.PORT}/`)
+    // console.log(`I am running at ${env.HOST_NAME}:${env.PORT}/`)
+    console.log('I am running at http://localhost:8017/')
+
   })
 
 }

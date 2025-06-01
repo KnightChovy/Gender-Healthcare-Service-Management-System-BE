@@ -1,7 +1,7 @@
 // ~/models/userModel.js
 import { DataTypes } from 'sequelize'
 import { GET_DB } from '~/config/mysql'
-
+import bcrypt from 'bcrypt'
 let User = null
 
 const initUserModel = () => {
@@ -22,7 +22,8 @@ const initUserModel = () => {
       role: { type: DataTypes.STRING(20), allowNull: true },
       status: { type: DataTypes.STRING(20), allowNull: true },
       created_at: { type: DataTypes.DATE, allowNull: true },
-      updated_at: { type: DataTypes.DATE, allowNull: true }
+      updated_at: { type: DataTypes.DATE, allowNull: true },
+
     }, {
       tableName: 'users',
       timestamps: false
