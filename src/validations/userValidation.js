@@ -110,7 +110,7 @@ const updateUserSchema = Joi.object({
   last_name: userSchema.extract('last_name'),
   status: userSchema.extract('status'),
   user_id: userSchema.extract('user_id'),
-});
+})
 
 export const validateCreateUser = (req, res, next) => {
   console.log('validation', req.body)
