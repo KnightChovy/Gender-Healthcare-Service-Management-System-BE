@@ -7,12 +7,15 @@ import { authController } from '~/controllers/authController'
 const app = express()
 
 const startServer = () => {
+  // Middlewares
+  app.use(express.json())
+  app.use(express.urlencoded({ extended: true }))
+  app.use(cors())
+
+  // Routes
   app.get('/', (req, res) => {
     res.end('<h1>Hello World!</h1><hr>')
   })
-
-  app.use(express.json())
-  app.use(cors())
 
   app.use('/v1', API_V1)
 

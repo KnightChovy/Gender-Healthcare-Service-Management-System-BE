@@ -1,6 +1,7 @@
 //chuẩn bị hàm mã hóa 1 nội dung nào đó theo mã sha256
 import { createHash } from 'crypto'
 import dotenv from 'dotenv'
+import bcrypt from 'bcrypt'
 
 dotenv.config()
 function sha256(content) {
@@ -9,6 +10,12 @@ function sha256(content) {
 
 //viết hàm hashPassword
 
-export function hashPassword(password) {
-  return sha256(password + process.env.PASSWORD_SECRET) //nhét thêm chữ ký bí mật là password_secret trong file .env
+const SALT_ROUNDS = 10
+
+export const hashPassword = (password) => {
+  return bcrypt.hashSync(password, SALT_ROUNDS)
+}
+
+export const comparePassword = (password, hashedPassword) => {
+  return bcrypt.compareSync(password, hashedPassword)
 }

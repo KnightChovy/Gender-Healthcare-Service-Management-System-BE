@@ -1,13 +1,13 @@
 import express from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { userController } from '~/controllers/userController'
-
+import { validateCreateUser } from '~/validations/userValidation'
 const Router = express.Router()
 
 // User routes
 Router.route('/')
   .get(userController.getAllUsers)
-  // .post(userController.createUser)
+  .post(validateCreateUser, userController.createUser)
 
 // Router.route('/:id')
 //   .get(userController.getUserById)

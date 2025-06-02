@@ -14,8 +14,8 @@ const getAllUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    // Validation đã được thực hiện ở middleware, nên data đã hợp lệ khi đến đây
-    const userData = req.body;
+    const userData = req.body
+    console.log(userData)
     const newUser = await userService.createUser(userData);
     res.status(StatusCodes.CREATED).json({
       message: 'User created successfully',
@@ -25,9 +25,7 @@ const createUser = async (req, res) => {
     if (error.statusCode) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
-      res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
   }
 };
@@ -36,20 +34,17 @@ const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
     const userData = req.body;
-    // Gọi service để cập nhật user
     const updatedUser = await userService.updateUser(userId, userData);
 
     res.status(StatusCodes.OK).json({
-      message: 'Cập nhật người dùng thành công',
+      message: 'User updated successfully',
       user: updatedUser,
     });
   } catch (error) {
     if (error.statusCode) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
-      res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
     }
   }
 };
