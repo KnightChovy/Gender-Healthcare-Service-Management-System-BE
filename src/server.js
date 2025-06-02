@@ -21,7 +21,7 @@ const startServer = () => {
 
   app.post('/login', authController.login)
 
-  app.listen(env.PORT, env.HOST_NAME, () => {
+  app.listen(8017, 'localhost', () => {
     // eslint-disable-next-line no-console
     // console.log(`I am running at ${env.HOST_NAME}:${env.PORT}/`)
     console.log(`I am running at ${env.PORT}`)

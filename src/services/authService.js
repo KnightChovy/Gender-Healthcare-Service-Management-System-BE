@@ -1,4 +1,4 @@
-import { findOne } from '~/models/userModel'
+import { userModel } from '~/models/userModel'
 import { jwtHelper } from '~/helpers/jwt'
 import { env } from '~/config/environment'
 import { refreshTokenModel } from '~/models/refreshTokenModel'
@@ -10,7 +10,7 @@ const refreshTokenSecret = env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secre
 
 const login = async (username, password) => {
   try {
-    const user = await findOne(username)
+    const user = await userModel.findOne(username)
     if (!user) {
       throw new Error('User not found')
     }

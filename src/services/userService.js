@@ -21,7 +21,6 @@ const createUser = async (userData) => {
     if (existingUser) {
       throw new ApiError(409, 'User with this username already exists')
     }
-    console.log(userData)
     // Hash password before saving
     userData.password = hashPassword(userData.password)
 
