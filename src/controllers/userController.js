@@ -1,21 +1,23 @@
-import express from 'express'
-import { StatusCodes } from 'http-status-codes'
-import { userService } from '~/services/userService'
+import express from 'express';
+import { StatusCodes } from 'http-status-codes';
+import { userService } from '~/services/userService';
 
 const getAllUsers = async (req, res) => {
   try {
-    const listAllUsers = await userService.getAllUsers()
-    console.log('listAllUsers', listAllUsers)
-    res.status(StatusCodes.OK).json({ listAllUsers })
+    const listAllUsers = await userService.getAllUsers();
+    console.log('listAllUsers', listAllUsers);
+    res.status(StatusCodes.OK).json({ listAllUsers });
   } catch (error) {
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message })
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ message: error.message });
   }
-}
+};
 
 const createUser = async (req, res) => {
   try {
-    const userData = req.body
-    console.log(userData)
+    const userData = req.body;
+    console.log(userData);
     const newUser = await userService.createUser(userData);
     res.status(StatusCodes.CREATED).json({
       message: 'User created successfully',
@@ -25,7 +27,9 @@ const createUser = async (req, res) => {
     if (error.statusCode) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
     }
   }
 };
@@ -44,7 +48,31 @@ const updateUser = async (req, res) => {
     if (error.statusCode) {
       res.status(error.statusCode).json({ message: error.message });
     } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message });
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: error.message });
+    }
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { currentPassword, newPassword } = req.body;
+    await userService.changePassword(userId, {
+      currentPassword,
+      newPassword,
+    });
+    res.status(StatusCodes.OK).json({
+      message: 'Mật khẩu thay đổi thành công',
+    });
+  } catch (error) {
+    if (error.statusCode) {
+      res.status(error.statusCode).json({ message: error.message });
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Xảy ra lỗi khi đổi mật khẩu',
+      });
     }
   }
 };
@@ -53,4 +81,5 @@ export const userController = {
   getAllUsers,
   createUser,
   updateUser,
+  changePassword,
 };

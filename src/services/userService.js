@@ -1,74 +1,103 @@
-import ApiError from '~/utils/ApiError'
-import { userModel } from '~/models/userModel'
-import { hashPassword } from '~/utils/crypto'
+import ApiError from '~/utils/ApiError';
+import { userModel } from '~/models/userModel';
+import { comparePassword, hashPassword } from '~/utils/crypto';
 
 const getAllUsers = async () => {
   try {
-    const findAllUsers = await userModel.findAllUsers()
+    const findAllUsers = await userModel.findAllUsers();
     if (!findAllUsers) {
-      throw new ApiError(404, 'No users found')
+      throw new ApiError(404, 'No users found');
     }
-    return findAllUsers
+    return findAllUsers;
   } catch (error) {
-    throw new ApiError(500, 'Failed to retrieve users')
+    throw new ApiError(500, 'Failed to retrieve users');
   }
-}
+};
 
 const createUser = async (userData) => {
   try {
     // Check if user already exists
-    const existingUser = await userModel.findOne(userData.username)
+    const existingUser = await userModel.findOne(userData.username);
     if (existingUser) {
-      throw new ApiError(409, 'User with this username already exists')
+      throw new ApiError(409, 'User with this username already exists');
     }
     // Hash password before saving
-    userData.password = hashPassword(userData.password)
+    userData.password = hashPassword(userData.password);
 
     // Create new user
-    const newUser = await userModel.createUser(userData)
+    const newUser = await userModel.createUser(userData);
     if (!newUser) {
-      throw new ApiError(500, 'Failed to create user')
+      throw new ApiError(500, 'Failed to create user');
     }
 
-    return newUser
+    return newUser;
   } catch (error) {
     if (error instanceof ApiError) {
-      throw error
+      throw error;
     }
-    throw new ApiError(500, 'Failed to create user')
+    throw new ApiError(500, 'Failed to create user');
   }
-}
+};
 
 const updateUser = async (userId, userData) => {
   try {
-    // Check if user exists
-    const existingUser = await userModel.findById(userId)
+    const existingUser = await userModel.findById(userId);
     if (!existingUser) {
-      throw new ApiError(404, 'User not found')
+      throw new ApiError(404, 'Không tìm thấy người dùng');
     }
 
-    // If updating password, hash it
     if (userData.password) {
-      userData.password = hashPassword(userData.password)
+      delete userData.password;
     }
 
-    // Update user
-    const updatedUser = await userModel.updateUser(userId, userData)
+    userData.updated_at = new Date();
+
+    const updatedUser = await userModel.updateUser(userId, userData);
     if (!updatedUser) {
-      throw new ApiError(500, 'Failed to update user')
+      throw new ApiError(500, 'Cập nhật thông tin không thành công');
     }
 
-    return updatedUser
+    return updatedUser;
   } catch (error) {
     if (error instanceof ApiError) {
-      throw error
+      throw error;
     }
-    throw new ApiError(500, 'Failed to update user')
+    throw new ApiError(500, 'Cập nhật thông tin không thành công');
   }
-}
+};
 
+const changePassword = async (userId, { currentPassword, newPassword }) => {
+  try {
+    const user = await userModel.findById(userId);
+    if (!user) {
+      throw new ApiError(404, 'Không tìm thấy người dùng');
+    }
+    console.log('Checking password for user:', userId);
+    const isPasswordValid = comparePassword(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new ApiError(400, 'Mật khẩu hiện tại không chính xác');
+    }
+    const hashedNewPassword = hashPassword(newPassword);
+    const updatedUser = await userModel.updatePassword(
+      userId,
+      hashedNewPassword
+    );
+    if (!updatedUser) {
+      throw new ApiError(500, 'Cập nhật mật khẩu không thành công');
+    }
+
+    return { message: 'Đổi mật khẩu thành công' };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    console.error('Password change error:', error);
+    throw new ApiError(500, 'Thay đổi mật khẩu không thành công');
+  }
+};
 export const userService = {
   getAllUsers,
   createUser,
-  updateUser
-}
+  updateUser,
+  changePassword,
+};

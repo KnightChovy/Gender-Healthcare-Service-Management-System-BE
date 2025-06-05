@@ -50,9 +50,13 @@ const userSchema = Joi.object({
       'string.max': 'Số điện thoại không được quá 11 ký tự',
     }),
 
-  gender: Joi.string().valid('male', 'female').max(10).allow(null, '').messages({
-    'any.only': 'Giới tính phải là: male hoặc female',
-  }),
+  gender: Joi.string()
+    .valid('male', 'female')
+    .max(10)
+    .allow(null, '')
+    .messages({
+      'any.only': 'Giới tính phải là: male hoặc female',
+    }),
 
   birthday: Joi.date().iso().less('now').allow(null, '').messages({
     'date.base': 'Ngày sinh không hợp lệ',
@@ -110,25 +114,25 @@ const updateUserSchema = Joi.object({
   last_name: userSchema.extract('last_name'),
   status: userSchema.extract('status'),
   user_id: userSchema.extract('user_id'),
-})
+});
 
 export const validateCreateUser = (req, res, next) => {
-  console.log('validation', req.body)
+  console.log('validation', req.body);
   const { error } = userSchema.validate(req.body, { abortEarly: false });
 
   if (error) {
     const errorMessages = error.details.map((detail) => detail.message);
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Dữ liệu không hợp lệ',
-      errors: errorMessages
-    })
+      errors: errorMessages,
+    });
   }
 
   // Xóa confirm_password khỏi req.body vì không cần lưu vào DB
-  delete req.body.confirm_password
+  delete req.body.confirm_password;
 
-  next()
-}
+  next();
+};
 
 export const validateUpdateUser = (req, res, next) => {
   const { error } = updateUserSchema.validate(req.body, { abortEarly: false });
@@ -143,6 +147,47 @@ export const validateUpdateUser = (req, res, next) => {
 
   // Xóa confirm_password khỏi req.body vì không cần lưu vào DB
   delete req.body.confirm_password;
+
+  next();
+};
+
+const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().required().messages({
+    'any.required': 'Mật khẩu hiện tại là bắt buộc!',
+    'string.empty': 'Mật khẩu hiện tại không được để trống!',
+  }),
+
+  newPassword: Joi.string().min(6).max(50).required().messages({
+    'string.min': 'Mật khẩu mới phải có ít nhất 6 ký tự!',
+    'string.max': 'Mật khẩu mới không được quá 50 ký tự!',
+    'any.required': 'Mật khẩu mới là bắt buộc!',
+    'string.empty': 'Mật khẩu mới không được để trống!',
+  }),
+
+  confirm_Password: Joi.string()
+    .valid(Joi.ref('newPassword'))
+    .required()
+    .messages({
+      'any.only': 'Mật khẩu xác nhận không khớp với mật khẩu mới!',
+      'any.required': 'Xác nhận mật khẩu là bắt buộc!',
+      'string.empty': 'Xác nhận mật khẩu không được để trống!',
+    }),
+});
+
+export const validateChangePassword = (req, res, next) => {
+  const { error } = changePasswordSchema.validate(req.body, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Dữ liệu không hợp lệ',
+      errors: errorMessages,
+    });
+  }
+
+  delete req.body.confirmPassword;
 
   next();
 };
