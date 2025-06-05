@@ -120,15 +120,15 @@ export const validateCreateUser = (req, res, next) => {
     const errorMessages = error.details.map((detail) => detail.message);
     return res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Dữ liệu không hợp lệ',
-      errors: errorMessages,
-    });
+      errors: errorMessages
+    })
   }
 
   // Xóa confirm_password khỏi req.body vì không cần lưu vào DB
-  delete req.body.confirm_password;
+  delete req.body.confirm_password
 
-  next();
-};
+  next()
+}
 
 export const validateUpdateUser = (req, res, next) => {
   const { error } = updateUserSchema.validate(req.body, { abortEarly: false });
