@@ -1,17 +1,24 @@
-import express from 'express'
-import { StatusCodes } from 'http-status-codes'
-import { userController } from '~/controllers/userController'
-import { validateCreateUser } from '~/validations/userValidation'
-const Router = express.Router()
+import express from 'express';
+import { StatusCodes } from 'http-status-codes';
+import { userController } from '~/controllers/userController';
+import {
+  validateChangePassword,
+  validateCreateUser,
+  validateUpdateUser,
+} from '~/validations/userValidation';
+const Router = express.Router();
 
 // User routes
 Router.route('/')
   .get(userController.getAllUsers)
-  .post(validateCreateUser, userController.createUser)
+  .post(validateCreateUser, userController.createUser);
+  
 
-// Router.route('/:id')
-//   .get(userController.getUserById)
-//   .put(userController.updateUser)
+Router.route('/:id')
+  //   .get(userController.getUserById)
+  .put(validateUpdateUser, userController.updateUser)
+  .patch(validateChangePassword, userController.changePassword);
+
 //   .delete(userController.deleteUser)
 
 // // User profile routes
@@ -19,4 +26,4 @@ Router.route('/')
 // Router.put('/profile/me', userController.updateMyProfile)
 // Router.put('/profile/change-password', userController.changePassword)
 
-export const userRoutes = Router
+export const userRoutes = Router;
