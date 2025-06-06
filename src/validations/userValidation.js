@@ -181,7 +181,7 @@ export const validateChangePassword = (req, res, next) => {
 
   if (error) {
     const errorMessages = error.details.map((detail) => detail.message);
-    return res.status(StatusCodes.BAD_REQUEST).json({
+    res.status(StatusCodes.BAD_REQUEST).json({
       message: 'Dữ liệu không hợp lệ',
       errors: errorMessages,
     });

@@ -59,13 +59,15 @@ const changePassword = async (req, res) => {
   try {
     const userId = req.params.id;
     const { currentPassword, newPassword } = req.body;
-    await userService.changePassword(userId, {
+    const msg = await userService.changePassword(userId, {
       currentPassword,
       newPassword,
     });
+    console.log('Password changed successfully for user:', msg);
     res.status(StatusCodes.OK).json({
-      message: 'Mật khẩu thay đổi thành công',
+      message: 'Đổi mật khẩu thành công',
     });
+    return;
   } catch (error) {
     if (error.statusCode) {
       res.status(error.statusCode).json({ message: error.message });

@@ -1,6 +1,7 @@
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { userController } from '~/controllers/userController';
+import isAuth from '~/middlewares/isAuthMiddleware';
 import {
   validateChangePassword,
   validateCreateUser,
@@ -12,12 +13,11 @@ const Router = express.Router();
 Router.route('/')
   .get(userController.getAllUsers)
   .post(validateCreateUser, userController.createUser);
-  
 
 Router.route('/:id')
   //   .get(userController.getUserById)
   .put(validateUpdateUser, userController.updateUser)
-  .patch(validateChangePassword, userController.changePassword);
+  .patch(isAuth, validateChangePassword, userController.changePassword);
 
 //   .delete(userController.deleteUser)
 

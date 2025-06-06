@@ -1,9 +1,15 @@
-import { authService } from '~/services/authService'
-
+import { authService } from '~/services/authService';
 const login = async (req, res) => {
   try {
-    const { username, password } = req.body
-    const { accessToken, refreshToken, user } = await authService.login(username, password)
+    let { username, password } = req.body;
+    console.log('password: ', password);
+    // password = comparePassword(password, user.password);
+    const { accessToken, refreshToken, user } = await authService.login(
+      username,
+      password
+    );
+
+    console.log('refreshToken: ', refreshToken);
 
     // Return tokens and user information
     return res.status(200).json({
@@ -12,20 +18,20 @@ const login = async (req, res) => {
       data: {
         tokens: {
           accessToken,
-          refreshToken
+          refreshToken,
         },
-        user
-      }
-    })
+        user,
+      },
+    });
   } catch (error) {
     return res.status(401).json({
       success: false,
       message: error.message || 'Login failed',
-      error: error.message
-    })
+      error: error.message,
+    });
   }
-}
+};
 
 export const authController = {
-  login
-}
+  login,
+};

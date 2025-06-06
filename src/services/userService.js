@@ -66,12 +66,14 @@ const updateUser = async (userId, userData) => {
 const changePassword = async (userId, { currentPassword, newPassword }) => {
   try {
     const user = await userModel.findById(userId);
+    console.log('Useraaaaa found:', user);
     if (!user) {
       throw new ApiError(404, 'Không tìm thấy người dùng');
     }
-    console.log('Checking password for user:', userId);
+
     const isPasswordValid = comparePassword(currentPassword, user.password);
-    if (!isPasswordValid) {
+
+    if (isPasswordValid) {
       throw new ApiError(400, 'Mật khẩu hiện tại không chính xác');
     }
     const hashedNewPassword = hashPassword(newPassword);
@@ -82,7 +84,6 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
     if (!updatedUser) {
       throw new ApiError(500, 'Cập nhật mật khẩu không thành công');
     }
-
     return { message: 'Đổi mật khẩu thành công' };
   } catch (error) {
     if (error instanceof ApiError) {
