@@ -16,15 +16,12 @@ const getAllUsers = async () => {
 
 const createUser = async (userData) => {
   try {
-    // Check if user already exists
     const existingUser = await userModel.findOne(userData.username);
     if (existingUser) {
       throw new ApiError(409, 'User with this username already exists');
     }
-    // Hash password before saving
     userData.password = hashPassword(userData.password);
 
-    // Create new user
     const newUser = await userModel.createUser(userData);
     if (!newUser) {
       throw new ApiError(500, 'Failed to create user');
