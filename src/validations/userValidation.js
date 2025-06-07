@@ -4,12 +4,12 @@ import { StatusCodes } from 'http-status-codes';
 // Schema chung cho cả tạo mới và cập nhật user
 const userSchema = Joi.object({
   user_id: Joi.string()
-    .pattern(/^U[0-9]{6}$/)
+    .pattern(/^US[0-9]{6}$/)
     .max(20) // Tăng max length để chấp nhận IDs khi số user tăng
     .allow(null, '') // Cho phép null khi tạo mới vì sẽ được tạo tự động
     .messages({
       'string.pattern.base':
-        'ID người dùng phải có dạng U + 6 chữ số (ví dụ: U123456)',
+        'ID người dùng phải có dạng US + 6 chữ số (ví dụ: US000001)',
       'string.max': 'ID người dùng không được quá 20 ký tự',
     }),
 

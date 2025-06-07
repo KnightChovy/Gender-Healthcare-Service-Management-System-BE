@@ -102,18 +102,11 @@ const createUser = async (userData) => {
 
       let nextId = 1;
       if (latestUser) {
-        const lastId = latestUser.user_id;
-
-        if (lastId.startsWith('U')) {
-          const numPart = parseInt(lastId.substring(1));
-          console.log('Last user ID:', lastId, 'Parsed number:', numPart);
-          if (!isNaN(numPart)) {
-            nextId = numPart + 1;
-          }
-        }
+        const latestId = parseInt(latestUser.user_id.substring(2));
+        nextId = latestId + 1;
       }
 
-      userData.user_id = `U${nextId.toString().padStart(6, '0')}`;
+      userData.user_id = `US${nextId.toString().padStart(6, '0')}`;
     }
 
     const now = new Date();
