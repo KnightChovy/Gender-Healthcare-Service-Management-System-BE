@@ -4,27 +4,43 @@ import { CONNECT_DB } from './config/mysql';
 import { env } from './config/environment.js';
 import { API_V1 } from '~/routes/v1/index';
 import { authController } from '~/controllers/authController';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './config/swagger';
+
 const app = express();
+//const PORT = process.env.PORT || 3000;
 
 const startServer = () => {
   // Middlewares
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cors());
+  app.use(
+    cors({
+      origin: ['http://localhost:5173', 'http://44.204.71.234'],
+      withCredentials: true,
+    })
+  );
+
+  // Swagger Documentation
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.get('/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
 
   // Routes
   app.get('/', (req, res) => {
-    res.end('<h1>Hello World!</h1><hr>');
+    res.end('<h1>Gender Healthcare Service Management System API</h1><hr><p>Visit <a href="/api-docs">API Documentation</a></p>');
   });
 
   app.use('/v1', API_V1);
 
   app.post('/login', authController.login);
 
-  app.listen(8017, 'localhost', () => {
-    // eslint-disable-next-line no-console
-    // console.log(`I am running at ${env.HOST_NAME}:${env.PORT}/`)
-    console.log(`I am running at ${8017}`);
+  app.listen(env.PORT, env.HOST_NAME, () => {
+    console.log(`Server is running at http://0.0.0.0:${env.PORT}`);
+    console.log(`Swagger Documentation available at http://0.0.0.0:${env.PORT}/api-docs`);
   });
 };
 
