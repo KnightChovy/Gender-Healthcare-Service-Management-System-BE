@@ -14,11 +14,31 @@ const startServer = () => {
   // Middlewares
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(cors());
+
   app.use(
     cors({
-      origin: ['http://localhost:5173', 'http://44.204.71.234'],
-      withCredentials: true,
+      origin: [
+        'http://localhost:5173',
+        'http://44.204.71.234',
+        'http://44.204.71.234:3000',
+      ],
+      credentials: true, // Use 'credentials' instead of 'withCredentials'
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+    })
+  );
+
+  app.options(
+    '*',
+    cors({
+      origin: [
+        'http://localhost:5173',
+        'http://44.204.71.234',
+        'http://44.204.71.234:3000',
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     })
   );
 
@@ -31,7 +51,9 @@ const startServer = () => {
 
   // Routes
   app.get('/', (req, res) => {
-    res.end('<h1>Gender Healthcare Service Management System API</h1><hr><p>Visit <a href="/api-docs">API Documentation</a></p>');
+    res.end(
+      '<h1>Gender Healthcare Service Management System API</h1><hr><p>Visit <a href="/api-docs">API Documentation</a></p>'
+    );
   });
 
   app.use('/v1', API_V1);
@@ -39,8 +61,8 @@ const startServer = () => {
   app.post('/login', authController.login);
 
   app.listen(env.PORT, env.HOST_NAME, () => {
-    console.log('Server is running at http://localhost:8017');
-    console.log('Swagger Documentation available at http:/44.204.71.234:3000/api-docs');
+    console.log(`Server is running at http://0.0.0.0:${env.PORT}`);
+    console.log(`Swagger Documentation available at http://0.0.0.0:${env.PORT}/api-docs`);
   });
 };
 
