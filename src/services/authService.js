@@ -81,15 +81,15 @@ const refreshToken = async (refreshTokenFromClient) => {
 const logout = async (refreshTokenFromClient) => {
   try {
     // Delete refresh token from database
-    await refreshTokenModel.deleteRefreshToken(refreshTokenFromClient);
-    return true;
+    await refreshTokenModel.deleteRefreshToken(refreshTokenFromClient)
+    return true
   } catch (error) {
-    throw new Error('Logout failed: ' + error.message);
+    throw new Error('Logout failed: ' + error.message)
   }
-};
+}
 
 export const authService = {
   login,
   refreshToken,
   logout,
-};
+}
