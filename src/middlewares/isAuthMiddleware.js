@@ -27,7 +27,6 @@ let isAuth = async (req, res, next) => {
       message: 'No token provided.',
     });
   }
-  next();
 };
 
 export default isAuth;

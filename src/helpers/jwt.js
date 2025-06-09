@@ -31,8 +31,8 @@ const generateToken = (user, secretSignature, tokenLife) => {
 }
 // /**
 //  * This module used for verify jwt token
-//  * @param {*} token 
-//  * @param {*} secretKey 
+//  * @param {*} token
+//  * @param {*} secretKey
 //  */
 const verifyToken = (token, secretKey) => {
       console.log('verifyToken', token, secretKey)

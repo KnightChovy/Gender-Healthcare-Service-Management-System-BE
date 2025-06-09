@@ -35,7 +35,7 @@ const login = async (username, password) => {
     );
 
     // Store refresh token in database
-    // await refreshTokenModel.createRefreshToken(user.user_id, refreshToken);
+    await refreshTokenModel.createRefreshToken(user.user_id, refreshToken);
 
     // Return tokens and user information
     return {
