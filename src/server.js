@@ -60,11 +60,8 @@ const startServer = () => {
 
   app.post('/login', authController.login);
 
-<<<<<<< HEAD
-  app.listen(8017, '0.0.0.0', () => {
-=======
-  app.listen(8017, 'localhost', () => {
->>>>>>> 72dfdecc4e154897faf5a9209212ab36616ee26e
+
+app.listen(8017, 'localhost', () => {
     console.log(`Server is running at http://0.0.0.0:${env.PORT}`);
     console.log(`Swagger Documentation available at http://0.0.0.0:${env.PORT}/api-docs`);
   });
