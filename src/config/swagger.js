@@ -36,9 +36,7 @@ const options = {
     }],
   },
   apis: [
-    './src/routes/*.js',
-    './src/models/*.js',
-    './src/controllers/*.js',
+    './docs/swagger.js',
   ],
 };
 
