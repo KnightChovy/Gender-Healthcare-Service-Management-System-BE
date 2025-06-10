@@ -19,12 +19,19 @@ const userSchema = Joi.object({
     'string.empty': 'Tên đăng nhập không được để trống',
   }),
 
-  password: Joi.string().min(6).max(50).required().messages({
-    'string.min': 'Mật khẩu phải có ít nhất 6 ký tự',
-    'string.max': 'Mật khẩu không được quá 50 ký tự',
-    'any.required': 'Mật khẩu là bắt buộc',
-    'string.empty': 'Mật khẩu không được để trống',
-  }),
+  password: Joi.string()
+    .min(8)
+    .pattern(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .required()
+    .messages({
+      'string.min': 'Mật khẩu phải có ít nhất 8 ký tự',
+      'string.pattern.base':
+        'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt',
+      'any.required': 'Mật khẩu là bắt buộc',
+      'string.empty': 'Mật khẩu không được để trống',
+    }),
 
   confirm_password: Joi.string()
     .valid(Joi.ref('password'))
@@ -90,10 +97,17 @@ const updateUserSchema = Joi.object({
   }),
 
   // Mật khẩu không bắt buộc khi cập nhật
-  password: Joi.string().min(6).max(50).optional().messages({
-    'string.min': 'Mật khẩu phải có ít nhất 6 ký tự',
-    'string.max': 'Mật khẩu không được quá 50 ký tự',
-  }),
+  password: Joi.string()
+    .min(8)
+    .pattern(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .optional()
+    .messages({
+      'string.min': 'Mật khẩu phải có ít nhất 8 ký tự',
+      'string.pattern.base':
+        'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt',
+    }),
 
   confirm_password: Joi.when('password', {
     is: Joi.exist(), // Khi password tồn tại
@@ -157,12 +171,19 @@ const changePasswordSchema = Joi.object({
     'string.empty': 'Mật khẩu hiện tại không được để trống!',
   }),
 
-  newPassword: Joi.string().min(6).max(50).required().messages({
-    'string.min': 'Mật khẩu mới phải có ít nhất 6 ký tự!',
-    'string.max': 'Mật khẩu mới không được quá 50 ký tự!',
-    'any.required': 'Mật khẩu mới là bắt buộc!',
-    'string.empty': 'Mật khẩu mới không được để trống!',
-  }),
+  newPassword: Joi.string()
+    .min(8)
+    .pattern(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .required()
+    .messages({
+      'string.min': 'Mật khẩu mới phải có ít nhất 8 ký tự',
+      'string.pattern.base':
+        'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt',
+      'any.required': 'Mật khẩu mới là bắt buộc!',
+      'string.empty': 'Mật khẩu mới không được để trống!',
+    }),
 
   confirm_Password: Joi.string()
     .valid(Joi.ref('newPassword'))

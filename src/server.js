@@ -58,9 +58,11 @@ const startServer = () => {
 
   app.use('/v1', API_V1);
 
-app.listen(env.PORT, env.HOST_NAME, () => {
+  app.listen(env.PORT, env.HOST_NAME, () => {
     console.log(`Server is running at http://0.0.0.0:${env.PORT}`);
-    console.log(`Swagger Documentation available at http://0.0.0.0:${env.PORT}/api-docs`);
+    console.log(
+      `Swagger Documentation available at http://0.0.0.0:${env.PORT}/api-docs`
+    );
   });
 };
 
