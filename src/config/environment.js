@@ -9,5 +9,8 @@ export const env = {
   MYSQL_PORT: process.env.DB_PORT || 3306,
   HOST_NAME: process.env.HOST_NAME,
   PORT: process.env.PORT || 3000,
-  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET
+  ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
+  ACCESS_TOKEN_LIFE: process.env.ACCESS_TOKEN_LIFE,
+  REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
+  REFRESH_TOKEN_LIFE: process.env.REFRESH_TOKEN_LIFE,
 }

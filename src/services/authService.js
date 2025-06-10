@@ -6,9 +6,9 @@ import { comparePassword } from '~/utils/crypto';
 
 const accessTokenLife = env.ACCESS_TOKEN_LIFE || '1h';
 const accessTokenSecret = env.ACCESS_TOKEN_SECRET || 'hp-token-secret';
-const refreshTokenLife = env.REFRESH_TOKEN_LIFE || '3650d';
+const refreshTokenLife = env.REFRESH_TOKEN_LIFE || '7d';
 const refreshTokenSecret =
-  env.REFRESH_TOKEN_SECRET || 'your-refresh-token-secret';
+  env.REFRESH_TOKEN_SECRET || 'hp-refresh-token';
 
 const login = async (username, password) => {
   try {
@@ -58,7 +58,6 @@ const refreshToken = async (refreshTokenFromClient) => {
     );
     const user = decoded.data;
 
-    // Check if refresh token exists in database
     const storedToken = await refreshTokenModel.findRefreshTokenByUserId(
       user.id
     );
@@ -66,7 +65,6 @@ const refreshToken = async (refreshTokenFromClient) => {
       throw new Error('Invalid refresh token');
     }
 
-    // Generate new access token
     const accessToken = await jwtHelper.generateToken(
       user,
       accessTokenSecret,
@@ -78,11 +76,16 @@ const refreshToken = async (refreshTokenFromClient) => {
   }
 };
 
-const logout = async (refreshTokenFromClient) => {
+const logout = async (decoded) => {
   try {
-    // Delete refresh token from database
-    await refreshTokenModel.deleteRefreshToken(refreshTokenFromClient)
-    return true
+    if (decoded) {
+      const user = decoded.data
+      const refreshTokenRecord = await refreshTokenModel.findRefreshTokenByUserId(user.user_id)
+      if (refreshTokenRecord) {
+        await refreshTokenModel.deleteRefreshToken(refreshTokenRecord.token)
+        return true
+      }
+    }
   } catch (error) {
     throw new Error('Logout failed: ' + error.message)
   }

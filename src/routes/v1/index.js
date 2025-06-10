@@ -16,10 +16,10 @@ const Router = express.Router()
 // })
 
 // Public routes (no authentication required)
-// Router.use('/auth', authRoutes)
+Router.use('/auth', authRoutes)
 
 // Protected routes (authentication required)
-// Router.use(isAuth) // Apply authentication middleware to all routes below
+
 Router.use('/users', userRoutes)
 
 export const API_V1 = Router

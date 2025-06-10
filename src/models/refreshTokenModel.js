@@ -45,6 +45,7 @@ const createRefreshToken = async (userId, token) => {
 const findRefreshTokenByUserId = async (userId) => {
   try {
     const RefreshTokenModel = initRefreshTokenModel()
+    console.log('userId', userId)
     const token = await RefreshTokenModel.findOne({ where: { user_id: userId } })
     return token
   } catch (error) {

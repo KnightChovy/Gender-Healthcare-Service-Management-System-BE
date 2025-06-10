@@ -1,5 +1,4 @@
 import { authService } from '~/services/authService';
-
 /**
  * @swagger
  * /login:
@@ -78,7 +77,6 @@ const login = async (req, res) => {
 
     console.log('refreshToken: ', refreshToken);
 
-    // Return tokens and user information
     return res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -99,6 +97,45 @@ const login = async (req, res) => {
   }
 };
 
+const refreshToken = async (req, res) => {
+  try {
+    const accessToken = await authService.refreshToken(req.body.refreshToken)
+    return res.status(200).json({
+      success: true,
+      message: 'Refresh token successful',
+      data: {
+        accessToken,
+      },
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: error.message || 'Refresh token failed',
+      error: error.message,
+    });
+  }
+};
+
+const logout = async (req, res) => {
+  try {
+    const decoded = req.jwtDecoded
+    const isLogout = await authService.logout(decoded)
+    if (isLogout) {
+      return res.status(200).json({
+        success: true,
+        message: 'Logout successful',
+      });
+    }
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: 'Logout failed',
+      error: error.message,
+    });
+  }
+}
 export const authController = {
   login,
+  refreshToken,
+  logout,
 };
