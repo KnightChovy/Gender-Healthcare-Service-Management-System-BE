@@ -3,7 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "author": "Hoang Phuc",
-  "description": "https://youtube.com/@trungquandev",
+  "description": "",
+  "type": "module",
   "engines": {
     "node": ">=18.x"
   },
