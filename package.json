@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "author": "Hoang Phuc",
   "description": "",
-  "type": "module",
   "engines": {
     "node": ">=18.x"
   },
