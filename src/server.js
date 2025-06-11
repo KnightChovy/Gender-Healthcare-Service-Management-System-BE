@@ -6,6 +6,7 @@ import { API_V1 } from '~/routes/v1/index';
 import { authController } from '~/controllers/authController';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger';
+import { connectRedis } from './config/redis';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -70,6 +71,10 @@ const startServer = () => {
   try {
     console.log('connecting mysql...');
     await CONNECT_DB();
+
+    console.log('connecting redis...');
+    await connectRedis();
+
     startServer();
     console.log('connected to mysql');
   } catch (error) {

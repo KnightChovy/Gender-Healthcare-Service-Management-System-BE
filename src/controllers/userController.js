@@ -1,6 +1,7 @@
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '~/services/userService';
+import { clearCache } from '../middlewares/cacheMiddleware.js';
 
 const getAllUsers = async (req, res) => {
   try {
@@ -19,6 +20,10 @@ const createUser = async (req, res) => {
     const userData = req.body;
     console.log(userData);
     const newUser = await userService.createUser(userData);
+
+    // Sau khi tạo user thành công, xóa cache danh sách user
+    await clearCache('user:all:*');
+
     res.status(StatusCodes.CREATED).json({
       message: 'User created successfully',
       user: newUser,
@@ -39,6 +44,10 @@ const updateUser = async (req, res) => {
     const userId = req.params.id;
     const userData = req.body;
     const updatedUser = await userService.updateUser(userId, userData);
+
+    // Sau khi cập nhật thành công, xóa cache của user này và danh sách users
+    await clearCache(`user:${userId}:*`);
+    await clearCache('user:all:*');
 
     res.status(StatusCodes.OK).json({
       message: 'User updated successfully',

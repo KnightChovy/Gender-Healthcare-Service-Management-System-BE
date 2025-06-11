@@ -16,7 +16,7 @@ Router.route('/')
 
 Router.route('/:id')
   //   .get(userController.getUserById)
-  .put(validateUpdateUser, userController.updateUser)
+  .put(isAuth, validateUpdateUser, userController.updateUser)
   .patch(isAuth, validateChangePassword, userController.changePassword);
 
 //   .delete(userController.deleteUser)
