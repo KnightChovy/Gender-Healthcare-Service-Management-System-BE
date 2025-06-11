@@ -1,14 +1,15 @@
-import express from 'express'
-import { StatusCodes } from 'http-status-codes'
-import { userRoutes } from '~/routes/v1/userRoute'
-import { authRoutes } from '~/routes/v1/authRoute'
-import isAuth from '~/middlewares/isAuthMiddleware'
+import express from 'express';
+import { StatusCodes } from 'http-status-codes';
+import { userRoutes } from '~/routes/v1/userRoute';
+import { authRoutes } from '~/routes/v1/authRoute';
+import isAuth from '~/middlewares/isAuthMiddleware';
+import { doctorRoutes } from '~/routes/v1/doctorRoute';
 
-const Router = express.Router()
+const Router = express.Router();
 
 // Health check route
 // Router.get('/health', (req, res) => {
-//   res.status(StatusCodes.OK).json({ 
+//   res.status(StatusCodes.OK).json({
 //     status: 'healthy',
 //     message: 'API is running',
 //     timestamp: new Date().toISOString()
@@ -16,10 +17,10 @@ const Router = express.Router()
 // })
 
 // Public routes (no authentication required)
-Router.use('/auth', authRoutes)
+Router.use('/auth', authRoutes);
 
 // Protected routes (authentication required)
+Router.use('/users', userRoutes);
+Router.use('/doctors', doctorRoutes);
 
-Router.use('/users', userRoutes)
-
-export const API_V1 = Router
+export const API_V1 = Router;
