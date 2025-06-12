@@ -66,9 +66,6 @@
  *                   type: string
  */
 
-
-
-
 /**
  * @swagger
  * /v1/auth/logout:
@@ -192,7 +189,7 @@
  *                   type: array
  *                   items:
  *                     type: string
- *                   example: 
+ *                   example:
  *                     - "Current password is required"
  *                     - "New password must be at least 6 characters"
  *                     - "Passwords do not match"
@@ -212,6 +209,105 @@
  *                 error:
  *                   type: string
  *                   example: Current password is incorrect
+ */
+
+/**
+ * @swagger
+ * /v1/doctors:
+ *   get:
+ *     summary: Get all doctors
+ *     description: Returns a list of all doctors with their certificate information
+ *     tags: [Doctors]
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the list of doctors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 listAllDoctors:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       doctor_id:
+ *                         type: string
+ *                         example: "DR000001"
+ *                       user_id:
+ *                         type: string
+ *                         example: "US000005"
+ *                       first_name:
+ *                         type: string
+ *                         example: "Khiêm"
+ *                       last_name:
+ *                         type: string
+ *                         example: "Nguyễn Bỉnh"
+ *                       bio:
+ *                         type: string
+ *                         example: "Internal medicine specialist"
+ *                       experience_year:
+ *                         type: integer
+ *                         example: 5
+ *                       certificates:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             certificates_id:
+ *                               type: string
+ *                               example: "CT000001"
+ *                             certificate:
+ *                               type: string
+ *                               example: "Medical Practice License"
+ *                             specialization:
+ *                               type: string
+ *                               example: "Internal Medicine"
+ *       204:
+ *         description: No doctors found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "No doctors found"
+ *                 listAllDoctors:
+ *                   type: array
+ *                   example: []
+ *       404:
+ *         description: Resource not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Doctor information not found"
+ *       401:
+ *         description: Unauthorized access
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Access denied"
  */
 
 

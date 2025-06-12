@@ -8,7 +8,6 @@ import { env } from '../config/environment.js';
  */
 export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
   return async (req, res, next) => {
-    // Kiểm tra kết nối Redis
     if (!redisClient.isOpen) {
       console.log('Redis không kết nối, bỏ qua cache');
       return next();
