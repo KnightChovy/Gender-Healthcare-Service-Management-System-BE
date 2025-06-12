@@ -132,7 +132,7 @@ const setupAssociations = () => {
   UserModel.hasOne(DoctorModel, {
     foreignKey: 'user_id',
     sourceKey: 'user_id',
-    as: 'doctorInfo',
+    as: 'doctorProfile',
   });
 
   DoctorModel.belongsTo(UserModel, {
