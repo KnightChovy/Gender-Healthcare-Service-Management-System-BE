@@ -14,10 +14,9 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
     }
 
     try {
-      // Tạo key dựa trên prefix, params và query
+      //key dựa trên prefix, params và query
       let uniqueIdentifier = req.params.id || 'all';
 
-      // Nếu đây là API getProfile, sử dụng user_id từ token
       if (keyPrefix === 'profile' && req.user) {
         uniqueIdentifier = req.user.user_id;
       }
@@ -26,7 +25,6 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
         req.query
       )}`;
 
-      // Kiểm tra cache
       const cachedData = await redisClient.get(cacheKey);
 
       if (cachedData) {
@@ -46,19 +44,17 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
           return originalJson.call(this, data);
         }
 
-        // Lưu vào cache
         redisClient
           .setEx(cacheKey, ttl, JSON.stringify(data))
           .catch((err) => console.error('Redis cache error:', err));
 
-        // Gọi hàm json gốc
         return originalJson.call(this, data);
       };
 
       next();
     } catch (error) {
       console.error('Cache middleware error:', error);
-      next(); // Tiếp tục xử lý nếu lỗi
+      next();
     }
   };
 };

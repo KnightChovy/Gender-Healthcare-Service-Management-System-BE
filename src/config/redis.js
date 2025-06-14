@@ -13,7 +13,6 @@ redisClient.on('connect', () => {
   console.log('Connected to Redis');
 });
 
-// Khởi tạo kết nối
 const connectRedis = async () => {
   try {
     await redisClient.connect();

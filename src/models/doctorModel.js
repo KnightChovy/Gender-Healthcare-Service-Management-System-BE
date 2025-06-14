@@ -86,10 +86,8 @@ const findAllDoctors = async () => {
     const DoctorModel = initDoctorModel();
     const CertificateModel = initCertificateModel();
 
-    // Thiết lập quan hệ
     setupAssociations();
 
-    // Lấy tất cả bác sĩ kèm theo chứng chỉ
     const listAllDoctors = await DoctorModel.findAll({
       include: [
         {
@@ -122,13 +120,11 @@ const findAllDoctors = async () => {
   }
 };
 
-// Thiết lập mối quan hệ
 const setupAssociations = () => {
   const UserModel = userModel.initUserModel();
   const DoctorModel = initDoctorModel();
   const CertificateModel = initCertificateModel();
 
-  // Quan hệ User - Doctor (1-1)
   UserModel.hasOne(DoctorModel, {
     foreignKey: 'user_id',
     sourceKey: 'user_id',
@@ -140,8 +136,6 @@ const setupAssociations = () => {
     targetKey: 'user_id',
     as: 'user',
   });
-
-  // Quan hệ Doctor - Certificate (1-n)
   DoctorModel.hasMany(CertificateModel, {
     foreignKey: 'doctor_id',
     sourceKey: 'doctor_id',
