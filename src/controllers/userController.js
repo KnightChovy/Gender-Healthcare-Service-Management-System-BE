@@ -90,7 +90,8 @@ const changePassword = async (req, res) => {
 
 const getMyProfile = async (req, res) => {
   try {
-    const userId = req.user.user_id;
+    // Sửa dòng này
+    const userId = req.user.data.user_id; // Thêm .data
 
     const userProfile = await userService.getUserProfile(userId);
 
@@ -100,10 +101,9 @@ const getMyProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in userController.getMyProfile:', error);
-
     res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: error.message || 'Có lỗi xảy ra khi lấy thông tin cá nhân',
+      message: error.message || 'Lỗi khi lấy thông tin người dùng',
     });
   }
 };
