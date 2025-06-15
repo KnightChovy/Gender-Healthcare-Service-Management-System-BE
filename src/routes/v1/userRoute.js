@@ -15,7 +15,8 @@ Router.route('/')
   .get(userController.getAllUsers)
   .post(validateCreateUser, userController.createUser);
 
-Router.route('/profile/me').get(
+Router.route('/profile/me')
+.get(
   isAuth,
   cacheMiddleware('user:profile', 300),
   userController.getMyProfile
