@@ -90,8 +90,26 @@ const changePassword = async (req, res) => {
 
 const getMyProfile = async (req, res) => {
   try {
-    // Sửa dòng này
-    const userId = req.user.data.user_id; // Thêm .data
+    // Debug
+    console.log('req.user:', req.user);
+
+    // Kiểm tra req.user tồn tại
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated properly',
+      });
+    }
+
+    // Lấy user_id một cách linh hoạt
+    const userId = req.user.data?.user_id || req.user.user_id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User ID not found in token',
+      });
+    }
 
     const userProfile = await userService.getUserProfile(userId);
 
