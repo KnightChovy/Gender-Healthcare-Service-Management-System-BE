@@ -1,6 +1,7 @@
 import ApiError from '~/utils/ApiError';
 import { userModel } from '~/models/userModel';
 import { comparePassword, hashPassword } from '~/utils/crypto';
+import { StatusCodes } from 'http-status-codes';
 
 const getAllUsers = async () => {
   try {
@@ -92,9 +93,44 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
     throw new ApiError(500, 'Thay đổi mật khẩu không thành công');
   }
 };
+
+const getUserProfile = async (userId) => {
+  try {
+    const user = await userModel.getUserById(userId);
+
+    if (!user) {
+      throw {
+        statusCode: StatusCodes.NOT_FOUND,
+        message: 'Không tìm thấy thông tin người dùng',
+      };
+    }
+
+    // Loại bỏ các thông tin nhạy cảm trước khi trả về
+    const userProfile = {
+      user_id: user.user_id,
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      gender: user.gender,
+      birthday: user.birthday,
+      avatar: user.avatar,
+      address: user.address,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      role: user.role,
+      status: user.status,
+    };
+
+    return userProfile;
+  } catch (error) {
+    throw new ApiError(500, 'Lỗi khi lấy thông tin người dùng');
+  }
+};
+
 export const userService = {
   getAllUsers,
   createUser,
   updateUser,
   changePassword,
+  getUserProfile,
 };

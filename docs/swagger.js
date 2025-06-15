@@ -310,4 +310,100 @@
  *                   example: "Access denied"
  */
 
-
+/**
+ * @swagger
+ * /v1/users/profile/me:
+ *   get:
+ *     summary: Get current user profile
+ *     description: Retrieves the profile information of the currently authenticated user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         required: true
+ *         description: Access token received during login
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 userProfile:
+ *                   type: object
+ *                   properties:
+ *                     user_id:
+ *                       type: string
+ *                       example: "US000025"
+ *                     username:
+ *                       type: string
+ *                       example: "binhkhiem"
+ *                     email:
+ *                       type: string
+ *                       example: "nguyenbinhkhiem@example.com"
+ *                     phone:
+ *                       type: string
+ *                       example: "0987654321"
+ *                     gender:
+ *                       type: string
+ *                       example: "male"
+ *                     birthday:
+ *                       type: string
+ *                       format: date
+ *                       example: "1990-05-15"
+ *                     avatar:
+ *                       type: string
+ *                       example: "https://example.com/avatars/binhkhiem.jpg"
+ *                     address:
+ *                       type: string
+ *                       example: "123 Nguyen Hue Street, District 1, Ho Chi Minh City"
+ *                     first_name:
+ *                       type: string
+ *                       example: "Bỉnh Khiêm"
+ *                     last_name:
+ *                       type: string
+ *                       example: "Nguyễn"
+ *                     role:
+ *                       type: string
+ *                       example: "customer"
+ *                     status:
+ *                       type: integer
+ *                       example: 1
+ *       401:
+ *         description: Unauthorized - Invalid token or user not logged in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *                 error:
+ *                   type: string
+ *                   example: "No token provided or token is invalid"
+ *       404:
+ *         description: Profile not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "User profile not found"
+ */

@@ -1,6 +1,7 @@
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { userController } from '~/controllers/userController';
+import { cacheMiddleware } from '~/middlewares/cacheMiddleware';
 import isAuth from '~/middlewares/isAuthMiddleware';
 import {
   validateChangePassword,
@@ -13,6 +14,12 @@ const Router = express.Router();
 Router.route('/')
   .get(userController.getAllUsers)
   .post(validateCreateUser, userController.createUser);
+
+// Router.route('/profile/me').get(
+//   isAuth,
+//   cacheMiddleware('user:profile', 300),
+//   userController.getMyProfile
+// );
 
 Router.route('/:id')
   //   .get(userController.getUserById)

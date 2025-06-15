@@ -88,9 +88,30 @@ const changePassword = async (req, res) => {
   }
 };
 
+const getMyProfile = async (req, res) => {
+  try {
+    const userId = req.user.user_id;
+
+    const userProfile = await userService.getUserProfile(userId);
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      userProfile,
+    });
+  } catch (error) {
+    console.error('Error in userController.getMyProfile:', error);
+
+    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message || 'Có lỗi xảy ra khi lấy thông tin cá nhân',
+    });
+  }
+};
+
 export const userController = {
   getAllUsers,
   createUser,
   updateUser,
   changePassword,
+  getMyProfile,
 };

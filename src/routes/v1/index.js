@@ -1,9 +1,7 @@
 import express from 'express';
-import { StatusCodes } from 'http-status-codes';
-import { userRoutes } from '~/routes/v1/userRoute';
-import { authRoutes } from '~/routes/v1/authRoute';
-import isAuth from '~/middlewares/isAuthMiddleware';
-import { doctorRoutes } from '~/routes/v1/doctorRoute';
+import { userRoutes } from './userRoute';
+import { authRoutes } from './authRoute';
+import { doctorRoutes } from './doctorRoute';
 
 const Router = express.Router();
 
