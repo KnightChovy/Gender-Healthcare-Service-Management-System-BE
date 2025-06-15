@@ -166,6 +166,22 @@ const updatePassword = async (userId, hashedPassword) => {
   }
 };
 
+const getUserById = async (userId) => {
+  try {
+    console.log('DB query for user ID:', userId);
+
+    const user = await User.findOne({
+      where: { user_id: userId },
+    });
+
+    console.log('Query result:', user ? 'User found' : 'User not found');
+    return user;
+  } catch (error) {
+    console.error('Database error in getUserById:', error);
+    throw new Error('Database error: ' + error.message);
+  }
+};
+
 export const userModel = {
   initUserModel,
   findAllUsers,
@@ -174,4 +190,5 @@ export const userModel = {
   createUser,
   updateUser,
   updatePassword,
+  getUserById,
 };

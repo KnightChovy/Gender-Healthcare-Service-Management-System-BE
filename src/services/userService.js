@@ -96,12 +96,16 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
 
 const getUserProfile = async (userId) => {
   try {
+    console.log('Finding user with ID:', userId);
+
     const user = await userModel.getUserById(userId);
+
+    console.log('User found:', user ? 'Yes' : 'No');
 
     if (!user) {
       throw {
         statusCode: StatusCodes.NOT_FOUND,
-        message: 'Không tìm thấy thông tin người dùng',
+        message: `Không tìm thấy thông tin người dùng với ID: ${userId}`,
       };
     }
 
@@ -123,7 +127,15 @@ const getUserProfile = async (userId) => {
 
     return userProfile;
   } catch (error) {
-    throw new ApiError(500, 'Lỗi khi lấy thông tin người dùng');
+    console.error('Error in getUserProfile:', error);
+
+    // Re-throw with appropriate status code and message
+    throw error.statusCode
+      ? error
+      : {
+          statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+          message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
+        };
   }
 };
 
