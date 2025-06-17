@@ -1,6 +1,8 @@
 import { redisClient } from '../config/redis.js';
 import { env } from '../config/environment.js';
 
+let isReadOnly = false;
+
 /**
  * Middleware để lấy dữ liệu từ cache hoặc chuyển đến controller
  * @param {string} keyPrefix - Tiền tố key để lưu trong Redis
@@ -39,9 +41,17 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
           return originalJson.call(this, data);
         }
 
-        redisClient
-          .setEx(cacheKey, ttl, JSON.stringify(data))
-          .catch((err) => console.error('Redis cache error:', err));
+        if (!isReadOnly) {
+          redisClient
+            .setEx(cacheKey, ttl, JSON.stringify(data))
+            .catch((err) => {
+              console.error('Redis cache error:', err);
+              if (err.message.includes('READONLY')) {
+                console.log('Redis is in read-only mode, disabling writes');
+                isReadOnly = true;
+              }
+            });
+        }
 
         return originalJson.call(this, data);
       };
@@ -49,6 +59,10 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
       next();
     } catch (error) {
       console.error('Cache middleware error:', error);
+      if (error.message.includes('READONLY')) {
+        console.log('Redis is in read-only mode, disabling writes');
+        isReadOnly = true;
+      }
       next();
     }
   };
@@ -59,8 +73,8 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
  * @param {string} pattern - Pattern key cần xóa (hỗ trợ *)
  */
 export const clearCache = async (pattern) => {
-  if (!redisClient.isOpen) {
-    console.log('Redis không kết nối, không thể xóa cache');
+  if (!redisClient.isOpen || isReadOnly) {
+    console.log('Redis không kết nối hoặc ở chế độ chỉ đọc, không thể xóa cache');
     return;
   }
 
@@ -72,5 +86,9 @@ export const clearCache = async (pattern) => {
     }
   } catch (error) {
     console.error('Lỗi xóa cache:', error);
+    if (error.message.includes('READONLY')) {
+      console.log('Redis is in read-only mode, disabling writes');
+      isReadOnly = true;
+    }
   }
 };
