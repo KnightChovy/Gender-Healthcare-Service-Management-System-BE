@@ -93,11 +93,14 @@ const chooseSchedule = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in chooseSchedule:', error);
+
+    // Xử lý error nhất quán
     return res
       .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
       .json({
         success: false,
-        message: error.message || 'Lỗi khi tạo lịch làm việc',
+        message: error.message || 'Có lỗi xảy ra khi tạo lịch làm việc',
+        error: process.env.NODE_ENV !== 'production' ? error.stack : undefined,
       });
   }
 };

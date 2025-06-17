@@ -141,11 +141,16 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
     };
   } catch (error) {
     console.error('Error in createDoctorSchedule:', error);
-    if (error instanceof ApiError) throw error;
-    throw new ApiError(
-      StatusCodes.INTERNAL_SERVER_ERROR,
-      'Lỗi khi tạo lịch làm việc: ' + error.message
+
+    if (error.statusCode) {
+      throw error;
+    }
+
+    const enhancedError = new Error(
+      error.message || 'Lỗi khi tạo lịch làm việc'
     );
+    enhancedError.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+    throw enhancedError;
   }
 };
 
