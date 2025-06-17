@@ -18,11 +18,13 @@ let isAuth = async (req, res, next) => {
       req.jwtDecoded = decoded;
       next();
     } catch (error) {
+      console.log('Error verifying token:', error);
       return res.status(401).json({
         message: 'Unauthorized.',
       });
     }
   } else {
+    console.log('No token provided.');
     return res.status(403).json({
       message: 'No token provided.',
     });

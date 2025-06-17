@@ -7,6 +7,6 @@ const Router = express.Router()
 // Authentication routes
 Router.post('/login', authController.login)
 Router.post('/refresh-token', authController.refreshToken)
-Router.delete('/logout', isAuth, authController.logout)
+Router.post('/logout', isAuth, authController.logout)
 
 export const authRoutes = Router

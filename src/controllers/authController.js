@@ -55,6 +55,8 @@ const logout = async (req, res) => {
   try {
     const decoded = req.jwtDecoded
     const isLogout = await authService.logout(decoded)
+    console.log('isLogout: ', isLogout);
+    console.log('decoded: ', decoded);
     if (isLogout) {
       return res.status(200).json({
         success: true,
