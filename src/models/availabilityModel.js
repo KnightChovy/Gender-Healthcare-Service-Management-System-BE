@@ -36,7 +36,7 @@ const initAvailabilityModel = () => {
         },
       },
       {
-        tableName: 'availabilities',
+        tableName: 'availability', // không phải 'availabilities'
         timestamps: false,
       }
     );
