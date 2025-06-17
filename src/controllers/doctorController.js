@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { doctorService } from '~/services/doctorService';
-import { MODELS } from '~/models';
+import { MODELS } from '~/models/initModels';
 
 const getAllDoctors = async (req, res) => {
   try {
