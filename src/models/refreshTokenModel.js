@@ -35,8 +35,7 @@ const initRefreshTokenModel = () => {
 
 const createRefreshToken = async (userId, token) => {
   try {
-    const RefreshTokenModel = initRefreshTokenModel();
-    const newRefreshToken = await RefreshTokenModel.create({
+    const newRefreshToken = await RefreshToken.create({
       user_id: userId,
       token: token,
     });
@@ -48,9 +47,8 @@ const createRefreshToken = async (userId, token) => {
 
 const findRefreshTokenByUserId = async (userId) => {
   try {
-    const RefreshTokenModel = initRefreshTokenModel();
     console.log('userId', userId);
-    const token = await RefreshTokenModel.findOne({
+    const token = await RefreshToken.findOne({
       where: { user_id: userId },
     });
     return token;
@@ -61,8 +59,7 @@ const findRefreshTokenByUserId = async (userId) => {
 
 const deleteRefreshToken = async (token) => {
   try {
-    const RefreshTokenModel = initRefreshTokenModel();
-    await RefreshTokenModel.destroy({ where: { token: token } });
+    await RefreshToken.destroy({ where: { token: token } });
     return true;
   } catch (error) {
     throw new Error('Failed to delete refresh token: ' + error.message);

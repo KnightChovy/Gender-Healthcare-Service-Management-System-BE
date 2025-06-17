@@ -7,6 +7,7 @@ import { authController } from '~/controllers/authController';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger';
 import { connectRedis } from './config/redis';
+import { initAllModels } from '~/models/initModels';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -72,11 +73,12 @@ const startServer = () => {
     console.log('connecting mysql...');
     await CONNECT_DB();
 
-    console.log('connecting redis...');
-    await connectRedis();
+    // console.log('connecting redis...');
+    // await connectRedis();
 
+    // Initialize all models and set up associations
+    initAllModels();
     startServer();
-    console.log('connected to mysql');
   } catch (error) {
     console.error('Error connecting to MySQL:', error);
     process.exit(1);

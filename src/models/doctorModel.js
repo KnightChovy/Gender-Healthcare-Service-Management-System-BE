@@ -2,7 +2,8 @@
 import { DataTypes } from 'sequelize';
 import { GET_DB } from '~/config/mysql';
 import { userModel } from './userModel';
-
+import { MODELS } from './initModels';
+import { setupDoctorAssociations } from './associations.js';
 let Doctor = null;
 let Certificate = null;
 
@@ -43,10 +44,9 @@ const initDoctorModel = () => {
         timestamps: false,
       }
     );
-    
-    // Set up associations when the model is initialized
-    setupAssociations();
-  }
+    // Associations should be set up after all models are initialized (see associations.js or main setup)
+    // Use setupDoctorAssociations from associations.js
+  } 
   return Doctor;
 };
 
@@ -85,19 +85,15 @@ const initCertificateModel = () => {
 
 const findAllDoctors = async () => {
   try {
-    const UserModel = userModel.initUserModel();
-    const DoctorModel = initDoctorModel();
-    const CertificateModel = initCertificateModel();
-
-    const listAllDoctors = await DoctorModel.findAll({
+    const listAllDoctors = await Doctor.findAll({
       include: [
         {
-          model: CertificateModel,
+          model: Certificate,
           as: 'certificates',
           attributes: ['certificates_id', 'certificate', 'specialization'],
         },
         {
-          model: UserModel,
+          model: MODELS.UserModel,
           as: 'user',
           attributes: [
             'user_id',
@@ -121,38 +117,9 @@ const findAllDoctors = async () => {
   }
 };
 
-const setupAssociations = () => {
-  const UserModel = userModel.initUserModel();
-  const DoctorModel = initDoctorModel();
-  const CertificateModel = initCertificateModel();
-
-  UserModel.hasOne(DoctorModel, {
-    foreignKey: 'user_id',
-    sourceKey: 'user_id',
-    as: 'doctorProfile',
-  });
-
-  DoctorModel.belongsTo(UserModel, {
-    foreignKey: 'user_id',
-    targetKey: 'user_id',
-    as: 'user',
-  });
-  DoctorModel.hasMany(CertificateModel, {
-    foreignKey: 'doctor_id',
-    sourceKey: 'doctor_id',
-    as: 'certificates',
-  });
-
-  CertificateModel.belongsTo(DoctorModel, {
-    foreignKey: 'doctor_id',
-    targetKey: 'doctor_id',
-    as: 'doctor',
-  });
-};
-
 export const doctorModel = {
   initDoctorModel,
   initCertificateModel,
   findAllDoctors,
-  setupAssociations,
+  //setupAssociations,
 };

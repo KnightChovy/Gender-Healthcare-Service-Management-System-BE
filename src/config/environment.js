@@ -13,7 +13,6 @@ export const env = {
   ACCESS_TOKEN_LIFE: process.env.ACCESS_TOKEN_LIFE,
   REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
   REFRESH_TOKEN_LIFE: process.env.REFRESH_TOKEN_LIFE,
-
   REDIS_URL: process.env.REDIS_URL,
   REDIS_TTL: parseInt(process.env.REDIS_TTL), // TTL mặc định 1 giờ
 };

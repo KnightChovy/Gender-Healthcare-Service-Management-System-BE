@@ -45,8 +45,7 @@ const initUserModel = () => {
 
 const findAllUsers = async () => {
   try {
-    const UserModel = initUserModel();
-    const listAllUsers = await UserModel.findAll();
+    const listAllUsers = await User.findAll();
     return listAllUsers;
   } catch (error) {
     throw new Error('Failed to retrieve users');
@@ -55,8 +54,7 @@ const findAllUsers = async () => {
 
 const findOne = async (username) => {
   try {
-    const UserModel = initUserModel();
-    const user = await UserModel.findOne({ where: { username } });
+    const user = await User.findOne({ where: { username } });
     console.log('Searching for user with username:', username);
     return user;
   } catch (error) {
@@ -65,13 +63,6 @@ const findOne = async (username) => {
 };
 
 const findById = async (userId) => {
-  // try {
-  //   const UserModel = initUserModel();
-  //   const user = await UserModel.findOne({ where: { user_id: userId } });
-  //   return user;
-  // } catch (error) {
-  //   throw new Error('Failed to find user by ID');
-  // }
   try {
     console.log('Looking for user with ID:', userId);
 
@@ -80,8 +71,7 @@ const findById = async (userId) => {
       throw new Error('Invalid user ID provided');
     }
 
-    const UserModel = initUserModel();
-    const user = await UserModel.findOne({ where: { user_id: userId } });
+    const user = await User.findOne({ where: { user_id: userId } });
 
     console.log('User found:', user ? 'YES' : 'NO');
     return user;
@@ -93,10 +83,8 @@ const findById = async (userId) => {
 
 const createUser = async (userData) => {
   try {
-    const UserModel = initUserModel();
-
     if (!userData.user_id) {
-      const latestUser = await UserModel.findOne({
+      const latestUser = await User.findOne({
         order: [['user_id', 'DESC']],
       });
 
@@ -121,7 +109,7 @@ const createUser = async (userData) => {
       userData.status = 1;
     }
 
-    const newUser = await UserModel.create(userData);
+    const newUser = await User.create(userData);
     return newUser;
   } catch (error) {
     console.error('Create user error:', error);
@@ -131,11 +119,9 @@ const createUser = async (userData) => {
 
 const updateUser = async (userId, userData) => {
   try {
-    const UserModel = initUserModel();
-
     userData.updated_at = new Date();
 
-    await UserModel.update(userData, { where: { user_id: userId } });
+    await User.update(userData, { where: { user_id: userId } });
 
     const updatedUser = await findById(userId);
     return updatedUser;
@@ -147,9 +133,8 @@ const updateUser = async (userId, userData) => {
 
 const updatePassword = async (userId, hashedPassword) => {
   try {
-    const UserModel = initUserModel();
     const updated_at = new Date();
-    await UserModel.update(
+    await User.update(
       {
         password: hashedPassword,
         updated_at,

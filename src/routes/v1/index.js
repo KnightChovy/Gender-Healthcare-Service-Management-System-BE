@@ -2,7 +2,7 @@ import express from 'express';
 import { userRoutes } from './userRoute';
 import { authRoutes } from './authRoute';
 import { doctorRoutes } from './doctorRoute';
-
+import { appointmentRoute } from './appointmentRoute';
 const Router = express.Router();
 
 // Health check route
@@ -20,5 +20,6 @@ Router.use('/auth', authRoutes);
 // Protected routes (authentication required)
 Router.use('/users', userRoutes);
 Router.use('/doctors', doctorRoutes);
+Router.use('/appointments', appointmentRoute);
 
 export const API_V1 = Router;
