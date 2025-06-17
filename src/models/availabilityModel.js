@@ -22,10 +22,10 @@ const initAvailabilityModel = () => {
           type: DataTypes.DATEONLY,
           allowNull: false,
         },
-        slot_times: {
-          type: DataTypes.JSON,
-          allowNull: true,
-        },
+        // slot_times: {
+        //   type: DataTypes.JSON,
+        //   allowNull: true,
+        // },
         created_at: {
           type: DataTypes.DATE,
           allowNull: true,
@@ -46,4 +46,4 @@ const initAvailabilityModel = () => {
 
 export const availabilityModel = {
   initAvailabilityModel,
-}; 
+};
