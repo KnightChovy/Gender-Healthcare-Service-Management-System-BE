@@ -18,7 +18,7 @@ const options = {
         description: 'Development server'
       },
       {
-        url: 'http://44.204.71.234:3000',
+        url: 'http://52.4.72.106:3000',
         description: 'Production server'
       }
     ],

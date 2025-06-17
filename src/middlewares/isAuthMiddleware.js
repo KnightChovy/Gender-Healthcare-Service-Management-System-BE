@@ -15,7 +15,6 @@ let isAuth = async (req, res, next) => {
         tokenFromClient,
         accessTokenSecret
       );
-      req.user = decoded; //them dong nay
       req.jwtDecoded = decoded;
       next();
     } catch (error) {

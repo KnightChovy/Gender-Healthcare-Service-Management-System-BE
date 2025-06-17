@@ -90,9 +90,6 @@ const changePassword = async (req, res) => {
 
 const getMyProfile = async (req, res) => {
   try {
-    // Debug
-    console.log('req.user:', req.user);
-
     // Kiểm tra req.user tồn tại
     if (!req.user) {
       return res.status(401).json({
@@ -101,13 +98,12 @@ const getMyProfile = async (req, res) => {
       });
     }
 
-    // Lấy user_id một cách linh hoạt
     const userId = req.user.data?.user_id || req.user.user_id;
 
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: 'User ID not found in token',
+        message: 'User not found',
       });
     }
 
@@ -118,7 +114,6 @@ const getMyProfile = async (req, res) => {
       userProfile,
     });
   } catch (error) {
-    console.error('Error in userController.getMyProfile:', error);
     res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message || 'Lỗi khi lấy thông tin người dùng',

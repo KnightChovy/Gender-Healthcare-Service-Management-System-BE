@@ -20,8 +20,8 @@ const startServer = () => {
     cors({
       origin: [
         'http://localhost:5173',
-        'http://44.204.71.234',
-        'http://44.204.71.234:3000',
+        'http://52.4.72.106',
+        'http://52.4.72.106:3000',
       ],
       credentials: true, // Use 'credentials' instead of 'withCredentials'
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -34,8 +34,8 @@ const startServer = () => {
     cors({
       origin: [
         'http://localhost:5173',
-        'http://44.204.71.234',
-        'http://44.204.71.234:3000',
+        'http://52.4.72.106',
+        'http://52.4.72.106:3000',
       ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -60,9 +60,9 @@ const startServer = () => {
   app.use('/v1', API_V1);
 
   app.listen(env.PORT, env.HOST_NAME, () => {
-    console.log(`Server is running at http://0.0.0.0:${env.PORT}`);
+    console.log(`Server is running at http://${env.HOST_NAME}:${env.PORT}`);
     console.log(
-      `Swagger Documentation available at http://0.0.0.0:${env.PORT}/api-docs`
+      `Swagger Documentation available at http://${env.HOST_NAME}:${env.PORT}/api-docs`
     );
   });
 };

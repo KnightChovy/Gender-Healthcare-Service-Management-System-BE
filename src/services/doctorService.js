@@ -5,13 +5,11 @@ const getAllDoctors = async () => {
   try {
     const listAllDoctors = await doctorModel.findAllDoctors();
 
-    // Xử lý dữ liệu trả về để chuẩn hóa format
     const formattedDoctors = listAllDoctors.map((doctor) => {
       const plainDoctor = doctor.get({ plain: true });
 
-      // Gộp thông tin user vào doctor
       if (plainDoctor.user) {
-        delete plainDoctor.user_id; // Tránh trùng lặp user_id
+        delete plainDoctor.user_id;
         Object.assign(plainDoctor, plainDoctor.user);
         delete plainDoctor.user;
       }

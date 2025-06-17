@@ -14,7 +14,6 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
     }
 
     try {
-      //key dựa trên prefix, params và query
       let uniqueIdentifier = req.params.id || 'all';
 
       if (keyPrefix === 'profile' && req.user) {
@@ -34,12 +33,9 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
 
       console.log(`Cache miss: ${cacheKey}`);
 
-      // Lưu lại hàm json gốc
       const originalJson = res.json;
 
-      // Ghi đè hàm json để lưu cache
       res.json = function (data) {
-        // Nếu không phải response thành công, không lưu cache
         if (!data || !data.success) {
           return originalJson.call(this, data);
         }
