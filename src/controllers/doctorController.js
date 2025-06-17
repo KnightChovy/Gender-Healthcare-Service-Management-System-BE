@@ -31,19 +31,33 @@ const getAllDoctors = async (req, res) => {
  */
 const chooseSchedule = async (req, res) => {
   try {
-    // Lấy thông tin user từ token (thông qua middleware isAuth)
-    const userId = req.user.data?.user_id || req.user.user_id;
-    const userRole = req.user.data?.role || req.user.role;
-
-    // Kiểm tra vai trò
-    if (userRole !== 'doctor') {
-      return res.status(StatusCodes.FORBIDDEN).json({
+    // Sử dụng req.jwtDecoded thay vì req.user
+    if (!req.jwtDecoded) {
+      return res.status(401).json({
         success: false,
-        message: 'Bạn không có quyền truy cập chức năng này',
+        message: 'Không được xác thực',
       });
     }
 
-    // 2. Lấy doctor_id từ user_id
+    console.log('JWT decoded:', req.jwtDecoded); // Debug
+
+    // Lấy user_id từ token giải mã
+    // Điều chỉnh tùy theo cấu trúc của token trong dự án của bạn
+    let userId;
+    if (req.jwtDecoded.data) {
+      userId = req.jwtDecoded.data.user_id;
+    } else {
+      userId = req.jwtDecoded.user_id;
+    }
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không tìm thấy thông tin người dùng trong token',
+      });
+    }
+
+    // Lấy doctor_id từ user_id
     const doctor = await MODELS.DoctorModel.findOne({
       where: { user_id: userId },
     });
@@ -55,46 +69,36 @@ const chooseSchedule = async (req, res) => {
       });
     }
 
-    // 3. Lấy thông tin từ request body
     const { date, timeSlots } = req.body;
 
-    // 4. Validate input
-    if (!date) {
+    // Validate input
+    if (!date || !Array.isArray(timeSlots) || timeSlots.length === 0) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: 'Vui lòng cung cấp ngày làm việc',
+        message: 'Vui lòng cung cấp ngày và khung giờ làm việc',
       });
     }
 
-    if (!Array.isArray(timeSlots) || timeSlots.length === 0) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Vui lòng cung cấp ít nhất một khung giờ làm việc',
-      });
-    }
-
-    // 5. Gọi service để xử lý nghiệp vụ
-    const schedule = await doctorService.createDoctorSchedule(
+    // Gọi service để tạo lịch làm việc
+    const result = await doctorService.createDoctorSchedule(
       doctor.doctor_id,
       date,
       timeSlots
     );
 
-    // 6. Trả về response
     return res.status(StatusCodes.CREATED).json({
       success: true,
       message: 'Đã tạo lịch làm việc thành công',
-      data: schedule,
+      data: result,
     });
   } catch (error) {
     console.error('Error in chooseSchedule:', error);
-    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
-    const message = error.message || 'Có lỗi xảy ra khi tạo lịch làm việc';
-
-    return res.status(statusCode).json({
-      success: false,
-      message,
-    });
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || 'Lỗi khi tạo lịch làm việc',
+      });
   }
 };
 
