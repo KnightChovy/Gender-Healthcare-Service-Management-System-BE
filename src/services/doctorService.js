@@ -2,7 +2,6 @@ import { StatusCodes } from 'http-status-codes';
 import { Op } from 'sequelize';
 import { MODELS } from '~/models/initModels';
 import { doctorModel } from '~/models/doctorModel';
-import { ApiError } from '~/utils/ApiError';
 
 const getAllDoctors = async () => {
   try {
@@ -31,7 +30,7 @@ const getAllDoctors = async () => {
 };
 
 /**
- * Tạo lịch làm việc cho bác sĩ (một ngày với nhiều khung giờ)
+ * Tạo lịch làm việc cho bác sĩ
  * @param {string} doctorId - ID của bác sĩ
  * @param {string} date - Ngày làm việc (YYYY-MM-DD)
  * @param {Array} timeSlots - Danh sách các khung giờ [{time_start, time_end}]
@@ -39,16 +38,15 @@ const getAllDoctors = async () => {
  */
 const createDoctorSchedule = async (doctorId, date, timeSlots) => {
   try {
-    // Kiểm tra bác sĩ tồn tại
+    // 1. Kiểm tra bác sĩ tồn tại
     const doctor = await MODELS.DoctorModel.findByPk(doctorId);
     if (!doctor) {
-      throw new ApiError(
-        StatusCodes.NOT_FOUND,
-        'Không tìm thấy thông tin bác sĩ'
-      );
+      const error = new Error('Không tìm thấy thông tin bác sĩ');
+      error.statusCode = StatusCodes.NOT_FOUND;
+      throw error;
     }
 
-    // Tạo hoặc lấy availability cho ngày này
+    // 2. Tạo hoặc lấy availability cho ngày này
     let availability = await MODELS.AvailabilityModel.findOne({
       where: { doctor_id: doctorId, date },
     });
@@ -77,7 +75,7 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
       });
     }
 
-    // Tạo các timeslots
+    // 3. Tạo các timeslots
     const createdTimeSlots = [];
 
     for (const slot of timeSlots) {
@@ -85,10 +83,9 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
 
       // Kiểm tra thời gian hợp lệ
       if (time_start >= time_end) {
-        throw new ApiError(
-          StatusCodes.BAD_REQUEST,
-          'Giờ bắt đầu phải sớm hơn giờ kết thúc'
-        );
+        const error = new Error('Giờ bắt đầu phải sớm hơn giờ kết thúc');
+        error.statusCode = StatusCodes.BAD_REQUEST;
+        throw error;
       }
 
       // Kiểm tra xem khung giờ có trùng với khung giờ khác không
@@ -105,14 +102,15 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
       });
 
       if (existingSlot) {
-        throw new ApiError(
-          StatusCodes.CONFLICT,
+        const error = new Error(
           `Khung giờ ${time_start} - ${time_end} trùng với khung giờ hiện có`
         );
+        error.statusCode = StatusCodes.CONFLICT;
+        throw error;
       }
 
-      // Tạo ID mới cho timeslot
-      const timeslot_id = await generateTimeSlotId();
+      // Tạo ID duy nhất cho timeslot
+      const timeslot_id = await generateUniqueTimeSlotId();
 
       // Tạo timeslot mới
       const newTimeSlot = await MODELS.TimeslotModel.create({
@@ -141,21 +139,19 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
     };
   } catch (error) {
     console.error('Error in createDoctorSchedule:', error);
-
-    if (error.statusCode) {
-      throw error;
+    // Đảm bảo lỗi luôn có statusCode
+    if (!error.statusCode) {
+      error.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
     }
-
-    const enhancedError = new Error(
-      error.message || 'Lỗi khi tạo lịch làm việc'
-    );
-    enhancedError.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
-    throw enhancedError;
+    throw error;
   }
 };
 
-// Hàm tạo ID cho timeslot
-const generateTimeSlotId = async () => {
+/**
+ * Tạo ID duy nhất cho timeslot
+ * @returns {string} ID duy nhất cho timeslot
+ */
+const generateUniqueTimeSlotId = async () => {
   try {
     // Tìm timeslot có ID lớn nhất
     const lastTimeSlot = await MODELS.TimeslotModel.findOne({
@@ -171,32 +167,21 @@ const generateTimeSlotId = async () => {
       lastId = matches ? parseInt(matches[0]) : 0;
     }
 
-    // Tạo ID mới với số tăng dần
-    let newId;
-    let isUnique = false;
-    let attempts = 0;
+    // Tăng ID thêm một đơn vị
+    lastId++;
 
-    // Thử tối đa 10 lần để tìm ID duy nhất
-    while (!isUnique && attempts < 10) {
-      lastId++;
-      newId = `TS${String(lastId).padStart(6, '0')}`;
+    // Tạo ID mới
+    const newId = `TS${String(lastId).padStart(6, '0')}`;
 
-      // Kiểm tra xem ID này đã tồn tại chưa
-      const existing = await MODELS.TimeslotModel.findOne({
-        where: { timeslot_id: newId },
-      });
+    // Kiểm tra xem ID này đã tồn tại chưa
+    const existing = await MODELS.TimeslotModel.findOne({
+      where: { timeslot_id: newId },
+    });
 
-      if (!existing) {
-        isUnique = true;
-      }
-
-      attempts++;
-    }
-
-    if (!isUnique) {
-      // Nếu không tìm được ID duy nhất sau 10 lần, dùng UUID
-      const uuid = require('uuid');
-      newId = `TS${uuid.v4().substring(0, 6)}`;
+    // Nếu đã tồn tại, dùng timestamp để đảm bảo duy nhất
+    if (existing) {
+      const timestamp = Date.now().toString().slice(-6);
+      return `TS${timestamp}`;
     }
 
     return newId;

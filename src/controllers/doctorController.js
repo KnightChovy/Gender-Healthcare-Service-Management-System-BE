@@ -26,32 +26,22 @@ const getAllDoctors = async (req, res) => {
 
 /**
  * Controller cho phép bác sĩ chọn lịch làm việc
- * @param {Request} req - Express request object
- * @param {Response} res - Express response object
  */
 const chooseSchedule = async (req, res) => {
   try {
     // Sử dụng req.jwtDecoded thay vì req.user
     if (!req.jwtDecoded) {
-      return res.status(401).json({
+      return res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
         message: 'Không được xác thực',
       });
     }
 
-    console.log('JWT decoded:', req.jwtDecoded); // Debug
-
     // Lấy user_id từ token giải mã
-    // Điều chỉnh tùy theo cấu trúc của token trong dự án của bạn
-    let userId;
-    if (req.jwtDecoded.data) {
-      userId = req.jwtDecoded.data.user_id;
-    } else {
-      userId = req.jwtDecoded.user_id;
-    }
+    const userId = req.jwtDecoded.data?.user_id;
 
     if (!userId) {
-      return res.status(400).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
         message: 'Không tìm thấy thông tin người dùng trong token',
       });
@@ -93,14 +83,11 @@ const chooseSchedule = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in chooseSchedule:', error);
-
-    // Xử lý error nhất quán
     return res
       .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
       .json({
         success: false,
-        message: error.message || 'Có lỗi xảy ra khi tạo lịch làm việc',
-        error: process.env.NODE_ENV !== 'production' ? error.stack : undefined,
+        message: error.message || 'Lỗi khi tạo lịch làm việc',
       });
   }
 };
