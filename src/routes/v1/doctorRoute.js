@@ -5,7 +5,7 @@ import { cacheMiddleware } from '~/middlewares/cacheMiddleware.js';
 const Router = express.Router();
 
 Router.route('/').get(
-  cacheMiddleware('doctor:all', 300),
+  cacheMiddleware('doctor', 300),
   doctorController.getAllDoctors
 );
 
