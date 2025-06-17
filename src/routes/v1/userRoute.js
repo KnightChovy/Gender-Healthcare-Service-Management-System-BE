@@ -16,11 +16,11 @@ Router.route('/')
   .post(validateCreateUser, userController.createUser);
 
 Router.route('/profile/me')
-.get(
-  isAuth,
-  cacheMiddleware('user:profile', 300),
-  userController.getMyProfile
-);
+  .get(
+    isAuth,
+    cacheMiddleware('user:profile', 300),
+    userController.getMyProfile
+  );
 
 Router.route('/:id')
   //   .get(userController.getUserById)
