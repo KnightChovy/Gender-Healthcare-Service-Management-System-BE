@@ -43,6 +43,9 @@ const initDoctorModel = () => {
         timestamps: false,
       }
     );
+    
+    // Set up associations when the model is initialized
+    setupAssociations();
   }
   return Doctor;
 };
@@ -85,8 +88,6 @@ const findAllDoctors = async () => {
     const UserModel = userModel.initUserModel();
     const DoctorModel = initDoctorModel();
     const CertificateModel = initCertificateModel();
-
-    setupAssociations();
 
     const listAllDoctors = await DoctorModel.findAll({
       include: [
