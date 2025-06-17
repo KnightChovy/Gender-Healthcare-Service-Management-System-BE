@@ -24,12 +24,8 @@ const getAllDoctors = async (req, res) => {
   }
 };
 
-/**
- * Controller cho phép bác sĩ chọn lịch làm việc
- */
 const chooseSchedule = async (req, res) => {
   try {
-    // Sử dụng req.jwtDecoded thay vì req.user
     if (!req.jwtDecoded) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
@@ -37,7 +33,6 @@ const chooseSchedule = async (req, res) => {
       });
     }
 
-    // Lấy user_id từ token giải mã
     const userId = req.jwtDecoded.data?.user_id;
 
     if (!userId) {
@@ -47,7 +42,6 @@ const chooseSchedule = async (req, res) => {
       });
     }
 
-    // Lấy doctor_id từ user_id
     const doctor = await MODELS.DoctorModel.findOne({
       where: { user_id: userId },
     });
@@ -61,7 +55,6 @@ const chooseSchedule = async (req, res) => {
 
     const { date, timeSlots } = req.body;
 
-    // Validate input
     if (!date || !Array.isArray(timeSlots) || timeSlots.length === 0) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
@@ -69,7 +62,6 @@ const chooseSchedule = async (req, res) => {
       });
     }
 
-    // Gọi service để tạo lịch làm việc
     const result = await doctorService.createDoctorSchedule(
       doctor.doctor_id,
       date,
