@@ -407,3 +407,188 @@
  *                   type: string
  *                   example: "User profile not found"
  */
+
+/**
+ * @swagger
+ * /v1/doctors/schedule:
+ *   post:
+ *     summary: Tạo lịch làm việc cho bác sĩ
+ *     description: Cho phép bác sĩ chọn ngày và các khung giờ làm việc trong ngày
+ *     tags: [Doctors]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         required: true
+ *         description: Token nhận được khi đăng nhập
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - date
+ *               - timeSlots
+ *             properties:
+ *               date:
+ *                 type: string
+ *                 format: date
+ *                 description: Ngày làm việc (YYYY-MM-DD)
+ *                 example: "2025-08-15"
+ *               timeSlots:
+ *                 type: array
+ *                 description: Danh sách các khung giờ làm việc
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - time_start
+ *                     - time_end
+ *                   properties:
+ *                     time_start:
+ *                       type: string
+ *                       format: time
+ *                       description: Giờ bắt đầu (HH:MM:SS)
+ *                       example: "08:00:00"
+ *                     time_end:
+ *                       type: string
+ *                       format: time
+ *                       description: Giờ kết thúc (HH:MM:SS)
+ *                       example: "09:00:00"
+ *           example:
+ *             date: "2025-08-15"
+ *             timeSlots:
+ *               - time_start: "08:00:00"
+ *                 time_end: "09:00:00"
+ *               - time_start: "09:30:00"
+ *                 time_end: "10:30:00"
+ *               - time_start: "13:00:00"
+ *                 time_end: "14:00:00"
+ *     responses:
+ *       201:
+ *         description: Lịch làm việc được tạo thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Đã tạo lịch làm việc thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     availability:
+ *                       type: object
+ *                       properties:
+ *                         avail_id:
+ *                           type: string
+ *                           example: "AV000004"
+ *                         date:
+ *                           type: string
+ *                           example: "2025-08-15"
+ *                     timeSlots:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           timeslot_id:
+ *                             type: string
+ *                             example: "TS000007"
+ *                           time_start:
+ *                             type: string
+ *                             example: "08:00:00"
+ *                           time_end:
+ *                             type: string
+ *                             example: "09:00:00"
+ *                           status:
+ *                             type: string
+ *                             example: "available"
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Vui lòng cung cấp ngày và khung giờ làm việc"
+ *       401:
+ *         description: Không được xác thực
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Không được phép truy cập"
+ *                 error:
+ *                   type: string
+ *                   example: "Token không hợp lệ hoặc đã hết hạn"
+ *       403:
+ *         description: Không có quyền thực hiện
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Bạn không có quyền thực hiện chức năng này"
+ *       404:
+ *         description: Không tìm thấy thông tin bác sĩ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy thông tin bác sĩ cho tài khoản này"
+ *       409:
+ *         description: Xung đột dữ liệu
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Khung giờ 08:00:00 - 09:00:00 trùng với khung giờ hiện có"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi khi tạo lịch làm việc"
+ */
