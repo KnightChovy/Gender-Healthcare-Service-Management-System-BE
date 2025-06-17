@@ -53,17 +53,7 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
 
     if (!availability) {
       // Tạo ID mới cho availability
-      const lastAvailability = await MODELS.AvailabilityModel.findOne({
-        order: [['avail_id', 'DESC']],
-      });
-
-      let avail_id;
-      if (!lastAvailability) {
-        avail_id = 'AV000001';
-      } else {
-        const lastId = parseInt(lastAvailability.avail_id.substring(2));
-        avail_id = `AV${String(lastId + 1).padStart(6, '0')}`;
-      }
+      const avail_id = await generateUniqueAvailabilityId();
 
       // Tạo availability mới
       availability = await MODELS.AvailabilityModel.create({
@@ -191,7 +181,69 @@ const generateUniqueTimeSlotId = async () => {
   }
 };
 
+/**
+ * Tạo ID duy nhất cho availability
+ * @returns {string} ID duy nhất cho availability
+ */
+const generateUniqueAvailabilityId = async () => {
+  try {
+    // Lấy tất cả các ID hiện có để đảm bảo xác định đúng ID lớn nhất
+    const availabilities = await MODELS.AvailabilityModel.findAll({
+      attributes: ['avail_id'],
+      order: [['avail_id', 'DESC']],
+    });
+
+    let maxId = 0;
+
+    // Tìm ID số lớn nhất
+    availabilities.forEach((avail) => {
+      const idMatch = avail.avail_id.match(/\d+$/);
+      if (idMatch) {
+        const idNum = parseInt(idMatch[0], 10);
+        if (idNum > maxId) {
+          maxId = idNum;
+        }
+      }
+    });
+
+    // Tạo ID mới
+    let newId;
+    let isUnique = false;
+    let attempts = 0;
+
+    // Thử tối đa 10 lần để tìm ID duy nhất
+    while (!isUnique && attempts < 10) {
+      maxId++;
+      newId = `AV${String(maxId).padStart(6, '0')}`;
+
+      // Kiểm tra xem ID này đã tồn tại chưa
+      const existing = await MODELS.AvailabilityModel.findOne({
+        where: { avail_id: newId },
+      });
+
+      if (!existing) {
+        isUnique = true;
+      }
+
+      attempts++;
+    }
+
+    // Nếu không tìm được ID duy nhất sau 10 lần, sử dụng timestamp
+    if (!isUnique) {
+      const timestamp = Date.now().toString().slice(-6);
+      newId = `AV${timestamp}`;
+    }
+
+    return newId;
+  } catch (error) {
+    console.error('Error generating availability ID:', error);
+    throw new Error('Không thể tạo ID cho ngày làm việc');
+  }
+};
+
 export const doctorService = {
   getAllDoctors,
   createDoctorSchedule,
+  generateUniqueTimeSlotId,
+  generateUniqueAvailabilityId,
 };
