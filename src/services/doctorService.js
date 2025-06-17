@@ -138,40 +138,45 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
 };
 
 /**
- * Tạo ID duy nhất cho timeslot
+ * Tạo ID duy nhất cho timeslot theo định dạng TS000001
  * @returns {string} ID duy nhất cho timeslot
  */
 const generateUniqueTimeSlotId = async () => {
   try {
-    // Tìm timeslot có ID lớn nhất
-    const lastTimeSlot = await MODELS.TimeslotModel.findOne({
-      order: [['timeslot_id', 'DESC']],
+    // Tìm timeslot có ID lớn nhất đúng định dạng TSxxxxxx
+    const timeSlots = await MODELS.TimeslotModel.findAll({
+      attributes: ['timeslot_id'],
+      where: {
+        timeslot_id: {
+          [Op.like]: 'TS%',
+        },
+      },
     });
 
-    let lastId;
-    if (!lastTimeSlot) {
-      lastId = 0;
-    } else {
-      // Lấy số từ ID cuối
-      const matches = lastTimeSlot.timeslot_id.match(/\d+$/);
-      lastId = matches ? parseInt(matches[0]) : 0;
-    }
+    let maxId = 0;
 
-    // Tăng ID thêm một đơn vị
-    lastId++;
+    // Tìm ID số lớn nhất trong các ID đúng định dạng
+    timeSlots.forEach((slot) => {
+      if (slot.timeslot_id.match(/^TS\d{6}$/)) {
+        const idNum = parseInt(slot.timeslot_id.substring(2), 10);
+        if (idNum > maxId) {
+          maxId = idNum;
+        }
+      }
+    });
 
-    // Tạo ID mới
-    const newId = `TS${String(lastId).padStart(6, '0')}`;
+    // Tạo ID mới với định dạng TS + 6 chữ số
+    maxId++;
+    const newId = `TS${String(maxId).padStart(6, '0')}`;
 
-    // Kiểm tra xem ID này đã tồn tại chưa
+    // Kiểm tra xem ID này đã tồn tại chưa (để đảm bảo duy nhất)
     const existing = await MODELS.TimeslotModel.findOne({
       where: { timeslot_id: newId },
     });
 
-    // Nếu đã tồn tại, dùng timestamp để đảm bảo duy nhất
+    // Nếu đã tồn tại, tăng ID lên 1 và thử lại
     if (existing) {
-      const timestamp = Date.now().toString().slice(-6);
-      return `TS${timestamp}`;
+      return generateUniqueTimeSlotId(); // Đệ quy gọi lại nếu ID đã tồn tại
     }
 
     return newId;
@@ -182,56 +187,45 @@ const generateUniqueTimeSlotId = async () => {
 };
 
 /**
- * Tạo ID duy nhất cho availability
+ * Tạo ID duy nhất cho availability theo định dạng AV000001
  * @returns {string} ID duy nhất cho availability
  */
 const generateUniqueAvailabilityId = async () => {
   try {
-    // Lấy tất cả các ID hiện có để đảm bảo xác định đúng ID lớn nhất
+    // Lấy tất cả các ID để tìm ID lớn nhất đúng định dạng
     const availabilities = await MODELS.AvailabilityModel.findAll({
       attributes: ['avail_id'],
-      order: [['avail_id', 'DESC']],
+      where: {
+        avail_id: {
+          [Op.like]: 'AV%',
+        },
+      },
     });
 
     let maxId = 0;
 
-    // Tìm ID số lớn nhất
+    // Tìm ID số lớn nhất trong các ID đúng định dạng
     availabilities.forEach((avail) => {
-      const idMatch = avail.avail_id.match(/\d+$/);
-      if (idMatch) {
-        const idNum = parseInt(idMatch[0], 10);
+      if (avail.avail_id.match(/^AV\d{6}$/)) {
+        const idNum = parseInt(avail.avail_id.substring(2), 10);
         if (idNum > maxId) {
           maxId = idNum;
         }
       }
     });
 
-    // Tạo ID mới
-    let newId;
-    let isUnique = false;
-    let attempts = 0;
+    // Tạo ID mới với định dạng AV + 6 chữ số
+    maxId++;
+    const newId = `AV${String(maxId).padStart(6, '0')}`;
 
-    // Thử tối đa 10 lần để tìm ID duy nhất
-    while (!isUnique && attempts < 10) {
-      maxId++;
-      newId = `AV${String(maxId).padStart(6, '0')}`;
+    // Kiểm tra xem ID này đã tồn tại chưa
+    const existing = await MODELS.AvailabilityModel.findOne({
+      where: { avail_id: newId },
+    });
 
-      // Kiểm tra xem ID này đã tồn tại chưa
-      const existing = await MODELS.AvailabilityModel.findOne({
-        where: { avail_id: newId },
-      });
-
-      if (!existing) {
-        isUnique = true;
-      }
-
-      attempts++;
-    }
-
-    // Nếu không tìm được ID duy nhất sau 10 lần, sử dụng timestamp
-    if (!isUnique) {
-      const timestamp = Date.now().toString().slice(-6);
-      newId = `AV${timestamp}`;
+    // Nếu đã tồn tại, tăng ID lên 1 và thử lại
+    if (existing) {
+      return generateUniqueAvailabilityId(); // Đệ quy gọi lại nếu ID đã tồn tại
     }
 
     return newId;
