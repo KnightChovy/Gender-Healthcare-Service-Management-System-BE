@@ -207,9 +207,115 @@ const generateUniqueAvailabilityId = async () => {
   }
 };
 
+const getDoctorAvailableTimeslots = async (doctorId, date) => {
+  try {
+    console.log(`Lấy khung giờ làm việc của bác sĩ ${doctorId} ngày ${date}`);
+
+    //lỗi include Include unexpected
+    const doctorExists = await MODELS.DoctorModel.count({
+      where: { doctor_id: doctorId },
+    });
+
+    if (!doctorExists) {
+      console.log(`Không tìm thấy bác sĩ với ID ${doctorId}`);
+      const error = new Error('Không tìm thấy thông tin bác sĩ');
+      error.statusCode = StatusCodes.NOT_FOUND;
+      throw error;
+    }
+
+    const availability = await MODELS.AvailabilityModel.findOne({
+      where: {
+        doctor_id: doctorId,
+        date,
+      },
+    });
+
+    const morning = [];
+    const afternoon = [];
+
+    if (availability) {
+      console.log(`Tìm thấy availability với ID: ${availability.avail_id}`);
+
+      const timeslots = await MODELS.TimeslotModel.findAll({
+        where: {
+          avail_id: availability.avail_id,
+        },
+      });
+
+      console.log(`Tìm thấy ${timeslots.length} timeslots`);
+
+      if (timeslots.length > 0) {
+        // Lấy tất cả id của timeslots
+        const timeslotIds = timeslots.map((ts) => ts.timeslot_id);
+
+        // tim appointments để kiểm tra lịch hẹn đã đặt
+        const appointments = await MODELS.AppointmentModel.findAll({
+          where: {
+            timeslot_id: {
+              [Op.in]: timeslotIds,
+            },
+          },
+          attributes: ['timeslot_id'],
+        });
+
+        // Tạo map để kiểm tra nhanh timeslot nào đã có lịch hẹn
+        const bookedTimeslots = {};
+        appointments.forEach((app) => {
+          bookedTimeslots[app.timeslot_id] = true;
+        });
+
+        // Xử lý từng khung giờ
+        timeslots.forEach((slot) => {
+          const time = slot.time_start.substring(0, 5);
+
+          const isBooked = bookedTimeslots[slot.timeslot_id] || false;
+
+          const timeslot = {
+            timeslot_id: slot.timeslot_id,
+            time,
+            is_booked: isBooked,
+          };
+
+          const hour = parseInt(time.split(':')[0]);
+          if (hour < 12) {
+            morning.push(timeslot);
+          } else {
+            afternoon.push(timeslot);
+          }
+        });
+
+        // Sắp xếp theo thời gian
+        morning.sort((firstSlot, secondSlot) =>
+          firstSlot.time.localeCompare(secondSlot.time)
+        );
+        afternoon.sort((firstSlot, secondSlot) =>
+          firstSlot.time.localeCompare(secondSlot.time)
+        );
+      }
+    }
+
+    console.log(
+      `Đã lấy khung giờ làm việc của bác sĩ ${doctorId} ngày ${date}`
+    );
+
+    return {
+      date,
+      morning,
+      afternoon,
+    };
+  } catch (error) {
+    console.error(`[ERROR] Lỗi lấy khung giờ làm việc: ${error.message}`);
+    if (!error.statusCode) {
+      error.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+    }
+    throw error;
+  }
+};
+
 export const doctorService = {
   getAllDoctors,
   createDoctorSchedule,
   generateUniqueTimeSlotId,
   generateUniqueAvailabilityId,
+  getDoctorAvailableTimeslots,
 };

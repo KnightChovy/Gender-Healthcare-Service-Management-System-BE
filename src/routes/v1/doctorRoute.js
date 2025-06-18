@@ -11,5 +11,8 @@ Router.route('/').get(
 );
 
 Router.route('/schedule').post(isAuth, doctorController.chooseSchedule);
-
+Router.route('/:doctor_id/available-timeslots').get(
+  isAuth,
+  doctorController.getAvailableTimeslots
+);
 export const doctorRoutes = Router;

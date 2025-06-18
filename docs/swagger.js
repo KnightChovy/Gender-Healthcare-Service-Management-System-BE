@@ -600,6 +600,8 @@
  *     summary: Lấy danh sách khung giờ làm việc của bác sĩ theo ngày
  *     description: Trả về danh sách các khung giờ làm việc của bác sĩ cho một ngày cụ thể, phân chia theo buổi sáng/chiều
  *     tags: [Doctors]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: doctor_id
@@ -628,24 +630,9 @@
  *                 data:
  *                   type: object
  *                   properties:
- *                     doctor:
- *                       type: object
- *                       properties:
- *                         doctor_id:
- *                           type: string
- *                           example: "DR000001"
- *                         name:
- *                           type: string
- *                           example: "Nguyễn Bỉnh Khiêm"
- *                         specialty:
- *                           type: string
- *                           example: "Nội khoa"
- *                         avatar:
- *                           type: string
- *                           example: "https://example.com/avatar.jpg"
  *                     date:
  *                       type: string
- *                       example: "2025-07-15"
+ *                       example: "2025-06-29"
  *                     morning:
  *                       type: array
  *                       items:
@@ -657,9 +644,6 @@
  *                           time:
  *                             type: string
  *                             example: "08:00"
- *                           duration:
- *                             type: integer
- *                             example: 30
  *                           is_booked:
  *                             type: boolean
  *                             example: false
@@ -674,9 +658,6 @@
  *                           time:
  *                             type: string
  *                             example: "14:00"
- *                           duration:
- *                             type: integer
- *                             example: 30
  *                           is_booked:
  *                             type: boolean
  *                             example: true

@@ -24,6 +24,48 @@ const getAllDoctors = async (req, res) => {
   }
 };
 
+/**
+ * Controller lấy khung giờ làm việc của bác sĩ theo ngày
+ */
+const getAvailableTimeslots = async (req, res) => {
+  try {
+    const { doctor_id } = req.params;
+    const { date } = req.query;
+
+    const userId = req.jwtDecoded.data?.user_id;
+    console.log(`User ${userId} đang xem lịch của bác sĩ ${doctor_id}`);
+
+    if (!date) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Vui lòng cung cấp ngày cần xem lịch',
+      });
+    }
+
+    const result = await doctorService.getDoctorAvailableTimeslots(
+      doctor_id,
+      date
+    );
+
+    console.log(
+      `Đã lấy khung giờ làm việc của bác sĩ ${doctor_id} ngày ${date}`
+    );
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error(`Lỗi API lấy khung giờ làm việc: ${error.message}`);
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        success: false,
+        message: error.message || 'Lỗi khi lấy khung giờ làm việc của bác sĩ',
+      });
+  }
+};
+
 const chooseSchedule = async (req, res) => {
   try {
     if (!req.jwtDecoded) {
@@ -93,5 +135,6 @@ const chooseSchedule = async (req, res) => {
 
 export const doctorController = {
   getAllDoctors,
+  getAvailableTimeslots,
   chooseSchedule,
 };
