@@ -68,6 +68,13 @@ const chooseSchedule = async (req, res) => {
       timeSlots
     );
 
+    console.log(
+      `[SUCCESS] Bác sĩ ${doctor.doctor_id} đã đăng ký thành công lịch làm việc cho ngày ${date}`
+    );
+    console.log(
+      `[SUCCESS] Đã tạo ${result.timeSlots.length} khung giờ làm việc`
+    );
+
     return res.status(StatusCodes.CREATED).json({
       success: true,
       message: 'Đã tạo lịch làm việc thành công',

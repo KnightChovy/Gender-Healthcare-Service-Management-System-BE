@@ -44,7 +44,7 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
 
     if (!availability) {
       const avail_id = await generateUniqueAvailabilityId();
-
+      console.log(`[INFO] Tạo availability mới với ID ${avail_id}`);
       availability = await MODELS.AvailabilityModel.create({
         avail_id,
         doctor_id: doctorId,
@@ -95,8 +95,15 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
         status: 'available',
       });
 
+      console.log(
+        `[SUCCESS] Đã tạo khung giờ ${timeslot_id}: ${time_start} - ${time_end}`
+      );
       createdTimeSlots.push(newTimeSlot);
     }
+
+    console.log(
+      `[SUCCESS] Hoàn thành tạo ${createdTimeSlots.length} khung giờ làm việc cho bác sĩ ${doctorId}, ngày ${date}`
+    );
 
     return {
       availability: {
