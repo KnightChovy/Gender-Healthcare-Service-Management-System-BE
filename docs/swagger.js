@@ -592,3 +592,92 @@
  *                   type: string
  *                   example: "Lỗi khi tạo lịch làm việc"
  */
+
+/**
+ * @swagger
+ * /v1/doctors/{doctor_id}/available-timeslots:
+ *   get:
+ *     summary: Lấy danh sách khung giờ làm việc của bác sĩ theo ngày
+ *     description: Trả về danh sách các khung giờ làm việc của bác sĩ cho một ngày cụ thể, phân chia theo buổi sáng/chiều
+ *     tags: [Doctors]
+ *     parameters:
+ *       - in: path
+ *         name: doctor_id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID của bác sĩ
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         required: true
+ *         description: Ngày cần xem lịch (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách khung giờ thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     doctor:
+ *                       type: object
+ *                       properties:
+ *                         doctor_id:
+ *                           type: string
+ *                           example: "DR000001"
+ *                         name:
+ *                           type: string
+ *                           example: "Nguyễn Bỉnh Khiêm"
+ *                         specialty:
+ *                           type: string
+ *                           example: "Nội khoa"
+ *                         avatar:
+ *                           type: string
+ *                           example: "https://example.com/avatar.jpg"
+ *                     date:
+ *                       type: string
+ *                       example: "2025-07-15"
+ *                     morning:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           timeslot_id:
+ *                             type: string
+ *                             example: "TS000010"
+ *                           time:
+ *                             type: string
+ *                             example: "08:00"
+ *                           duration:
+ *                             type: integer
+ *                             example: 30
+ *                           is_booked:
+ *                             type: boolean
+ *                             example: false
+ *                     afternoon:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           timeslot_id:
+ *                             type: string
+ *                             example: "TS000015"
+ *                           time:
+ *                             type: string
+ *                             example: "14:00"
+ *                           duration:
+ *                             type: integer
+ *                             example: 30
+ *                           is_booked:
+ *                             type: boolean
+ *                             example: true
+ */
