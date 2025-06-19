@@ -253,14 +253,21 @@ const getDoctorAvailableTimeslots = async (doctorId) => {
             timeslot_id: {
               [Op.in]: timeslotIds,
             },
+            // THÊM: Chỉ xét những appointment có appointment_time
+            appointment_time: {
+              [Op.ne]: null,
+            },
           },
-          attributes: ['timeslot_id'],
+          attributes: ['timeslot_id', 'appointment_time'],
         });
 
         // Tạo map để kiểm tra nhanh timeslot nào đã có lịch hẹn
         const bookedTimeslots = {};
         appointments.forEach((app) => {
-          bookedTimeslots[app.timeslot_id] = true;
+          // CHỈ đánh dấu là đã book nếu có appointment_time
+          if (app.appointment_time) {
+            bookedTimeslots[app.timeslot_id] = true;
+          }
         });
 
         // Xử lý từng khung giờ
@@ -354,18 +361,28 @@ const getAllDoctorTimeslots = async (doctorId) => {
     const timeslotIds = timeslots.map((ts) => ts.timeslot_id);
 
     // Truy vấn tất cả appointments đã được đặt
+    // CẬP NHẬT: Lấy thêm trường appointment_time
     const appointments = await MODELS.AppointmentModel.findAll({
       where: {
         timeslot_id: {
           [Op.in]: timeslotIds,
         },
+        // Thêm điều kiện để lấy những appointment có appointment_time
+        appointment_time: {
+          [Op.ne]: null, // appointment_time khác null
+        },
       },
-      attributes: ['timeslot_id'],
+      attributes: ['timeslot_id', 'appointment_time'],
       raw: true,
     });
 
-    // Tạo set các timeslot đã được đặt
-    const bookedSlots = new Set(appointments.map((app) => app.timeslot_id));
+    // CẬP NHẬT: Tạo map các timeslot đã được đặt với appointment_time
+    const bookedSlotsMap = {};
+    appointments.forEach((app) => {
+      if (app.appointment_time) {
+        bookedSlotsMap[app.timeslot_id] = true;
+      }
+    });
 
     // Tạo map avail_id => date để tra cứu nhanh
     const availDateMap = {};
@@ -393,7 +410,8 @@ const getAllDoctorTimeslots = async (doctorId) => {
       const timeslotData = {
         timeslot_id: slot.timeslot_id,
         time: slot.time_start.substring(0, 5),
-        is_booked: bookedSlots.has(slot.timeslot_id),
+        // CẬP NHẬT: Kiểm tra xem timeslot này đã có appointment_time chưa
+        is_booked: !!bookedSlotsMap[slot.timeslot_id],
       };
 
       // Phân loại sáng/chiều
