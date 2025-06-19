@@ -207,9 +207,9 @@ const generateUniqueAvailabilityId = async () => {
   }
 };
 
-const getDoctorAvailableTimeslots = async (doctorId, date) => {
+const getDoctorAvailableTimeslots = async (doctorId) => {
   try {
-    console.log(`Lấy khung giờ làm việc của bác sĩ ${doctorId} ngày ${date}`);
+    console.log(`Lấy khung giờ làm việc của bác sĩ ${doctorId}`);
 
     //lỗi include Include unexpected
     const doctorExists = await MODELS.DoctorModel.count({
@@ -226,7 +226,6 @@ const getDoctorAvailableTimeslots = async (doctorId, date) => {
     const availability = await MODELS.AvailabilityModel.findOne({
       where: {
         doctor_id: doctorId,
-        date,
       },
     });
 
@@ -294,12 +293,9 @@ const getDoctorAvailableTimeslots = async (doctorId, date) => {
       }
     }
 
-    console.log(
-      `Đã lấy khung giờ làm việc của bác sĩ ${doctorId} ngày ${date}`
-    );
+    console.log(`Đã lấy khung giờ làm việc của bác sĩ ${doctorId}`);
 
     return {
-      date,
       morning,
       afternoon,
     };
@@ -312,10 +308,142 @@ const getDoctorAvailableTimeslots = async (doctorId, date) => {
   }
 };
 
+const getAllDoctorTimeslots = async (doctorId) => {
+  try {
+    console.log(`Lấy tất cả lịch làm việc của bác sĩ ${doctorId}`);
+
+    // Kiểm tra bác sĩ tồn tại
+    const doctorExists = await MODELS.DoctorModel.count({
+      where: { doctor_id: doctorId },
+    });
+
+    if (!doctorExists) {
+      const error = new Error('Không tìm thấy thông tin bác sĩ');
+      error.statusCode = StatusCodes.NOT_FOUND;
+      throw error;
+    }
+
+    // Truy vấn tất cả availability của bác sĩ
+    const availabilities = await MODELS.AvailabilityModel.findAll({
+      where: {
+        doctor_id: doctorId,
+      },
+      order: [['date', 'ASC']],
+      raw: true,
+    });
+
+    if (availabilities.length === 0) {
+      console.log(`Bác sĩ ${doctorId} chưa có lịch làm việc nào`);
+      return { schedules: [] };
+    }
+
+    // Lấy tất cả avail_id
+    const availIds = availabilities.map((avail) => avail.avail_id);
+
+    // Truy vấn tất cả timeslots của các availability
+    const timeslots = await MODELS.TimeslotModel.findAll({
+      where: {
+        avail_id: {
+          [Op.in]: availIds,
+        },
+      },
+      raw: true,
+    });
+
+    // Lấy tất cả timeslot_id
+    const timeslotIds = timeslots.map((ts) => ts.timeslot_id);
+
+    // Truy vấn tất cả appointments đã được đặt
+    const appointments = await MODELS.AppointmentModel.findAll({
+      where: {
+        timeslot_id: {
+          [Op.in]: timeslotIds,
+        },
+      },
+      attributes: ['timeslot_id'],
+      raw: true,
+    });
+
+    // Tạo set các timeslot đã được đặt
+    const bookedSlots = new Set(appointments.map((app) => app.timeslot_id));
+
+    // Tạo map avail_id => date để tra cứu nhanh
+    const availDateMap = {};
+    availabilities.forEach((avail) => {
+      availDateMap[avail.avail_id] = avail.date;
+    });
+
+    // Nhóm timeslots theo ngày
+    const schedulesByDate = {};
+
+    timeslots.forEach((slot) => {
+      const date = availDateMap[slot.avail_id];
+      if (!date) return;
+
+      if (!schedulesByDate[date]) {
+        schedulesByDate[date] = {
+          date,
+          dayOfWeek: getDayOfWeek(date),
+          morning: [],
+          afternoon: [],
+        };
+      }
+
+      // Tạo đối tượng timeslot
+      const timeslotData = {
+        timeslot_id: slot.timeslot_id,
+        time: slot.time_start.substring(0, 5),
+        is_booked: bookedSlots.has(slot.timeslot_id),
+      };
+
+      // Phân loại sáng/chiều
+      const hour = parseInt(timeslotData.time.split(':')[0]);
+      if (hour < 12) {
+        schedulesByDate[date].morning.push(timeslotData);
+      } else {
+        schedulesByDate[date].afternoon.push(timeslotData);
+      }
+    });
+
+    // Sắp xếp timeslots trong mỗi ngày
+    Object.values(schedulesByDate).forEach((schedule) => {
+      schedule.morning.sort((a, b) => a.time.localeCompare(b.time));
+      schedule.afternoon.sort((a, b) => a.time.localeCompare(b.time));
+    });
+
+    // Chuyển đổi object thành array và sắp xếp theo ngày
+    const schedules = Object.values(schedulesByDate);
+
+    console.log(
+      `Đã lấy ${schedules.length} ngày làm việc của bác sĩ ${doctorId}`
+    );
+
+    return { schedules };
+  } catch (error) {
+    console.error(`Lỗi lấy lịch làm việc: ${error.message}`);
+    throw error;
+  }
+};
+
+const getDayOfWeek = (dateString) => {
+  const date = new Date(dateString);
+  const dayNames = [
+    'Chủ nhật',
+    'Thứ 2',
+    'Thứ 3',
+    'Thứ 4',
+    'Thứ 5',
+    'Thứ 6',
+    'Thứ 7',
+  ];
+  return dayNames[date.getDay()];
+};
+
 export const doctorService = {
   getAllDoctors,
   createDoctorSchedule,
   generateUniqueTimeSlotId,
   generateUniqueAvailabilityId,
   getDoctorAvailableTimeslots,
+  getAllDoctorTimeslots,
 };

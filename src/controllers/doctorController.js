@@ -30,38 +30,31 @@ const getAllDoctors = async (req, res) => {
 const getAvailableTimeslots = async (req, res) => {
   try {
     const { doctor_id } = req.params;
-    const { date } = req.query;
-
-    const userId = req.jwtDecoded.data?.user_id;
-    console.log(`User ${userId} đang xem lịch của bác sĩ ${doctor_id}`);
-
-    if (!date) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Vui lòng cung cấp ngày cần xem lịch',
-      });
-    }
-
-    const result = await doctorService.getDoctorAvailableTimeslots(
-      doctor_id,
-      date
-    );
+    // Không bắt buộc tham số date nữa
 
     console.log(
-      `Đã lấy khung giờ làm việc của bác sĩ ${doctor_id} ngày ${date}`
+      `API nhận request lấy lịch làm việc của bác sĩ ${doctor_id}`
     );
+
+    // Lấy userId từ token
+    const userId = req.jwtDecoded?.data?.user_id;
+    console.log(`User ${userId} đang xem lịch của bác sĩ ${doctor_id}`);
+
+    const result = await doctorService.getAllDoctorTimeslots(doctor_id);
+
+    console.log(`Đã lấy lịch làm việc của bác sĩ ${doctor_id}`);
 
     return res.status(StatusCodes.OK).json({
       success: true,
       data: result,
     });
   } catch (error) {
-    console.error(`Lỗi API lấy khung giờ làm việc: ${error.message}`);
+    console.error(`Lỗi API lấy lịch làm việc: ${error.message}`);
     return res
       .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
       .json({
         success: false,
-        message: error.message || 'Lỗi khi lấy khung giờ làm việc của bác sĩ',
+        message: error.message || 'Lỗi khi lấy lịch làm việc của bác sĩ',
       });
   }
 };
