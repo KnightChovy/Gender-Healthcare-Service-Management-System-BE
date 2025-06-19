@@ -56,6 +56,10 @@ const initAppointmentModel = () => {
           type: DataTypes.TINYINT(1),
           allowNull: true,
         },
+        appointment_time: {
+          type: DataTypes.TIME,
+          allowNull: true,
+        },
       },
       {
         tableName: 'appointments',

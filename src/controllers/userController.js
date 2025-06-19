@@ -76,11 +76,11 @@ const changePassword = async (req, res) => {
 const getMyProfile = async (req, res) => {
   try {
     // Kiểm tra req.user tồn tại
-    if (!req.user) {
+    if (!req.jwtDecoded) {
       throw new ApiError(401, 'User not authenticated properly');
     }
 
-    const userId = req.user.data?.user_id || req.user.user_id;
+    const userId = req.jwtDecoded.data?.user_id;
 
     if (!userId) {
       throw new ApiError(401, 'User not found');
