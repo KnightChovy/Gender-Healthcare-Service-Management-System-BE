@@ -133,9 +133,9 @@ const getUserProfile = async (userId) => {
     throw error.statusCode
       ? error
       : {
-          statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-          message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
-        };
+        statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+        message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
+      };
   }
 };
 

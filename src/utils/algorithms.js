@@ -1,5 +1,10 @@
-/**
- * Updated by trungquandev.com's author on August 17 2023
- * YouTube: https://youtube.com/@trungquandev
- * "A bit of fragrance clings to the hand that gives flowers!"
- */
+export function generateAppointmentId(latestAppointmentId) {
+  let nextId = 1;
+  if (latestAppointmentId && latestAppointmentId.startsWith('AP')) {
+    const latestId = parseInt(latestAppointmentId.substring(2));
+    if (!isNaN(latestId)) {
+      nextId = latestId + 1;
+    }
+  }
+  return `AP${nextId.toString().padStart(6, '0')}`;
+}

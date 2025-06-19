@@ -1,4 +1,5 @@
 import { appointmentServices } from '~/services/appointmentServices';
+import ApiError from '~/utils/ApiError';
 
 
 const createAppointment = async (req, res) => {
@@ -12,9 +13,10 @@ const createAppointment = async (req, res) => {
       data: appointment,
     });
   } catch (err) {
-    return res.status(500).json({
+    const status = err instanceof ApiError ? err.statusCode : 500;
+    return res.status(status).json({
       success: false,
-      message: 'Failed to create appointment',
+      message: err.message || 'Failed to create appointment',
       error: err.message,
     });
   }

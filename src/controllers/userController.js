@@ -2,6 +2,7 @@ import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '~/services/userService';
 import { clearCache } from '../middlewares/cacheMiddleware.js';
+import ApiError from '~/utils/ApiError';
 
 const getAllUsers = async (req, res) => {
   try {
@@ -9,9 +10,8 @@ const getAllUsers = async (req, res) => {
     console.log('listAllUsers', listAllUsers);
     res.status(StatusCodes.OK).json({ listAllUsers });
   } catch (error) {
-    res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({ message: error.message });
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    res.status(status).json({ message: error.message });
   }
 };
 
@@ -29,13 +29,8 @@ const createUser = async (req, res) => {
       user: newUser,
     });
   } catch (error) {
-    if (error.statusCode) {
-      res.status(error.statusCode).json({ message: error.message });
-    } else {
-      res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
-    }
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    res.status(status).json({ message: error.message });
   }
 };
 
@@ -54,13 +49,8 @@ const updateUser = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
-    if (error.statusCode) {
-      res.status(error.statusCode).json({ message: error.message });
-    } else {
-      res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: error.message });
-    }
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    res.status(status).json({ message: error.message });
   }
 };
 
@@ -78,13 +68,8 @@ const changePassword = async (req, res) => {
     });
     return;
   } catch (error) {
-    if (error.statusCode) {
-      res.status(error.statusCode).json({ message: error.message });
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        message: 'Xảy ra lỗi khi đổi mật khẩu',
-      });
-    }
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    res.status(status).json({ message: error.message });
   }
 };
 
@@ -92,19 +77,13 @@ const getMyProfile = async (req, res) => {
   try {
     // Kiểm tra req.user tồn tại
     if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not authenticated properly',
-      });
+      throw new ApiError(401, 'User not authenticated properly');
     }
 
     const userId = req.user.data?.user_id || req.user.user_id;
 
     if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not found',
-      });
+      throw new ApiError(401, 'User not found');
     }
 
     const userProfile = await userService.getUserProfile(userId);
@@ -114,7 +93,8 @@ const getMyProfile = async (req, res) => {
       userProfile,
     });
   } catch (error) {
-    res.status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    res.status(status).json({
       success: false,
       message: error.message || 'Lỗi khi lấy thông tin người dùng',
     });

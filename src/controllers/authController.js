@@ -1,4 +1,5 @@
 import { authService } from '~/services/authService';
+import ApiError from '~/utils/ApiError';
 
 const login = async (req, res) => {
   try {
@@ -24,7 +25,8 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(401).json({
+    const status = error instanceof ApiError ? error.statusCode : 401;
+    return res.status(status).json({
       success: false,
       message: error.message || 'Login failed',
       error: error.message,
@@ -43,7 +45,8 @@ const refreshToken = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(401).json({
+    const status = error instanceof ApiError ? error.statusCode : 401;
+    return res.status(status).json({
       success: false,
       message: error.message || 'Refresh token failed',
       error: error.message,
@@ -64,7 +67,8 @@ const logout = async (req, res) => {
       });
     }
   } catch (error) {
-    return res.status(401).json({
+    const status = error instanceof ApiError ? error.statusCode : 401;
+    return res.status(status).json({
       success: false,
       message: 'Logout failed',
       error: error.message,

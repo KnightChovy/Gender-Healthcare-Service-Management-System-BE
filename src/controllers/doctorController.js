@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import { doctorService } from '~/services/doctorService';
 import { MODELS } from '~/models/initModels';
+import ApiError from '~/utils/ApiError';
 
 const getAllDoctors = async (req, res) => {
   try {
@@ -10,17 +11,11 @@ const getAllDoctors = async (req, res) => {
       listAllDoctors,
     });
   } catch (error) {
-    if (error.statusCode) {
-      res.status(error.statusCode).json({
-        success: false,
-        message: error.message,
-      });
-    } else {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-        success: false,
-        message: error.message || 'Lỗi server khi lấy danh sách bác sĩ',
-      });
-    }
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    res.status(status).json({
+      success: false,
+      message: error.message || 'Lỗi server khi lấy danh sách bác sĩ',
+    });
   }
 };
 
@@ -49,32 +44,24 @@ const getAvailableTimeslots = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error(`Lỗi API lấy lịch làm việc: ${error.message}`);
-    return res
-      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({
-        success: false,
-        message: error.message || 'Lỗi khi lấy lịch làm việc của bác sĩ',
-      });
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Lỗi khi lấy lịch làm việc của bác sĩ',
+    });
   }
 };
 
 const chooseSchedule = async (req, res) => {
   try {
     if (!req.jwtDecoded) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        success: false,
-        message: 'Không được xác thực',
-      });
+      throw new ApiError(401, 'Không được xác thực');
     }
 
     const userId = req.jwtDecoded.data?.user_id;
 
     if (!userId) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Không tìm thấy thông tin người dùng trong token',
-      });
+      throw new ApiError(400, 'Không tìm thấy thông tin người dùng trong token');
     }
 
     const doctor = await MODELS.DoctorModel.findOne({
@@ -82,19 +69,13 @@ const chooseSchedule = async (req, res) => {
     });
 
     if (!doctor) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        success: false,
-        message: 'Không tìm thấy thông tin bác sĩ cho tài khoản này',
-      });
+      throw new ApiError(404, 'Không tìm thấy thông tin bác sĩ cho tài khoản này');
     }
 
     const { date, timeSlots } = req.body;
 
     if (!date || !Array.isArray(timeSlots) || timeSlots.length === 0) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Vui lòng cung cấp ngày và khung giờ làm việc',
-      });
+      throw new ApiError(400, 'Vui lòng cung cấp ngày và khung giờ làm việc');
     }
 
     const result = await doctorService.createDoctorSchedule(
@@ -116,13 +97,11 @@ const chooseSchedule = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error('Error in chooseSchedule:', error);
-    return res
-      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({
-        success: false,
-        message: error.message || 'Lỗi khi tạo lịch làm việc',
-      });
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Lỗi khi tạo lịch làm việc',
+    });
   }
 };
 
