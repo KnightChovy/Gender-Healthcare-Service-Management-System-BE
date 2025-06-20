@@ -20,6 +20,10 @@ const initAppointmentModel = () => {
           type: DataTypes.STRING(20),
           allowNull: false,
         },
+        doctor_id: {
+          type: DataTypes.STRING(20),
+          allowNull: false,
+        },
         timeslot_id: {
           type: DataTypes.STRING(20),
           allowNull: true,
@@ -53,11 +57,19 @@ const initAppointmentModel = () => {
           allowNull: true,
         },
         status: {
-          type: DataTypes.TINYINT(1),
+          type: DataTypes.STRING(20),
           allowNull: true,
         },
         appointment_time: {
           type: DataTypes.TIME,
+          allowNull: true,
+        },
+        profile_id: {
+          type: DataTypes.STRING(20),
+          allowNull: true,
+        },
+        booking: {
+          type: DataTypes.TINYINT(1),
           allowNull: true,
         },
       },
