@@ -25,7 +25,7 @@ const startServer = () => {
         'http://52.4.72.106:3000',
       ],
       credentials: true, // Use 'credentials' instead of 'withCredentials'
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'],
     })
   );
@@ -39,7 +39,7 @@ const startServer = () => {
         'http://52.4.72.106:3000',
       ],
       credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization'],
     })
   );
