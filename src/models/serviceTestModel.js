@@ -38,7 +38,7 @@ const initServiceTestModel = () => {
           type: DataTypes.DATE,
           allowNull: true,
         },
-        updated: {
+        updated_at: {
           type: DataTypes.DATE,
           allowNull: true,
         },
