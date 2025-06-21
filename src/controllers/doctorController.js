@@ -36,7 +36,7 @@ const getAvailableTimeslots = async (req, res) => {
     console.log(`User ${userId} đang xem lịch của bác sĩ ${doctor_id}`);
 
     const result = await doctorService.getAllDoctorTimeslots(doctor_id);
-
+    console.log('getAllDoctorTimeslots', result)
     console.log(`Đã lấy lịch làm việc của bác sĩ ${doctor_id}`);
 
     return res.status(StatusCodes.OK).json({

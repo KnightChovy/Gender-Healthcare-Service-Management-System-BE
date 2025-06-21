@@ -47,6 +47,17 @@ const createAppointment = async (data) => {
   }
 }
 
+export const getAllAppointments = async () => {
+  try {
+    const appointments = await MODELS.AppointmentModel.findAll();
+    return appointments;
+  } catch (error) {
+    console.error('Error fetching all appointments:', error);
+    throw new Error('Failed to fetch all appointments: ' + error.message);
+  }
+}
+
 export const appointmentServices = {
   createAppointment,
+  getAllAppointments,
 }

@@ -338,7 +338,6 @@ const getAllDoctorTimeslots = async (doctorId) => {
       order: [['date', 'ASC']],
       raw: true,
     });
-
     if (availabilities.length === 0) {
       console.log(`Bác sĩ ${doctorId} chưa có lịch làm việc nào`);
       return { schedules: [] };
@@ -376,61 +375,50 @@ const getAllDoctorTimeslots = async (doctorId) => {
       raw: true,
     });
 
-    // CẬP NHẬT: Tạo map các timeslot đã được đặt với appointment_time
-    const bookedSlotsMap = {};
+    const bookedAppointmentsMap = {};
     appointments.forEach((app) => {
-      if (app.appointment_time) {
-        bookedSlotsMap[app.timeslot_id] = true;
+      if (!bookedAppointmentsMap[app.timeslot_id]) {
+        bookedAppointmentsMap[app.timeslot_id] = [];
       }
+      bookedAppointmentsMap[app.timeslot_id].push(app.appointment_time);
     });
 
-    // Tạo map avail_id => date để tra cứu nhanh
     const availDateMap = {};
     availabilities.forEach((avail) => {
       availDateMap[avail.avail_id] = avail.date;
     });
-
-    // Nhóm timeslots theo ngày
+    console.log('availDateMap', availDateMap)
     const schedulesByDate = {};
 
     timeslots.forEach((slot) => {
       const date = availDateMap[slot.avail_id];
       if (!date) return;
+      const bookedTimes = bookedAppointmentsMap[slot.timeslot_id] || [];
 
       if (!schedulesByDate[date]) {
         schedulesByDate[date] = {
           date,
           dayOfWeek: getDayOfWeek(date),
-          morning: [],
-          afternoon: [],
+          timeslots: [],
         };
       }
 
-      // Tạo đối tượng timeslot
-      const timeslotData = {
-        timeslot_id: slot.timeslot_id,
-        time: slot.time_start.substring(0, 5),
-        // CẬP NHẬT: Kiểm tra xem timeslot này đã có appointment_time chưa
-        is_booked: !!bookedSlotsMap[slot.timeslot_id],
-      };
 
-      // Phân loại sáng/chiều
-      const hour = parseInt(timeslotData.time.split(':')[0]);
-      if (hour < 12) {
-        schedulesByDate[date].morning.push(timeslotData);
-      } else {
-        schedulesByDate[date].afternoon.push(timeslotData);
-      }
+      schedulesByDate[date].timeslots.push({
+        timeslot_id: slot.timeslot_id,
+        time_start: slot.time_start,
+        time_end: slot.time_end,
+        appointment_times: bookedTimes,
+        is_booked: bookedTimes.length > 0
+      });
     });
+
+    const schedules = Object.values(schedulesByDate).sort((a, b) => new Date(a.date) - new Date(b.date));
 
     // Sắp xếp timeslots trong mỗi ngày
-    Object.values(schedulesByDate).forEach((schedule) => {
-      schedule.morning.sort((a, b) => a.time.localeCompare(b.time));
-      schedule.afternoon.sort((a, b) => a.time.localeCompare(b.time));
+    schedules.forEach(schedule => {
+      schedule.timeslots.sort((a, b) => a.time_start.localeCompare(b.time_start));
     });
-
-    // Chuyển đổi object thành array và sắp xếp theo ngày
-    const schedules = Object.values(schedulesByDate);
 
     console.log(
       `Đã lấy ${schedules.length} ngày làm việc của bác sĩ ${doctorId}`
