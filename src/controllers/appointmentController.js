@@ -120,7 +120,7 @@ const approveAppointment = async (req, res) => {
     const { appointmentId } = req.params;
     const { status } = req.body;
     const managerId = req.jwtDecoded.data.user_id;
-
+    console.log('appointmentId', 'status', appointmentId, status)
     if (!appointmentId) {
       throw new ApiError(400, 'Appointment ID is required');
     }
