@@ -63,10 +63,10 @@ const changePassword = async (req, res) => {
       newPassword,
     });
     console.log('Password changed successfully for user:', msg);
-    res.status(StatusCodes.OK).json({
+    return res.status(StatusCodes.OK).json({
       message: 'Đổi mật khẩu thành công',
     });
-    return;
+    
   } catch (error) {
     const status = error instanceof ApiError ? error.statusCode : 500;
     res.status(status).json({ message: error.message });

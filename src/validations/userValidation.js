@@ -158,8 +158,6 @@ export const validateUpdateUser = (req, res, next) => {
       errors: errorMessages,
     });
   }
-
-  // Xóa confirm_password khỏi req.body vì không cần lưu vào DB
   delete req.body.confirm_password;
 
   next();

@@ -181,7 +181,7 @@
  *         description: Unauthorized
  *       403:
  *         description: Forbidden - Insufficient permissions
- *   
+ *
  *   post:
  *     summary: Create a new user
  *     description: Register a new user account
@@ -285,7 +285,7 @@
  *         description: Unauthorized
  *       404:
  *         description: User not found
- *   
+ *
  *   patch:
  *     summary: Change user password
  *     description: Allow authenticated users to change their password
@@ -758,7 +758,7 @@
  *                   example: false
  *                 message:
  *                   type: string
- *                   example: Validation failed: User ID must be US followed by 6 digits
+ *                   example: "Validation failed: User ID must be US followed by 6 digits"
  *                 error:
  *                   type: string
  *       401:
@@ -1293,4 +1293,3 @@
  *       scheme: bearer
  *       bearerFormat: JWT
  */
-
