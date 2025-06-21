@@ -27,6 +27,7 @@ const createAppointment = async (req, res) => {
 const getAllAppointments = async (req, res) => {
   try {
     const appointments = await appointmentServices.getAllAppointments();
+    console.log('appointments ne', appointments)
     return res.status(200).json({
       success: true,
       message: 'Fetched all appointments successfully',
