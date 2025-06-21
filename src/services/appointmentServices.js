@@ -125,10 +125,66 @@ export const getAppointmentsByDoctorId = async (doctorId) => {
   }
 }
 
+export const updateAppointmentStatus = async (appointmentId, status, managerId) => {
+  try {
+    // Find the appointment first
+    const appointment = await MODELS.AppointmentModel.findOne({
+      where: { appointment_id: appointmentId }
+    });
+
+    if (!appointment) {
+      throw new Error('Appointment not found');
+    }
+
+    const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled', 'rejected'];
+    if (!validStatuses.includes(status)) {
+      throw new Error('Invalid status value');
+    }
+
+    const updatedAppointment = await MODELS.AppointmentModel.update(
+      {
+        status: status,
+        updated_at: new Date()
+      },
+      {
+        where: { appointment_id: appointmentId },
+        returning: true
+      }
+    );
+
+    const result = await MODELS.AppointmentModel.findOne({
+      where: { appointment_id: appointmentId },
+      include: [
+        {
+          model: MODELS.UserModel,
+          as: 'appointments_user',
+          attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone']
+        },
+        {
+          model: MODELS.DoctorModel,
+          as: 'doctor',
+          attributes: ['doctor_id', 'first_name', 'last_name']
+        }
+      ]
+    });
+
+    return {
+      appointment: result,
+      action: status,
+      approvedBy: managerId,
+      timestamp: new Date()
+    };
+  } catch (error) {
+    console.error('Error updating appointment status:', error);
+    throw new Error('Failed to update appointment status: ' + error.message);
+  }
+}
+
 export const appointmentServices = {
   createAppointment,
   getAllAppointments,
   getAppointmentsByUserId,
   getAppointmentsByUserSlug,
   getAppointmentsByDoctorId,
+  updateAppointmentStatus,
 }

@@ -6,7 +6,6 @@ import ApiError from '~/utils/ApiError';
 
 const createAppointment = async (req, res) => {
   try {
-    // Validate and transform the frontend data
     const validatedData = appointmentValidation.validateAndTransformAppointmentData(req.body);
     
     const appointment = await appointmentServices.createAppointment(validatedData);
@@ -115,10 +114,92 @@ const getDoctorAppointments = async (req, res) => {
   }
 }
 
+const approveAppointment = async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+    const { status } = req.body;
+    const managerId = req.jwtDecoded.data.user_id;
+
+    if (!appointmentId) {
+      throw new ApiError(400, 'Appointment ID is required');
+    }
+
+    if (!status) {
+      throw new ApiError(400, 'Status is required');
+    }
+
+    const result = await appointmentServices.updateAppointmentStatus(appointmentId, status, managerId);
+    
+    return res.status(200).json({
+      success: true,
+      message: `Appointment ${status} successfully`,
+      data: result,
+    });
+  } catch (err) {
+    const status = err instanceof ApiError ? err.statusCode : 500;
+    return res.status(status).json({
+      success: false,
+      message: err.message || 'Failed to update appointment status',
+      error: err.message,
+    });
+  }
+}
+
+const ApproveAppointments = async (req, res) => {
+  try {
+    const { appointmentIds, status } = req.body;
+    const managerId = req.jwtDecoded.data.user_id;
+
+    if (!appointmentIds) {
+      throw new ApiError(400, 'Appointment ID(s) is required');
+    }
+
+    if (!status) {
+      throw new ApiError(400, 'Status is required');
+    }
+
+    const appointmentIdArray = Array.isArray(appointmentIds) ? appointmentIds : [appointmentIds];
+
+    if (appointmentIdArray.length === 0) {
+      throw new ApiError(400, 'At least one appointment ID is required');
+    }
+
+    const results = [];
+    const errors = [];
+
+    for (const appointmentId of appointmentIdArray) {
+      try {
+        const result = await appointmentServices.updateAppointmentStatus(appointmentId, status, managerId);
+        results.push(result);
+      } catch (error) {
+        errors.push({ appointmentId, error: error.message });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `${status} completed`,
+      data: {
+        successful: results,
+        failed: errors
+      },
+    });
+  } catch (err) {
+    const status = err instanceof ApiError ? err.statusCode : 500;
+    return res.status(status).json({
+      success: false,
+      message: err.message || 'Failed to update appointment status',
+      error: err.message,
+    });
+  }
+}
+
 export const appointmentController = {
   createAppointment,
   getAllAppointments,
   getUserAppointments,
   getUserAppointmentsBySlug,
   getDoctorAppointments,
+  approveAppointment,
+  ApproveAppointments,
 }

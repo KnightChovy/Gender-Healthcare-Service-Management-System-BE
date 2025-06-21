@@ -68,6 +68,48 @@
 
 /**
  * @swagger
+ * /v1/auth/refresh-token:
+ *   post:
+ *     summary: Refresh access token
+ *     description: Get a new access token using refresh token
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Refresh token received during login
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Token refreshed successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     accessToken:
+ *                       type: string
+ *       401:
+ *         description: Invalid refresh token
+ */
+
+/**
+ * @swagger
  * /v1/auth/logout:
  *   post:
  *     summary: Logout from the system
@@ -116,7 +158,134 @@
 
 /**
  * @swagger
+ * /v1/users:
+ *   get:
+ *     summary: Get all users
+ *     description: Retrieve a list of all users in the system (Admin/Manager only)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 listAllUsers:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Insufficient permissions
+ *   
+ *   post:
+ *     summary: Create a new user
+ *     description: Register a new user account
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateUser'
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User created successfully
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input data
+ */
+
+/**
+ * @swagger
+ * /v1/users/profile/me:
+ *   get:
+ *     summary: Get current user profile
+ *     description: Retrieves the profile information of the currently authenticated user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         required: true
+ *         description: Access token received during login
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 userProfile:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized - Invalid token or user not logged in
+ *       404:
+ *         description: Profile not found
+ */
+
+/**
+ * @swagger
  * /v1/users/{id}:
+ *   put:
+ *     summary: Update user profile
+ *     description: Update user information by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: User ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateUser'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User updated successfully
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input data
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *   
  *   patch:
  *     summary: Change user password
  *     description: Allow authenticated users to change their password
@@ -174,41 +343,8 @@
  *                   example: Password changed successfully
  *       400:
  *         description: Invalid request data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Invalid data
- *                 errors:
- *                   type: array
- *                   items:
- *                     type: string
- *                   example:
- *                     - "Current password is required"
- *                     - "New password must be at least 6 characters"
- *                     - "Passwords do not match"
  *       401:
  *         description: Unauthorized - Invalid token or incorrect current password
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Unauthorized
- *                 error:
- *                   type: string
- *                   example: Current password is incorrect
  */
 
 /**
@@ -268,144 +404,10 @@
  *                               example: "Internal Medicine"
  *       204:
  *         description: No doctors found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "No doctors found"
- *                 listAllDoctors:
- *                   type: array
- *                   example: []
  *       404:
  *         description: Resource not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Doctor information not found"
  *       401:
  *         description: Unauthorized access
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Access denied"
- */
-
-/**
- * @swagger
- * /v1/users/profile/me:
- *   get:
- *     summary: Get current user profile
- *     description: Retrieves the profile information of the currently authenticated user
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: x-access-token
- *         required: true
- *         description: Access token received during login
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User profile retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 userProfile:
- *                   type: object
- *                   properties:
- *                     user_id:
- *                       type: string
- *                       example: "US000025"
- *                     username:
- *                       type: string
- *                       example: "binhkhiem"
- *                     email:
- *                       type: string
- *                       example: "nguyenbinhkhiem@example.com"
- *                     phone:
- *                       type: string
- *                       example: "0987654321"
- *                     gender:
- *                       type: string
- *                       example: "male"
- *                     birthday:
- *                       type: string
- *                       format: date
- *                       example: "1990-05-15"
- *                     avatar:
- *                       type: string
- *                       example: "https://example.com/avatars/binhkhiem.jpg"
- *                     address:
- *                       type: string
- *                       example: "123 Nguyen Hue Street, District 1, Ho Chi Minh City"
- *                     first_name:
- *                       type: string
- *                       example: "Bỉnh Khiêm"
- *                     last_name:
- *                       type: string
- *                       example: "Nguyễn"
- *                     role:
- *                       type: string
- *                       example: "customer"
- *                     status:
- *                       type: integer
- *                       example: 1
- *       401:
- *         description: Unauthorized - Invalid token or user not logged in
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Unauthorized"
- *                 error:
- *                   type: string
- *                   example: "No token provided or token is invalid"
- *       404:
- *         description: Profile not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "User profile not found"
  */
 
 /**
@@ -512,85 +514,16 @@
  *                             example: "available"
  *       400:
  *         description: Dữ liệu không hợp lệ
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Vui lòng cung cấp ngày và khung giờ làm việc"
  *       401:
  *         description: Không được xác thực
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Không được phép truy cập"
- *                 error:
- *                   type: string
- *                   example: "Token không hợp lệ hoặc đã hết hạn"
  *       403:
  *         description: Không có quyền thực hiện
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Bạn không có quyền thực hiện chức năng này"
  *       404:
  *         description: Không tìm thấy thông tin bác sĩ
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Không tìm thấy thông tin bác sĩ cho tài khoản này"
  *       409:
  *         description: Xung đột dữ liệu
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Khung giờ 08:00:00 - 09:00:00 trùng với khung giờ hiện có"
  *       500:
  *         description: Lỗi server
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: "Lỗi khi tạo lịch làm việc"
  */
 
 /**
@@ -661,16 +594,474 @@
 
 /**
  * @swagger
- * /v1/appointments:
+ * /v1/doctors/{doctor_id}/appointments:
  *   get:
- *     summary: Lấy danh sách tất cả các cuộc hẹn
- *     description: Trả về danh sách tất cả các cuộc hẹn có trong hệ thống. (Chỉ dành cho Quản lý)
+ *     summary: Get doctor's appointments
+ *     description: Retrieve all appointments for a specific doctor
+ *     tags: [Doctors]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: doctor_id
+ *         required: true
+ *         description: Doctor ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Doctor appointments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Fetched doctor appointments successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Appointment'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Doctor access only
+ */
+
+/**
+ * @swagger
+ * /v1/doctors/my/appointments:
+ *   get:
+ *     summary: Get authenticated doctor's appointments
+ *     description: Retrieve all appointments for the currently authenticated doctor
+ *     tags: [Doctors]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Doctor appointments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Fetched doctor appointments successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Appointment'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Doctor access only
+ */
+
+/**
+ * @swagger
+ * /v1/appointments:
+ *   post:
+ *     summary: Create a new appointment
+ *     description: Create a new appointment with validation
+ *     tags: [Appointments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - selectedDoctor
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 pattern: '^US\\d{6}$'
+ *                 example: "US000003"
+ *                 description: User ID (must be US followed by 6 digits)
+ *               selectedDoctor:
+ *                 type: string
+ *                 pattern: '^DR\\d{6}$'
+ *                 example: "DR000003"
+ *                 description: Doctor ID (must be DR followed by 6 digits)
+ *               timeslot_id:
+ *                 type: string
+ *                 pattern: '^TS\\d{6}$'
+ *                 example: "TS000001"
+ *                 description: Timeslot ID (optional)
+ *               consultant_type:
+ *                 type: string
+ *                 maxLength: 150
+ *                 example: "Tư vấn chu kỳ kinh nguyệt"
+ *                 description: Type of consultation
+ *               status:
+ *                 type: string
+ *                 enum: [pending, confirmed, completed, cancelled, rejected, 0, 1]
+ *                 default: pending
+ *                 example: "0"
+ *                 description: Appointment status
+ *               appointment_time:
+ *                 type: string
+ *                 example: "TS000002_10:00:00:00"
+ *                 description: Appointment time
+ *               price_apm:
+ *                 type: number
+ *                 minimum: 0
+ *                 maximum: 999999999.99
+ *                 example: 200000
+ *                 description: Appointment price
+ *               symptoms:
+ *                 type: string
+ *                 maxLength: 65535
+ *                 example: "Irregular periods"
+ *                 description: Patient symptoms
+ *               notes:
+ *                 type: string
+ *                 maxLength: 65535
+ *                 example: "First consultation"
+ *                 description: Additional notes
+ *     responses:
+ *       201:
+ *         description: Appointment created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Appointment created successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/Appointment'
+ *       400:
+ *         description: Validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Validation failed: User ID must be US followed by 6 digits
+ *                 error:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - User access only
+ */
+
+/**
+ * @swagger
+ * /v1/appointments/my-appointments:
+ *   get:
+ *     summary: Get user's own appointments
+ *     description: Retrieve all appointments for the currently authenticated user
  *     tags: [Appointments]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Lấy danh sách cuộc hẹn thành công
+ *         description: User appointments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Fetched user appointments successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Appointment'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - User access only
+ */
+
+/**
+ * @swagger
+ * /v1/appointments/user/{userId}:
+ *   get:
+ *     summary: Get specific user's appointments
+ *     description: Retrieve all appointments for a specific user (Admin/Manager access)
+ *     tags: [Appointments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: false
+ *         description: User ID (if not provided, uses authenticated user's ID)
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User appointments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Fetched user appointments successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Appointment'
+ *       400:
+ *         description: User ID is required
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /v1/managers/dashboard:
+ *   get:
+ *     summary: Manager dashboard
+ *     description: Welcome page for manager dashboard
+ *     tags: [Managers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Welcome message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Welcome to the manager dashboard!
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Manager access only
+ */
+
+/**
+ * @swagger
+ * /v1/managers/appointments:
+ *   get:
+ *     summary: Get all appointments (Manager)
+ *     description: Retrieve all appointments in the system for management
+ *     tags: [Managers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All appointments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Fetched all appointments successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Appointment'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Manager access only
+ */
+
+/**
+ * @swagger
+ * /v1/managers/appointments/{appointmentId}/approve:
+ *   patch:
+ *     summary: Approve single appointment
+ *     description: Update status of a specific appointment
+ *     tags: [Managers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: appointmentId
+ *         required: true
+ *         description: Appointment ID
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [pending, confirmed, completed, cancelled, rejected]
+ *                 example: "confirmed"
+ *                 description: New appointment status
+ *     responses:
+ *       200:
+ *         description: Appointment status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Appointment confirmed successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     appointment:
+ *                       $ref: '#/components/schemas/Appointment'
+ *                     action:
+ *                       type: string
+ *                       example: "confirmed"
+ *                     approvedBy:
+ *                       type: string
+ *                       example: "MG000001"
+ *                     timestamp:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Invalid request data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Manager access only
+ *       404:
+ *         description: Appointment not found
+ */
+
+/**
+ * @swagger
+ * /v1/managers/appointments/approve:
+ *   patch:
+ *     summary: Approve multiple appointments
+ *     description: Update status of multiple appointments (single or bulk)
+ *     tags: [Managers]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - appointmentIds
+ *               - status
+ *             properties:
+ *               appointmentIds:
+ *                 oneOf:
+ *                   - type: string
+ *                     example: "AP000001"
+ *                     description: Single appointment ID
+ *                   - type: array
+ *                     items:
+ *                       type: string
+ *                     example: ["AP000001", "AP000002", "AP000003"]
+ *                     description: Multiple appointment IDs
+ *               status:
+ *                 type: string
+ *                 enum: [pending, confirmed, completed, cancelled, rejected]
+ *                 example: "confirmed"
+ *                 description: New appointment status
+ *     responses:
+ *       200:
+ *         description: Appointment status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: confirmed completed
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     successful:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           appointment:
+ *                             $ref: '#/components/schemas/Appointment'
+ *                           action:
+ *                             type: string
+ *                           approvedBy:
+ *                             type: string
+ *                           timestamp:
+ *                             type: string
+ *                             format: date-time
+ *                     failed:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           appointmentId:
+ *                             type: string
+ *                           error:
+ *                             type: string
+ *       400:
+ *         description: Invalid request data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Manager access only
+ */
+
+/**
+ * @swagger
+ * /v1/services:
+ *   get:
+ *     summary: Get all services
+ *     description: Retrieve all medical services available in the system
+ *     tags: [Services]
+ *     responses:
+ *       200:
+ *         description: Services retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -682,48 +1073,141 @@
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Appointment'
- *       403:
- *         description: Không có quyền truy cập
- *
- *   post:
- *     summary: Tạo một cuộc hẹn mới
- *     description: Cho phép người dùng tạo một cuộc hẹn mới cùng với các dịch vụ xét nghiệm đi kèm.
- *     tags: [Appointments]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateAppointment'
- *     responses:
- *       201:
- *         description: Tạo cuộc hẹn thành công
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Appointment created successfully"
- *                 data:
- *                   $ref: '#/components/schemas/Appointment'
- *       400:
- *         description: Dữ liệu không hợp lệ
- *       403:
- *         description: Không có quyền tạo cuộc hẹn
+ *                     $ref: '#/components/schemas/ServiceTest'
+ *       500:
+ *         description: Internal server error
  */
 
 /**
  * @swagger
  * components:
  *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         user_id:
+ *           type: string
+ *           example: "US000001"
+ *         username:
+ *           type: string
+ *           example: "john_doe"
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: "john.doe@example.com"
+ *         phone:
+ *           type: string
+ *           example: "0987654321"
+ *         gender:
+ *           type: string
+ *           enum: [male, female, other]
+ *           example: "male"
+ *         birthday:
+ *           type: string
+ *           format: date
+ *           example: "1990-05-15"
+ *         avatar:
+ *           type: string
+ *           example: "https://example.com/avatars/john.jpg"
+ *         address:
+ *           type: string
+ *           example: "123 Nguyen Hue Street, District 1, Ho Chi Minh City"
+ *         first_name:
+ *           type: string
+ *           example: "John"
+ *         last_name:
+ *           type: string
+ *           example: "Doe"
+ *         role:
+ *           type: string
+ *           enum: [user, doctor, manager, admin]
+ *           example: "user"
+ *         status:
+ *           type: integer
+ *           example: 1
+ *         slug:
+ *           type: string
+ *           example: "john-doe"
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ *
+ *     CreateUser:
+ *       type: object
+ *       required:
+ *         - username
+ *         - password
+ *         - email
+ *       properties:
+ *         username:
+ *           type: string
+ *           minLength: 3
+ *           maxLength: 20
+ *           example: "john_doe"
+ *         password:
+ *           type: string
+ *           minLength: 6
+ *           maxLength: 50
+ *           example: "password123"
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: "john.doe@example.com"
+ *         phone:
+ *           type: string
+ *           example: "0987654321"
+ *         gender:
+ *           type: string
+ *           enum: [male, female, other]
+ *           example: "male"
+ *         birthday:
+ *           type: string
+ *           format: date
+ *           example: "1990-05-15"
+ *         address:
+ *           type: string
+ *           example: "123 Nguyen Hue Street, District 1, Ho Chi Minh City"
+ *         first_name:
+ *           type: string
+ *           example: "John"
+ *         last_name:
+ *           type: string
+ *           example: "Doe"
+ *
+ *     UpdateUser:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           example: "john.doe@example.com"
+ *         phone:
+ *           type: string
+ *           example: "0987654321"
+ *         gender:
+ *           type: string
+ *           enum: [male, female, other]
+ *           example: "male"
+ *         birthday:
+ *           type: string
+ *           format: date
+ *           example: "1990-05-15"
+ *         avatar:
+ *           type: string
+ *           example: "https://example.com/avatars/john.jpg"
+ *         address:
+ *           type: string
+ *           example: "123 Nguyen Hue Street, District 1, Ho Chi Minh City"
+ *         first_name:
+ *           type: string
+ *           example: "John"
+ *         last_name:
+ *           type: string
+ *           example: "Doe"
+ *
  *     Appointment:
  *       type: object
  *       properties:
@@ -738,83 +1222,48 @@
  *           example: "DR000001"
  *         timeslot_id:
  *           type: string
+ *           nullable: true
  *           example: "TS000001"
  *         status:
  *           type: string
- *           example: "booked"
+ *           enum: [pending, confirmed, completed, cancelled, rejected, 0, 1]
+ *           example: "pending"
  *         rating:
  *           type: integer
  *           nullable: true
+ *           example: 5
  *         feedback:
  *           type: string
  *           nullable: true
+ *           example: "Great service!"
  *         descriptions:
  *           type: string
- *           example: "Khám tổng quát"
+ *           nullable: true
+ *           example: "Regular checkup"
  *         price_apm:
  *           type: number
  *           format: decimal
+ *           nullable: true
  *           example: 750000.00
  *         consultant_type:
  *           type: string
+ *           nullable: true
  *           example: "Tư vấn trực tiếp"
- *         profile_id:
- *           type: string
- *           example: "PF000001"
  *         booking:
  *           type: integer
  *           example: 1
  *         appointment_time:
  *           type: string
  *           format: time
+ *           nullable: true
  *           example: "09:00:00"
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *         updated_at:
+ *           type: string
+ *           format: date-time
  *
- *     CreateAppointment:
- *       type: object
- *       properties:
- *         appointment:
- *           $ref: '#/components/schemas/Appointment'
- *         detailAppointment_tests:
- *           type: array
- *           items:
- *             type: object
- *             properties:
- *               service_id:
- *                 type: string
- *                 example: "SV000001"
- *               name:
- *                 type: string
- *                 example: "Xét nghiệm HIV"
- *               price:
- *                 type: number
- *                 example: 250000
- */
-
-/**
- * @swagger
- * /v1/services:
- *   get:
- *     summary: Lấy danh sách tất cả các dịch vụ xét nghiệm
- *     description: Trả về danh sách tất cả các dịch vụ xét nghiệm có trong hệ thống.
- *     tags: [Services]
- *     responses:
- *       200:
- *         description: Lấy danh sách dịch vụ thành công
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/ServiceTest'
- *
- * components:
- *   schemas:
  *     ServiceTest:
  *       type: object
  *       properties:
@@ -837,5 +1286,11 @@
  *         resultWaitTime:
  *           type: integer
  *           example: 2
+ *
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  */
 

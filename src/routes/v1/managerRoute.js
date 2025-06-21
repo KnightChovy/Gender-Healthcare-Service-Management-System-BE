@@ -11,6 +11,10 @@ Router.get('/dashboard', isAuth, isManager, (req, res) => {
     message: 'Welcome to the manager dashboard!',
   });
 });
-Router.get('/appoinments', isAuth, isManager, appointmentController.getAllAppointments)
+Router.get('/appointments', isAuth, isManager, appointmentController.getAllAppointments)
+
+// Manager appointment approval routes
+Router.patch('/appointments/:appointmentId/approve', isAuth, isManager, appointmentController.approveAppointment);
+Router.patch('/appointments/approve', isAuth, isManager, appointmentController.ApproveAppointments);
 
 export const managerRoute = Router; 
