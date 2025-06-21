@@ -5,21 +5,14 @@ import ApiError from '~/utils/ApiError';
 
 const createAppointment = async (req, res) => {
   try {
+    // The isUser middleware has already verified the user's role.
     const appointmentData = req.body;
-    const decoded = req.jwtDecoded
-    const role = decoded.data.role;
-    if (!role || role !== 'user') {
-      return res.status(403).json({
-        success: false,
-        message: 'Forbidden: You do not have permission',
-      });
-    }
     console.log('appointmentData', appointmentData)
-     const appointment = await appointmentServices.createAppointment(appointmentData);
-    return res.status(200).json({
+    const appointment = await appointmentServices.createAppointment(appointmentData);
+    return res.status(201).json({
       success: true,
       message: 'Appointment created successfully',
-      //  data: appointment,
+      data: appointment,
     });
   } catch (err) {
     const status = err instanceof ApiError ? err.statusCode : 500;

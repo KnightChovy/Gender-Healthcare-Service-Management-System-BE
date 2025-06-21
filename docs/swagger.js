@@ -790,3 +790,52 @@
  *                 example: 250000
  */
 
+/**
+ * @swagger
+ * /v1/services:
+ *   get:
+ *     summary: Lấy danh sách tất cả các dịch vụ xét nghiệm
+ *     description: Trả về danh sách tất cả các dịch vụ xét nghiệm có trong hệ thống.
+ *     tags: [Services]
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách dịch vụ thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ServiceTest'
+ *
+ * components:
+ *   schemas:
+ *     ServiceTest:
+ *       type: object
+ *       properties:
+ *         service_id:
+ *           type: string
+ *           example: "SV000001"
+ *         name:
+ *           type: string
+ *           example: "Xét nghiệm HIV"
+ *         description:
+ *           type: string
+ *           example: "Phát hiện kháng thể HIV trong máu."
+ *         price:
+ *           type: number
+ *           format: decimal
+ *           example: 250000.00
+ *         preparationGuidelines:
+ *           type: string
+ *           example: "Không cần chuẩn bị đặc biệt."
+ *         resultWaitTime:
+ *           type: integer
+ *           example: 2
+ */
+

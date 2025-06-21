@@ -36,7 +36,6 @@ const getAvailableTimeslots = async (req, res) => {
     console.log(`User ${userId} đang xem lịch của bác sĩ ${doctor_id}`);
 
     const result = await doctorService.getAllDoctorTimeslots(doctor_id);
-    console.log('getAllDoctorTimeslots', result)
     console.log(`Đã lấy lịch làm việc của bác sĩ ${doctor_id}`);
 
     return res.status(StatusCodes.OK).json({
@@ -54,23 +53,9 @@ const getAvailableTimeslots = async (req, res) => {
 
 const chooseSchedule = async (req, res) => {
   try {
-    if (!req.jwtDecoded) {
-      throw new ApiError(401, 'Không được xác thực');
-    }
-
-    const userId = req.jwtDecoded.data?.user_id;
-
-    if (!userId) {
-      throw new ApiError(400, 'Không tìm thấy thông tin người dùng trong token');
-    }
-
-    const doctor = await MODELS.DoctorModel.findOne({
-      where: { user_id: userId },
-    });
-
-    if (!doctor) {
-      throw new ApiError(404, 'Không tìm thấy thông tin bác sĩ cho tài khoản này');
-    }
+    // The isDoctor middleware has already verified the user is a doctor
+    // and attached the doctor's profile to req.doctor.
+    const doctor = req.doctor;
 
     const { date, timeSlots } = req.body;
 

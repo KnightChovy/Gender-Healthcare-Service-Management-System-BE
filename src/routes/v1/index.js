@@ -1,8 +1,11 @@
 import express from 'express';
-import { userRoutes } from './userRoute';
+import { userRoute } from './userRoute';
 import { authRoutes } from './authRoute';
-import { doctorRoutes } from './doctorRoute';
+import { doctorRoute } from './doctorRoute';
 import { appointmentRoute } from './appointmentRoute';
+import { managerRoute } from './managerRoute';
+import { serviceRoute } from './serviceRoute';
+
 const Router = express.Router();
 
 // Health check route
@@ -18,8 +21,10 @@ const Router = express.Router();
 Router.use('/auth', authRoutes);
 
 // Protected routes (authentication required)
-Router.use('/users', userRoutes);
-Router.use('/doctors', doctorRoutes);
+Router.use('/users', userRoute);
+Router.use('/doctors', doctorRoute);
 Router.use('/appointments', appointmentRoute);
+Router.use('/managers', managerRoute);
+Router.use('/services', serviceRoute);
 
 export const API_V1 = Router;
