@@ -34,8 +34,31 @@ const createAppointment = async (data) => {
 
 export const getAllAppointments = async () => {
   try {
-    const appointments = await MODELS.AppointmentModel.findAll();
-    return appointments;
+    const appointments = await MODELS.AppointmentModel.findAll({
+      include: [
+        {
+          model: MODELS.UserModel,
+          as: 'appointments_user',
+          attributes: ['user_id', 'username', 'first_name', 'last_name']
+        },
+        {
+          model: MODELS.DoctorModel,
+          as: 'doctor',
+          attributes: ['doctor_id', 'first_name', 'last_name']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    const result = appointments.map(app => {
+      const plain = app.get({ plain: true });
+      return {
+        ...plain,
+        username: plain.appointments_user?.username || '',
+        doctor_name: plain.doctor ? `${plain.doctor.first_name || ''} ${plain.doctor.last_name || ''}`.trim() : ''
+      };
+    });
+    return result;
   } catch (error) {
     console.error('Error fetching all appointments:', error);
     throw new Error('Failed to fetch all appointments: ' + error.message);
@@ -50,12 +73,12 @@ export const getAppointmentsByUserId = async (userId) => {
         {
           model: MODELS.DoctorModel,
           as: 'doctor',
-          attributes: ['doctor_id', 'name', 'specialization', 'email', 'phone']
+          attributes: ['doctor_id']
         },
         {
-          model: MODELS.TimeSlotModel,
+          model: MODELS.TimeslotModel,
           as: 'timeslot',
-          attributes: ['timeslot_id', 'start_time', 'end_time', 'date']
+          attributes: ['timeslot_id']
         }
       ],
       order: [['created_at', 'DESC']]
@@ -86,7 +109,7 @@ export const getAppointmentsByUserSlug = async (slug) => {
           attributes: ['doctor_id', 'name', 'specialization', 'email', 'phone']
         },
         {
-          model: MODELS.TimeSlotModel,
+          model: MODELS.TimeslotModel,
           as: 'timeslot',
           attributes: ['timeslot_id', 'start_time', 'end_time', 'date']
         }
@@ -111,7 +134,7 @@ export const getAppointmentsByDoctorId = async (doctorId) => {
           attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone', 'avatar']
         },
         {
-          model: MODELS.TimeSlotModel,
+          model: MODELS.TimeslotModel,
           as: 'timeslot',
           attributes: ['timeslot_id', 'start_time', 'end_time', 'date']
         }
