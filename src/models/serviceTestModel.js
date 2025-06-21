@@ -26,15 +26,19 @@ const initServiceTestModel = () => {
           type: DataTypes.DECIMAL(10, 2),
           allowNull: true,
         },
-        preparationGuidelines: {
+        preparation_guidelines: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
-        resultWaitTime: {
+        result_wait_time: {
           type: DataTypes.INTEGER,
           allowNull: true,
         },
         created_at: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
+        updated: {
           type: DataTypes.DATE,
           allowNull: true,
         },
