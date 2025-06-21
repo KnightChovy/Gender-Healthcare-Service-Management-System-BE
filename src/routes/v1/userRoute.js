@@ -34,4 +34,4 @@ Router.route('/:id')
 // Router.put('/profile/me', userController.updateMyProfile)
 // Router.put('/profile/change-password', userController.changePassword)
 
-export const userRoutes = Router;
+export const userRoute = Router;
