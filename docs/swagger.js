@@ -597,8 +597,8 @@
  * @swagger
  * /v1/doctors/{doctor_id}/available-timeslots:
  *   get:
- *     summary: Lấy danh sách khung giờ làm việc của bác sĩ theo ngày
- *     description: Trả về danh sách các khung giờ làm việc của bác sĩ cho một ngày cụ thể, phân chia theo buổi sáng/chiều
+ *     summary: Lấy tất cả lịch làm việc của một bác sĩ
+ *     description: Trả về danh sách tất cả các ngày làm việc và các khung giờ tương ứng của một bác sĩ, bao gồm các lịch hẹn đã được đặt.
  *     tags: [Doctors]
  *     security:
  *       - bearerAuth: []
@@ -609,16 +609,9 @@
  *           type: string
  *         required: true
  *         description: ID của bác sĩ
- *       - in: query
- *         name: date
- *         schema:
- *           type: string
- *           format: date
- *         required: true
- *         description: Ngày cần xem lịch (YYYY-MM-DD)
  *     responses:
  *       200:
- *         description: Lấy danh sách khung giờ thành công
+ *         description: Lấy danh sách lịch làm việc thành công
  *         content:
  *           application/json:
  *             schema:
@@ -630,35 +623,170 @@
  *                 data:
  *                   type: object
  *                   properties:
- *                     date:
- *                       type: string
- *                       example: "2025-06-29"
- *                     morning:
+ *                     schedules:
  *                       type: array
  *                       items:
  *                         type: object
  *                         properties:
- *                           timeslot_id:
+ *                           date:
  *                             type: string
- *                             example: "TS000010"
- *                           time:
+ *                             format: date
+ *                             example: "2025-06-29"
+ *                           dayOfWeek:
  *                             type: string
- *                             example: "08:00"
- *                           is_booked:
- *                             type: boolean
- *                             example: false
- *                     afternoon:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           timeslot_id:
- *                             type: string
- *                             example: "TS000015"
- *                           time:
- *                             type: string
- *                             example: "14:00"
- *                           is_booked:
- *                             type: boolean
- *                             example: true
+ *                             example: "Chủ nhật"
+ *                           timeslots:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 timeslot_id:
+ *                                   type: string
+ *                                   example: "TS000010"
+ *                                 time_start:
+ *                                   type: string
+ *                                   example: "08:00:00"
+ *                                 time_end:
+ *                                   type: string
+ *                                   example: "09:00:00"
+ *                                 appointment_times:
+ *                                   type: array
+ *                                   items:
+ *                                     type: string
+ *                                     example: "08:30:00"
+ *                                 is_booked:
+ *                                   type: boolean
+ *                                   example: true
  */
+
+/**
+ * @swagger
+ * /v1/appointments:
+ *   get:
+ *     summary: Lấy danh sách tất cả các cuộc hẹn
+ *     description: Trả về danh sách tất cả các cuộc hẹn có trong hệ thống. (Chỉ dành cho Quản lý)
+ *     tags: [Appointments]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách cuộc hẹn thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Appointment'
+ *       403:
+ *         description: Không có quyền truy cập
+ *
+ *   post:
+ *     summary: Tạo một cuộc hẹn mới
+ *     description: Cho phép người dùng tạo một cuộc hẹn mới cùng với các dịch vụ xét nghiệm đi kèm.
+ *     tags: [Appointments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateAppointment'
+ *     responses:
+ *       201:
+ *         description: Tạo cuộc hẹn thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Appointment created successfully"
+ *                 data:
+ *                   $ref: '#/components/schemas/Appointment'
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *       403:
+ *         description: Không có quyền tạo cuộc hẹn
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Appointment:
+ *       type: object
+ *       properties:
+ *         appointment_id:
+ *           type: string
+ *           example: "AP000001"
+ *         user_id:
+ *           type: string
+ *           example: "US000001"
+ *         doctor_id:
+ *           type: string
+ *           example: "DR000001"
+ *         timeslot_id:
+ *           type: string
+ *           example: "TS000001"
+ *         status:
+ *           type: string
+ *           example: "booked"
+ *         rating:
+ *           type: integer
+ *           nullable: true
+ *         feedback:
+ *           type: string
+ *           nullable: true
+ *         descriptions:
+ *           type: string
+ *           example: "Khám tổng quát"
+ *         price_apm:
+ *           type: number
+ *           format: decimal
+ *           example: 750000.00
+ *         consultant_type:
+ *           type: string
+ *           example: "Tư vấn trực tiếp"
+ *         profile_id:
+ *           type: string
+ *           example: "PF000001"
+ *         booking:
+ *           type: integer
+ *           example: 1
+ *         appointment_time:
+ *           type: string
+ *           format: time
+ *           example: "09:00:00"
+ *
+ *     CreateAppointment:
+ *       type: object
+ *       properties:
+ *         appointment:
+ *           $ref: '#/components/schemas/Appointment'
+ *         detailAppointment_tests:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               service_id:
+ *                 type: string
+ *                 example: "SV000001"
+ *               name:
+ *                 type: string
+ *                 example: "Xét nghiệm HIV"
+ *               price:
+ *                 type: number
+ *                 example: 250000
+ */
+
