@@ -8,6 +8,7 @@ const createAppointment = async (data) => {
     const mainAppointmentData = { ...appointment };
     if (!mainAppointmentData.appointment_id) {
       const latestAppointment = await MODELS.AppointmentModel.findOne({
+        attributes: ['appointment_id'],
         order: [['appointment_id', 'DESC']],
       });
       const latestId = latestAppointment ? latestAppointment.appointment_id : null;
