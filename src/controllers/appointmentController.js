@@ -1,14 +1,15 @@
 import { jwtHelper } from '~/helpers/jwt';
 import { appointmentServices } from '~/services/appointmentServices';
+import { appointmentValidation } from '~/validations/appointmentValidation';
 import ApiError from '~/utils/ApiError';
 
 
 const createAppointment = async (req, res) => {
   try {
-    // The isUser middleware has already verified the user's role.
-    const appointmentData = req.body;
-    console.log('appointmentData', appointmentData)
-    const appointment = await appointmentServices.createAppointment(appointmentData);
+    // Validate and transform the frontend data
+    const validatedData = appointmentValidation.validateAndTransformAppointmentData(req.body);
+    
+    const appointment = await appointmentServices.createAppointment(validatedData);
     return res.status(201).json({
       success: true,
       message: 'Appointment created successfully',
