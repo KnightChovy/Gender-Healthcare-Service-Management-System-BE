@@ -35,6 +35,19 @@ export const setupDoctorAssociations = (UserModel, DoctorModel, CertificateModel
     as: 'appointments_user',
   });
 
+  // Association between Appointment and Doctor
+  AppointmentModel.belongsTo(DoctorModel, {
+    foreignKey: 'doctor_id',
+    targetKey: 'doctor_id',
+    as: 'doctor',
+  });
+
+  DoctorModel.hasMany(AppointmentModel, {
+    foreignKey: 'doctor_id',
+    sourceKey: 'doctor_id',
+    as: 'appointments',
+  });
+
   AppointmentModel.hasMany(DetailAppointmentTestModel, {
     foreignKey: 'appointment_id',
     sourceKey: 'appointment_id',

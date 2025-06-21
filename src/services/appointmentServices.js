@@ -4,7 +4,7 @@ import { generateAppointmentId } from '~/utils/algorithms';
 
 const createAppointment = async (data) => {
   try {
-    const { appointment, detailAppointment_tests } = data;
+    const { appointment } = data;
     const mainAppointmentData = { ...appointment };
     if (!mainAppointmentData.appointment_id) {
       const latestAppointment = await MODELS.AppointmentModel.findOne({
@@ -17,27 +17,27 @@ const createAppointment = async (data) => {
     const result = await MODELS.AppointmentModel.sequelize.transaction(async (t) => {
       const createdAppointment = await MODELS.AppointmentModel.create(mainAppointmentData, { transaction: t });
 
-      if (Array.isArray(detailAppointment_tests) && detailAppointment_tests.length > 0) {
-        const latestDetail = await MODELS.DetailAppointmentTestModel.findOne({
-          order: [['appointmentTest_id', 'DESC']],
-          transaction: t,
-        });
-        let nextDetailId = 1;
-        if (latestDetail) {
-          const latestDetailNum = parseInt(latestDetail.appointmentTest_id.substring(2));
-          if (!isNaN(latestDetailNum)) nextDetailId = latestDetailNum + 1;
-        }
-        for (const test of detailAppointment_tests) {
-          await MODELS.DetailAppointmentTestModel.create({
-            appointmentTest_id: `DT${nextDetailId.toString().padStart(6, '0')}`,
-            appointment_id: mainAppointmentData.appointment_id,
-            service_id: test.service_id,
-            name: test.name,
-            price: test.price,
-          }, { transaction: t });
-          nextDetailId++;
-        }
-      }
+      // if (Array.isArray(detailAppointment_tests) && detailAppointment_tests.length > 0) {
+      //   const latestDetail = await MODELS.DetailAppointmentTestModel.findOne({
+      //     order: [['appointmentTest_id', 'DESC']],
+      //     transaction: t,
+      //   });
+        // let nextDetailId = 1;
+        // if (latestDetail) {
+        //   const latestDetailNum = parseInt(latestDetail.appointmentTest_id.substring(2));
+        //   if (!isNaN(latestDetailNum)) nextDetailId = latestDetailNum + 1;
+        // }
+        // for (const test of detailAppointment_tests) {
+        //   await MODELS.DetailAppointmentTestModel.create({
+        //     appointmentTest_id: `DT${nextDetailId.toString().padStart(6, '0')}`,
+        //     appointment_id: mainAppointmentData.appointment_id,
+        //     service_id: test.service_id,
+        //     name: test.name,
+        //     price: test.price,
+        //   }, { transaction: t });
+        //   nextDetailId++;
+        // }
+     // }
       return createdAppointment;
     });
     return result;
@@ -57,7 +57,93 @@ export const getAllAppointments = async () => {
   }
 }
 
+export const getAppointmentsByUserId = async (userId) => {
+  try {
+    const appointments = await MODELS.AppointmentModel.findAll({
+      where: { user_id: userId },
+      include: [
+        {
+          model: MODELS.DoctorModel,
+          as: 'doctor',
+          attributes: ['doctor_id', 'name', 'specialization', 'email', 'phone']
+        },
+        {
+          model: MODELS.TimeSlotModel,
+          as: 'timeslot',
+          attributes: ['timeslot_id', 'start_time', 'end_time', 'date']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+    return appointments;
+  } catch (error) {
+    console.error('Error fetching appointments by user ID:', error);
+    throw new Error('Failed to fetch appointments by user ID: ' + error.message);
+  }
+}
+
+export const getAppointmentsByUserSlug = async (slug) => {
+  try {
+    // First find the user by slug
+    const user = await MODELS.UserModel.findOne({ where: { slug } });
+
+    if (!user) {
+      throw new Error('User not found with the provided slug');
+    }
+
+    // Then get appointments for that user
+    const appointments = await MODELS.AppointmentModel.findAll({
+      where: { user_id: user.user_id },
+      include: [
+        {
+          model: MODELS.DoctorModel,
+          as: 'doctor',
+          attributes: ['doctor_id', 'name', 'specialization', 'email', 'phone']
+        },
+        {
+          model: MODELS.TimeSlotModel,
+          as: 'timeslot',
+          attributes: ['timeslot_id', 'start_time', 'end_time', 'date']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+    return appointments;
+  } catch (error) {
+    console.error('Error fetching appointments by user slug:', error);
+    throw new Error('Failed to fetch appointments by user slug: ' + error.message);
+  }
+}
+
+export const getAppointmentsByDoctorId = async (doctorId) => {
+  try {
+    const appointments = await MODELS.AppointmentModel.findAll({
+      where: { doctor_id: doctorId },
+      include: [
+        {
+          model: MODELS.UserModel,
+          as: 'appointments_user',
+          attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone', 'avatar']
+        },
+        {
+          model: MODELS.TimeSlotModel,
+          as: 'timeslot',
+          attributes: ['timeslot_id', 'start_time', 'end_time', 'date']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+    return appointments;
+  } catch (error) {
+    console.error('Error fetching appointments by doctor ID:', error);
+    throw new Error('Failed to fetch appointments by doctor ID: ' + error.message);
+  }
+}
+
 export const appointmentServices = {
   createAppointment,
   getAllAppointments,
+  getAppointmentsByUserId,
+  getAppointmentsByUserSlug,
+  getAppointmentsByDoctorId,
 }

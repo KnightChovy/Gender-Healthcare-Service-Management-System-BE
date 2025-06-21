@@ -64,10 +64,6 @@ const initAppointmentModel = () => {
           type: DataTypes.TIME,
           allowNull: true,
         },
-        profile_id: {
-          type: DataTypes.STRING(20),
-          allowNull: true,
-        },
         booking: {
           type: DataTypes.TINYINT(1),
           allowNull: true,
