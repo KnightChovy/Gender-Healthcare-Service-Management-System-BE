@@ -147,6 +147,8 @@ export const getAppointmentsByUserSlug = async (slug) => {
 
 export const getAppointmentsByDoctorId = async (doctorId) => {
   try {
+    console.log('UserModel:', MODELS.UserModel);
+    console.log('TimeslotModel:', MODELS.TimeslotModel);
     const appointments = await MODELS.AppointmentModel.findAll({
       where: { doctor_id: doctorId },
       include: [
