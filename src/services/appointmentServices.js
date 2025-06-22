@@ -163,6 +163,7 @@ export const getAppointmentsByDoctorId = async (doctorId) => {
       ],
       order: [['created_at', 'DESC']]
     });
+    console.log('app', appointments)
     return appointments;
   } catch (error) {
     console.error('Error fetching appointments by doctor ID:', error);

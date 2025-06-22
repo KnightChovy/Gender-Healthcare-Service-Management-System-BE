@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "author": "Hoang Phuc",
-  "description": "",
+  "description": "![Node.js](https://img.shields.io/badge/Node.js-18.x-green) ![Express](https://img.shields.io/badge/Express-4.18.2-blue) ![MongoDB](https://img.shields.io/badge/MongoDB-Ready-green) ![License](https://img.shields.io/badge/License-MIT-yellow)",
   "engines": {
     "node": ">=18.x"
   },
@@ -20,7 +20,7 @@
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^4.18.2",
+    "express": "^4.21.2",
     "http-status-codes": "^2.3.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
@@ -28,6 +28,7 @@
     "redis": "^5.5.6",
     "sequelize": "^6.37.7",
     "statuscode": "^0.0.0",
+    "stripe": "^18.2.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
@@ -41,5 +42,11 @@
     "babel-plugin-module-resolver": "^5.0.0",
     "eslint": "^8.47.0",
     "nodemon": "^3.0.1"
-  }
+  },
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "keywords": [],
+  "license": "ISC"
 }
