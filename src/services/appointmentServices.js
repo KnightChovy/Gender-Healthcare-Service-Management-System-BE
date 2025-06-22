@@ -147,8 +147,6 @@ export const getAppointmentsByUserSlug = async (slug) => {
 
 export const getAppointmentsByDoctorId = async (doctorId) => {
   try {
-    console.log('UserModel:', MODELS.UserModel);
-    console.log('TimeslotModel:', MODELS.TimeslotModel);
     const appointments = await MODELS.AppointmentModel.findAll({
       where: { doctor_id: doctorId },
       include: [
@@ -160,13 +158,42 @@ export const getAppointmentsByDoctorId = async (doctorId) => {
         {
           model: MODELS.TimeslotModel,
           as: 'timeslot',
-          attributes: ['timeslot_id', 'start_time', 'end_time', 'date']
+          attributes: ['timeslot_id', 'time_start', 'time_end'],
+          include: [
+            {
+              model: MODELS.AvailabilityModel,
+              as: 'availability',
+              attributes: ['date']
+            }
+          ]
         }
       ],
       order: [['created_at', 'DESC']]
     });
-    console.log('app', appointments)
-    return appointments;
+    const result = appointments.map(app => {
+      const plain = app.get({ plain: true })
+      const { first_name, email, phone } = plain.appointments_user
+      if (plain.appointments_user) {
+        delete plain.appointments_user
+      }
+      const { time_start, time_end, availability } = plain.timeslot
+      if (plain.timeslot) {
+        delete plain.timeslot
+      }
+      const date = availability.date
+     
+      return {
+        ...plain,
+        first_name,
+        email,
+        phone,
+        time_end,
+        time_start,
+        date
+      }
+
+    })
+    return result;
   } catch (error) {
     console.error('Error fetching appointments by doctor ID:', error);
     throw new Error('Failed to fetch appointments by doctor ID: ' + error.message);

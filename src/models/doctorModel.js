@@ -85,7 +85,7 @@ const initCertificateModel = () => {
 
 // Wrapper functions for common doctor queries
 const findOneDoctor = async (where, options = {}) => {
-  return Doctor.findOne({
+  return MODELS.DoctorModel.findOne({
     where,
     include: [
       {
@@ -103,7 +103,7 @@ const findOneDoctor = async (where, options = {}) => {
         ],
       },
       {
-        model: MODELS.CertificateModel,
+        model: initCertificateModel(),
         as: 'certificates',
         attributes: ['certificates_id', 'certificate', 'specialization'],
       },
@@ -113,7 +113,7 @@ const findOneDoctor = async (where, options = {}) => {
 };
 
 const findAllDoctors = async (options = {}) => {
-  return Doctor.findAll({
+  return MODELS.DoctorModel.findAll({
     include: [
       {
         model: MODELS.UserModel,
@@ -130,7 +130,7 @@ const findAllDoctors = async (options = {}) => {
         ],
       },
       {
-        model: MODELS.CertificateModel,
+        model: initCertificateModel(),
         as: 'certificates',
         attributes: ['certificates_id', 'certificate', 'specialization'],
       },
@@ -158,7 +158,7 @@ const findByPkDoctor = async (doctorId, options = {}) => {
         ],
       },
       {
-        model: MODELS.CertificateModel,
+        model: initCertificateModel(),
         as: 'certificates',
         attributes: ['certificates_id', 'certificate', 'specialization'],
       },

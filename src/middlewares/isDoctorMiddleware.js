@@ -1,5 +1,5 @@
 import ApiError from '~/utils/ApiError';
-import { doctorModel } from '~/models/doctorModel';
+import { MODELS } from '~/models/initModels';
 
 const isDoctor = async (req, res, next) => {
   try {
@@ -8,13 +8,12 @@ const isDoctor = async (req, res, next) => {
     }
 
     const { user_id, role } = req.jwtDecoded.data;
-
+    console.log('user_id', user_id)
     if (role !== 'doctor') {
       throw new ApiError(403, 'Forbidden: You do not have permission. Access is restricted to doctors only.');
     }
 
-    const doctor = await doctorModel.findOneDoctor({ user_id });
-
+    const doctor = await MODELS.DoctorModel.findOne({ where : {user_id : user_id}});
     if (!doctor) {
       throw new ApiError(404, 'Doctor profile not found for this user.');
     }

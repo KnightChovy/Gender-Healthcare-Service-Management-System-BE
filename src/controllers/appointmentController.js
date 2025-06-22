@@ -93,11 +93,12 @@ const getUserAppointmentsBySlug = async (req, res) => {
 
 const getDoctorAppointments = async (req, res) => {
   try {
-    const doctorId = req.params.doctorId || req.jwtDecoded.data.doctor_id;
-    
+
+    const doctorId = req.params.doctorId || req.jwtDecoded.data.doctor_id || req.doctor.doctor_id
     if (!doctorId) {
       throw new ApiError(400, 'Doctor ID is required');
     }
+    console.log('doctorId', doctorId)
 
     const appointments = await appointmentServices.getAppointmentsByDoctorId(doctorId);
     return res.status(200).json({

@@ -6,6 +6,7 @@ import { doctorModel } from '~/models/doctorModel';
 const getAllDoctors = async () => {
   try {
     const listAllDoctors = await doctorModel.findAllDoctors();
+    
     const formattedDoctors = listAllDoctors.map((doctor) => {
       const plainDoctor = doctor.get({ plain: true });
       if (plainDoctor.user) {
