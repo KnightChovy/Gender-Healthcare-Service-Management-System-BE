@@ -54,7 +54,7 @@ export const getAllAppointments = async () => {
       const plain = app.get({ plain: true });
       return {
         ...plain,
-        username: plain.appointments_user?.username || '',
+        username: plain.appointments_user ? `${plain.first_name} + ${plain.last_name}`.trim() : '',
         doctor_name: plain.doctor ? `${plain.doctor.first_name || ''} ${plain.doctor.last_name || ''}`.trim() : ''
       };
     });
@@ -73,17 +73,34 @@ export const getAppointmentsByUserId = async (userId) => {
         {
           model: MODELS.DoctorModel,
           as: 'doctor',
-          attributes: ['doctor_id']
+          attributes: ['doctor_id', 'first_name', 'last_name']
         },
         {
           model: MODELS.TimeslotModel,
           as: 'timeslot',
-          attributes: ['timeslot_id']
+          attributes: ['timeslot_id', 'time_start', 'time_end', 'avail_id'],
+          include: [
+            {
+              model: MODELS.AvailabilityModel,
+              as: 'availability',
+              attributes: ['date']
+            }
+          ]
         }
       ],
       order: [['created_at', 'DESC']]
     });
-    return appointments;
+    
+    const result = appointments.map(app => {
+      const plain = app.get({ plain: true });
+      return {
+        ...plain, 
+        doctor_name: plain.doctor ? `${plain.doctor.first_name || ''} ${plain.doctor.last_name || ''}`.trim() : '',
+        appointment_date: plain.timeslot && plain.timeslot.availability ? plain.timeslot.availability.date : null
+      };
+    });
+
+    return result;
   } catch (error) {
     console.error('Error fetching appointments by user ID:', error);
     throw new Error('Failed to fetch appointments by user ID: ' + error.message);
@@ -190,7 +207,6 @@ export const updateAppointmentStatus = async (appointmentId, status, managerId) 
         }
       ]
     });
-
     return {
       appointment: result,
       action: status,

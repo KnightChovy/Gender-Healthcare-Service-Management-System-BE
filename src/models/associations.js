@@ -98,7 +98,6 @@ export const setupDoctorAssociations = (UserModel, DoctorModel, CertificateModel
     as: 'availability',
   });
 
-  // Associations for Doctor and Availability
   DoctorModel.hasMany(AvailabilityModel, {
     foreignKey: 'doctor_id',
     sourceKey: 'doctor_id',
