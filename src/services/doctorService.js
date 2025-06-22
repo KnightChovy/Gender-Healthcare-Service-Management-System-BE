@@ -6,19 +6,15 @@ import { doctorModel } from '~/models/doctorModel';
 const getAllDoctors = async () => {
   try {
     const listAllDoctors = await doctorModel.findAllDoctors();
-
     const formattedDoctors = listAllDoctors.map((doctor) => {
       const plainDoctor = doctor.get({ plain: true });
-
       if (plainDoctor.user) {
         delete plainDoctor.user_id;
         Object.assign(plainDoctor, plainDoctor.user);
         delete plainDoctor.user;
       }
-
       return plainDoctor;
     });
-
     return formattedDoctors;
   } catch (error) {
     console.error('Error in doctorService.getAllDoctors:', error);
@@ -31,7 +27,7 @@ const getAllDoctors = async () => {
 
 const createDoctorSchedule = async (doctorId, date, timeSlots) => {
   try {
-    const doctor = await MODELS.DoctorModel.findByPk(doctorId);
+    const doctor = await doctorModel.findByPkDoctor(doctorId);
     if (!doctor) {
       const error = new Error('Không tìm thấy thông tin bác sĩ');
       error.statusCode = StatusCodes.NOT_FOUND;

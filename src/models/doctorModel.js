@@ -83,43 +83,94 @@ const initCertificateModel = () => {
   return Certificate;
 };
 
-const findAllDoctors = async () => {
-  try {
-    const listAllDoctors = await Doctor.findAll({
-      include: [
-        {
-          model: Certificate,
-          as: 'certificates',
-          attributes: ['certificates_id', 'certificate', 'specialization'],
-        },
-        {
-          model: MODELS.UserModel,
-          as: 'user',
-          attributes: [
-            'user_id',
-            'username',
-            'email',
-            'phone',
-            'gender',
-            'avatar',
-            'address',
-            'status',
-          ],
-        },
-      ],
-      order: [['doctor_id', 'ASC']],
-    });
+// Wrapper functions for common doctor queries
+const findOneDoctor = async (where, options = {}) => {
+  return Doctor.findOne({
+    where,
+    include: [
+      {
+        model: MODELS.UserModel,
+        as: 'user',
+        attributes: [
+          'user_id',
+          'username',
+          'email',
+          'phone',
+          'gender',
+          'avatar',
+          'address',
+          'status',
+        ],
+      },
+      {
+        model: MODELS.CertificateModel,
+        as: 'certificates',
+        attributes: ['certificates_id', 'certificate', 'specialization'],
+      },
+    ],
+    ...options,
+  });
+};
 
-    return listAllDoctors;
-  } catch (error) {
-    console.error('Error finding all doctors:', error);
-    throw new Error('Không thể lấy danh sách bác sĩ: ' + error.message);
-  }
+const findAllDoctors = async (options = {}) => {
+  return Doctor.findAll({
+    include: [
+      {
+        model: MODELS.UserModel,
+        as: 'user',
+        attributes: [
+          'user_id',
+          'username',
+          'email',
+          'phone',
+          'gender',
+          'avatar',
+          'address',
+          'status',
+        ],
+      },
+      {
+        model: MODELS.CertificateModel,
+        as: 'certificates',
+        attributes: ['certificates_id', 'certificate', 'specialization'],
+      },
+    ],
+    order: [['doctor_id', 'ASC']],
+    ...options,
+  });
+};
+
+const findByPkDoctor = async (doctorId, options = {}) => {
+  return Doctor.findByPk(doctorId, {
+    include: [
+      {
+        model: MODELS.UserModel,
+        as: 'user',
+        attributes: [
+          'user_id',
+          'username',
+          'email',
+          'phone',
+          'gender',
+          'avatar',
+          'address',
+          'status',
+        ],
+      },
+      {
+        model: MODELS.CertificateModel,
+        as: 'certificates',
+        attributes: ['certificates_id', 'certificate', 'specialization'],
+      },
+    ],
+    ...options,
+  });
 };
 
 export const doctorModel = {
   initDoctorModel,
   initCertificateModel,
+  findOneDoctor,
   findAllDoctors,
-  //setupAssociations,
+  findByPkDoctor,
 };

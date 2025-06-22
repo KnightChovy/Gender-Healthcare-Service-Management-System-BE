@@ -53,8 +53,6 @@ const getAvailableTimeslots = async (req, res) => {
 
 const chooseSchedule = async (req, res) => {
   try {
-    // The isDoctor middleware has already verified the user is a doctor
-    // and attached the doctor's profile to req.doctor.
     const doctor = req.doctor;
 
     const { date, timeSlots } = req.body;

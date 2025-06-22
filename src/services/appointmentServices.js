@@ -1,4 +1,3 @@
-import { appointmentModel } from '~/models/appointmentModel';
 import { MODELS } from '~/models/initModels';
 import { generateAppointmentId } from '~/utils/algorithms';
 
@@ -90,13 +89,20 @@ export const getAppointmentsByUserId = async (userId) => {
       ],
       order: [['created_at', 'DESC']]
     });
-    
+
     const result = appointments.map(app => {
       const plain = app.get({ plain: true });
+      const { doctor, timeslot } = plain
+      if (!plain.doctor) {
+        delete plain.doctor;
+      }
+      if (plain.timeslot) {
+        delete plain.timeslot;
+      }
       return {
-        ...plain, 
-        doctor_name: plain.doctor ? `${plain.doctor.first_name || ''} ${plain.doctor.last_name || ''}`.trim() : '',
-        appointment_date: plain.timeslot && plain.timeslot.availability ? plain.timeslot.availability.date : null
+        ...plain,
+        doctor_name: doctor ? `${doctor.first_name || ''} ${doctor.last_name || ''}`.trim() : '',
+        appointment_date: timeslot && timeslot.availability ? timeslot.availability.date : null
       };
     });
 
@@ -181,7 +187,7 @@ export const updateAppointmentStatus = async (appointmentId, status, managerId) 
       throw new Error('Invalid status value');
     }
 
-    const updatedAppointment = await MODELS.AppointmentModel.update(
+    await MODELS.AppointmentModel.update(
       {
         status: status,
         updated_at: new Date()

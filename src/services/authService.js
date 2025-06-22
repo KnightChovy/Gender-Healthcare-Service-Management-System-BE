@@ -1,4 +1,4 @@
-import { userModel } from '~/models/userModel';
+import { MODELS } from '~/models';
 import { jwtHelper } from '~/helpers/jwt';
 import { env } from '~/config/environment';
 import { refreshTokenModel } from '~/models/refreshTokenModel';
@@ -12,12 +12,11 @@ const refreshTokenSecret =
 
 const login = async (username, password) => {
   try {
-    const user = await userModel.findOne(username);
+    const user = await MODELS.UserModel.findOne({ where: { username } });
     if (!user) {
       throw new Error('User not found');
     }
     const isPasswordValid = comparePassword(password, user.password);
-    // const isMatch = isPasswordValid === password;
     if (!isPasswordValid) {
       throw new Error('Invalid password');
     }
