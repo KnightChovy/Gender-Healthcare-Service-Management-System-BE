@@ -6,7 +6,6 @@ const createAppointment = async (data) => {
     const { appointment } = data;
     const mainAppointmentData = { ...appointment };
 
-    // Set timestamps
     const now = new Date();
     mainAppointmentData.created_at = now;
     mainAppointmentData.updated_at = now;
