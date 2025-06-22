@@ -1,4 +1,4 @@
-import { MODELS } from '~/models';
+import { MODELS } from '~/models/initModels';
 import { jwtHelper } from '~/helpers/jwt';
 import { env } from '~/config/environment';
 import { refreshTokenModel } from '~/models/refreshTokenModel';
