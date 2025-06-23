@@ -83,10 +83,8 @@ const initCertificateModel = () => {
   return Certificate;
 };
 
-// Wrapper functions for common doctor queries
-const findOneDoctor = async (where, options = {}) => {
+const findOneDoctor = async (options = {}) => {
   return MODELS.DoctorModel.findOne({
-    where,
     include: [
       {
         model: MODELS.UserModel,

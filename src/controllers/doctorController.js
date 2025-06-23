@@ -88,8 +88,31 @@ const chooseSchedule = async (req, res) => {
   }
 };
 
+const getDoctorByID = async (req, res) => {
+  try {
+    const doctor = req.doctor
+    if (!doctor) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy bác sĩ' });
+    }
+    const result = await doctorService.getDoctorByID(doctor)
+    console.log('result', result)
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Lấy thông tin bác sĩ thành công',
+      data: result,
+    });
+  } catch (error) {
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Lỗi khi lấy bác sĩ',
+    });
+  }
+}
+
 export const doctorController = {
   getAllDoctors,
   getAvailableTimeslots,
   chooseSchedule,
+  getDoctorByID
 };

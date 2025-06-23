@@ -1,12 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
-import { Op } from 'sequelize';
+import { Model, Op } from 'sequelize';
 import { MODELS } from '~/models/initModels';
 import { doctorModel } from '~/models/doctorModel';
 
 const getAllDoctors = async () => {
   try {
     const listAllDoctors = await doctorModel.findAllDoctors();
-    
+
     const formattedDoctors = listAllDoctors.map((doctor) => {
       const plainDoctor = doctor.get({ plain: true });
       if (plainDoctor.user) {
@@ -442,6 +442,18 @@ const getDayOfWeek = (dateString) => {
   return dayNames[date.getDay()];
 };
 
+const getDoctorByID = async (doctor) => {
+  try {
+    const data = await doctorModel.findOneDoctor({ where: { doctor_id: doctor.doctor_id } })
+    const plainData = data.get({ plain: true })
+    console.log('data', plainData)
+    return plainData
+  } catch (error) {
+    console.error('Error getting doctor by ID:', error);
+    throw new Error('Không thể lấy bác sĩ');
+  }
+}
+
 export const doctorService = {
   getAllDoctors,
   createDoctorSchedule,
@@ -449,4 +461,5 @@ export const doctorService = {
   generateUniqueAvailabilityId,
   getDoctorAvailableTimeslots,
   getAllDoctorTimeslots,
+  getDoctorByID
 };

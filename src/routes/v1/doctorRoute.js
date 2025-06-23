@@ -11,7 +11,10 @@ Router.route('/').get(
   cacheMiddleware('doctor', 300),
   doctorController.getAllDoctors
 );
-
+Router.route('/profile').get(
+  isAuth, isDoctor,
+  doctorController.getDoctorByID
+);
 // A doctor can only create a schedule for themselves
 Router.route('/schedule').post(isAuth, isDoctor, doctorController.chooseSchedule);
 
