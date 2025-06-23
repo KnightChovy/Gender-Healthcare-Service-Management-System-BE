@@ -27,10 +27,4 @@ Router.route('/:doctor_id/appointments').get(
   appointmentController.getDoctorAppointments
 );
 
-Router.route('/my/appointments').get(
-  isAuth,
-  isDoctor,
-  appointmentController.getDoctorAppointments
-);
-
 export const doctorRoute = Router;

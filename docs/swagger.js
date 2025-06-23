@@ -634,39 +634,6 @@
 
 /**
  * @swagger
- * /v1/doctors/my/appointments:
- *   get:
- *     summary: Get authenticated doctor's appointments
- *     description: Retrieve all appointments for the currently authenticated doctor
- *     tags: [Doctors]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Doctor appointments retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Fetched doctor appointments successfully
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Appointment'
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - Doctor access only
- */
-
-/**
- * @swagger
  * /v1/appointments:
  *   post:
  *     summary: Create a new appointment
