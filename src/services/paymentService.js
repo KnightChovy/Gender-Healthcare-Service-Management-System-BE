@@ -27,7 +27,7 @@ const paymentSession = async (user_id, price, appointment_id) => {
     cancel_url: 'http://localhost:5173/cancel',
     metadata: {
       user_id: user_id,
-      appoiment_id: appointment_id
+      appointment_id: appointment_id
     }
   });
   return session
