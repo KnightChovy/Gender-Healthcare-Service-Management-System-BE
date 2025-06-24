@@ -261,7 +261,7 @@ const handlePaymentAppoinment = async (appointmentID) => {
       console.error('Error find appointment:');
       throw new Error('Failed to find appointment: ');
     }
-    const isSuccess = MODELS.AppointmentModel.update({ booking: 1 }, { where: { appoinment_id: appointmentID } })
+    const isSuccess = MODELS.AppointmentModel.update({ booking: 1 }, { where: { appointment_id: appointmentID } })
     return isSuccess
   } catch (error) {
     console.error('Error updating appointment booking:', error);
