@@ -52,6 +52,7 @@ const stripeWebhookService = (req, res) => {
 
   let session;
   // Handle the event
+  console.log(event.type)
   switch (event.type) {
     case 'checkout.session.completed':
       session = event.data.object;
