@@ -15,7 +15,6 @@ const app = express();
 
 const startServer = () => {
   // Middlewares
-  app.use(express.urlencoded({ extended: true }));
 
   app.use(
     cors({
@@ -61,6 +60,7 @@ const startServer = () => {
 
   app.use('/v2', API_V2);
   app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   app.use('/v1', API_V1);
 
 
