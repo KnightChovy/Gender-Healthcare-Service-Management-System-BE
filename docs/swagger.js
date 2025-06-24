@@ -1260,3 +1260,251 @@
  *       scheme: bearer
  *       bearerFormat: JWT
  */
+
+/**
+ * @swagger
+ * /v1/emails/payment-reminder:
+ *   post:
+ *     summary: Gửi email nhắc thanh toán
+ *     description: Gửi email thông báo và nhắc nhở người dùng thanh toán cho cuộc hẹn đã được chấp nhận
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - appointment_id
+ *             properties:
+ *               appointment_id:
+ *                 type: string
+ *                 example: "AP000001"
+ *                 description: ID của cuộc hẹn cần gửi nhắc thanh toán
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Payment reminder email sent successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emailSent:
+ *                       type: boolean
+ *                       example: true
+ *                     appointmentId:
+ *                       type: string
+ *                       example: "AP000001"
+ *                     sentTo:
+ *                       type: string
+ *                       example: "user@example.com"
+ *       400:
+ *         description: Dữ liệu gửi lên không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "appointment_id is required"
+ *       404:
+ *         description: Không tìm thấy cuộc hẹn hoặc người dùng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Appointment not found"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error while sending email"
+ *                 error:
+ *                   type: string
+ */
+
+/**
+ * @swagger
+ * /v1/emails/booking-confirmation:
+ *   post:
+ *     summary: Gửi email xác nhận đặt lịch thành công
+ *     description: Gửi email thông báo đặt lịch thành công và nhắc người dùng xem chi tiết trên hệ thống
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - appointment_id
+ *             properties:
+ *               appointment_id:
+ *                 type: string
+ *                 example: "AP000001"
+ *                 description: ID của cuộc hẹn cần gửi xác nhận
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Booking confirmation email sent successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emailSent:
+ *                       type: boolean
+ *                       example: true
+ *                     appointmentId:
+ *                       type: string
+ *                       example: "AP000001"
+ *                     sentTo:
+ *                       type: string
+ *                       example: "user@example.com"
+ *       400:
+ *         description: Dữ liệu gửi lên không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "appointment_id is required"
+ *       404:
+ *         description: Không tìm thấy cuộc hẹn hoặc người dùng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Appointment not found"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error while sending email"
+ *                 error:
+ *                   type: string
+ */
+
+/**
+ * @swagger
+ * /v1/emails/sendEmail:
+ *   post:
+ *     summary: Gửi email test
+ *     description: API test gửi email đến một địa chỉ email cụ thể
+ *     tags: [Emails]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "test@example.com"
+ *                 description: Địa chỉ email nhận
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Email sent successfully"
+ *                 info:
+ *                   type: string
+ *                   example: "123456789abcdef"
+ *       400:
+ *         description: Dữ liệu gửi lên không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "The email is required"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error while sending email"
+ */

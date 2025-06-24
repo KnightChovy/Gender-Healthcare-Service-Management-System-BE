@@ -3,7 +3,7 @@ import { emailController } from '~/controllers/emailController';
 
 const Router = express.Router();
 
-// User routes
+//email route
 Router.route('/sendEmail').post(emailController.sendEmail);
 Router.route('/payment-reminder').post(emailController.sendPaymentReminder);
 Router.route('/booking-confirmation').post(

@@ -140,7 +140,7 @@ const sendBookingConfirmationEmail = async (userEmail, userData) => {
     const mailOptions = {
       from: `"Gender Healthcare Service" <${process.env.EMAIL_USERNAME}>`,
       to: userEmail,
-      subject: 'Xác nhận đặt lịch tư vấn thành công',
+      subject: 'Xác nhận thanh toán đặt lịch thành công',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
           <div style="text-align: center; margin-bottom: 20px;">
@@ -157,8 +157,8 @@ const sendBookingConfirmationEmail = async (userEmail, userData) => {
           <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h3 style="margin-top: 0; color: #2e7d32;">Lưu ý quan trọng</h3>
             <ul style="padding-left: 20px; margin-bottom: 0;">
-              <li>Vui lòng đến trước giờ hẹn 15 phút</li>
-              <li>Mang theo CMND/CCCD và các giấy tờ y tế liên quan (nếu có)</li>
+              <li>Vui lòng có mặt trước giờ hẹn 15 phút</li>
+              <li>Đường dẫn cuộc hẹn: https://meet.google.com/ymf-dwbi-uhy</li>
               <li>Nếu bạn cần thay đổi lịch hẹn, vui lòng liên hệ chúng tôi ít nhất 24 giờ trước giờ hẹn</li>
             </ul>
           </div>
