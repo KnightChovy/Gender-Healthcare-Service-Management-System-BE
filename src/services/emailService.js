@@ -124,7 +124,77 @@ const sendPaymentReminderEmail = async (userEmail, appointmentData) => {
   }
 };
 
+const sendBookingConfirmationEmail = async (userEmail, userData) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: `"Gender Healthcare Service" <${process.env.EMAIL_USERNAME}>`,
+      to: userEmail,
+      subject: 'Xác nhận đặt lịch tư vấn thành công',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #4CAF50; margin: 0;">Đặt lịch tư vấn thành công</h2>
+            <p style="color: #888;">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi</p>
+          </div>
+          
+          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <p style="margin-top: 0;">Xin chào <strong>${userData.patientName}</strong>,</p>
+            <p>Chúng tôi xin thông báo rằng bạn đã đặt lịch tư vấn thành công tại Gender Healthcare Service.</p>
+            <p>Để xem chi tiết về lịch hẹn, vui lòng đăng nhập vào hệ thống của chúng tôi và kiểm tra mục "Lịch hẹn của tôi".</p>
+          </div>
+          
+          <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #2e7d32;">Lưu ý quan trọng</h3>
+            <ul style="padding-left: 20px; margin-bottom: 0;">
+              <li>Vui lòng đến trước giờ hẹn 15 phút</li>
+              <li>Mang theo CMND/CCCD và các giấy tờ y tế liên quan (nếu có)</li>
+              <li>Nếu bạn cần thay đổi lịch hẹn, vui lòng liên hệ chúng tôi ít nhất 24 giờ trước giờ hẹn</li>
+            </ul>
+          </div>
+          
+          <div style="text-align: center; margin-top: 30px; color: #555;">
+            <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+            <p>Email: support@genderhealthcare.com | Hotline: 0907865147</p>
+          </div>
+          
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+            <p style="margin: 0;">Trân trọng,</p>
+            <p style="margin: 5px 0 0;"><strong>Đội ngũ Gender Healthcare Service</strong></p>
+          </div>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Booking confirmation email sent:', info.messageId);
+
+    return {
+      status: 'success',
+      message: 'Booking confirmation email sent successfully',
+      info: info.messageId,
+    };
+  } catch (error) {
+    console.error('Error sending booking confirmation email:', error);
+    return {
+      status: 'error',
+      message: error.message || 'Failed to send booking confirmation email',
+    };
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
+  sendBookingConfirmationEmail,
 };
