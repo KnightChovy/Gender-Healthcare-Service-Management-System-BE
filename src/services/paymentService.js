@@ -1,8 +1,9 @@
 import Stripe from 'stripe';
 import { env } from '~/config/environment'
+import { appointmentServices } from './appointmentServices';
 const stripe = Stripe(env.STRIPE_SECRET_KEY);
 
-const paymentSession = async (user_id, price) => {
+const paymentSession = async (user_id, price, appointment_id) => {
   console.log('price', price)
   if (!price || typeof price !== 'number') {
     throw new Error('Giá trị price không hợp lệ');
@@ -25,7 +26,8 @@ const paymentSession = async (user_id, price) => {
     success_url: 'http://localhost:5173/success',
     cancel_url: 'http://localhost:5173/cancel',
     metadata: {
-      user_id: user_id
+      user_id: user_id,
+      appoiment_id: appointment_id
     }
   });
   return session
@@ -46,13 +48,15 @@ const stripeWebhookService = (req, res) => {
     console.error('Webhook signature verification failed.', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
+  const appoiment_id = event.metadata.appoiment_id;
 
   let session;
   // Handle the event
   switch (event.type) {
     case 'checkout.session.completed':
       session = event.data.object;
-      console.log('Checkout session completed:', session);
+      appointmentServices.handlePaymentAppoinment(appoiment_id)
+      console.log('Checkout session completed:');
       break;
     default:
       console.log(`Unhandled event type ${event.type}`);

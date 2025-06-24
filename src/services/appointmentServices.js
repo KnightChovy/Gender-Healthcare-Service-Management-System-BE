@@ -181,7 +181,7 @@ export const getAppointmentsByDoctorId = async (doctorId) => {
         delete plain.timeslot
       }
       const date = availability.date
-     
+
       return {
         ...plain,
         first_name,
@@ -254,6 +254,20 @@ export const updateAppointmentStatus = async (appointmentId, status, managerId) 
   }
 }
 
+const handlePaymentAppoinment = async (appointmentID) => {
+  try {
+    const appoinment = MODELS.AppointmentModel.findOne({ where: { appointment_id: appointmentID } })
+    if (!appoinment) {
+      console.error('Error find appointment:');
+      throw new Error('Failed to find appointment: ');
+    }
+    const isSuccess = MODELS.AppointmentModel.update({ booking: 1 }, { where: { appoinment_id: appointmentID } })
+    return isSuccess
+  } catch (error) {
+    console.error('Error updating appointment booking:', error);
+    throw new Error('Failed to update booking: ' + error.message);
+  }
+}
 export const appointmentServices = {
   createAppointment,
   getAllAppointments,
@@ -261,4 +275,5 @@ export const appointmentServices = {
   getAppointmentsByUserSlug,
   getAppointmentsByDoctorId,
   updateAppointmentStatus,
+  handlePaymentAppoinment
 }
