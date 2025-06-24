@@ -3,7 +3,7 @@ import { paymentService } from '~/services/paymentService';
 const createCheckoutSession = async (req, res) => {
   try {
     const { user_id, price } = req.body
-    const session = paymentService.session(user_id, price)
+    const session = await paymentService.paymentSession(user_id, price)
     res.json({ url: session.url });
   } catch (error) {
     console.error(error);
@@ -11,6 +11,13 @@ const createCheckoutSession = async (req, res) => {
   }
 };
 
+export const stripeWebhook = (req, res) => {
+  // Delegate all logic to the service
+  console.log('herre')
+  return paymentService.stripeWebhookService(req, res);
+};
+
 export const paymentController = {
-  createCheckoutSession
+  createCheckoutSession,
+  stripeWebhook 
 }

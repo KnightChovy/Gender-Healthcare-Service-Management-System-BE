@@ -15,7 +15,6 @@ const app = express();
 
 const startServer = () => {
   // Middlewares
-  app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
   app.use(
@@ -59,11 +58,14 @@ const startServer = () => {
     );
   });
 
-  app.use('/v1', API_V1);
+
   app.use('/v2', API_V2);
+  app.use(express.json());
+  app.use('/v1', API_V1);
+
 
   app.listen(env.PORT, env.HOST_NAME, () => {
-   // console.log(`Server is running at http://52.4.72.106:${env.PORT}`);
+    // console.log(`Server is running at http://52.4.72.106:${env.PORT}`);
     console.log(`Server is running at http://${env.HOST_NAME}:${env.PORT}`);
     console.log(
       `Swagger Documentation available at http://52.4.72.106:${env.PORT}/api-docs`

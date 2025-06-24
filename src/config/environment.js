@@ -15,5 +15,6 @@ export const env = {
   REFRESH_TOKEN_LIFE: process.env.REFRESH_TOKEN_LIFE,
   REDIS_URL: process.env.REDIS_URL,
   REDIS_TTL: parseInt(process.env.REDIS_TTL),
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET
 };
