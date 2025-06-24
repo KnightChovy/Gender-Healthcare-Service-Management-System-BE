@@ -98,6 +98,7 @@ const findOneDoctor = async (options = {}) => {
           'avatar',
           'address',
           'status',
+          'birthday'
         ],
       },
       {
