@@ -35,6 +35,7 @@ const paymentSession = async (user_id, price, appointment_id) => {
 }
 
 const stripeWebhookService = (req, res) => {
+  console.log('da vo day roi ne')
   const sig = req.headers['stripe-signature'];
   let event;
 
@@ -51,7 +52,6 @@ const stripeWebhookService = (req, res) => {
   const appoiment_id = event.metadata.appoiment_id;
 
   let session;
-  // Handle the event
   console.log(event.type)
   switch (event.type) {
     case 'checkout.session.completed':
@@ -63,7 +63,6 @@ const stripeWebhookService = (req, res) => {
       console.log(`Unhandled event type ${event.type}`);
   }
 
-  // Return a 200 response to acknowledge receipt of the event
   res.json({ received: true });
 };
 
