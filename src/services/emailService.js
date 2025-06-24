@@ -1,7 +1,5 @@
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { env } from '~/config/environment';
 
 const sendEmail = async (email) => {
   try {
@@ -11,8 +9,8 @@ const sendEmail = async (email) => {
       port: 587,
       secure: false,
       auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
       },
     });
 
@@ -80,7 +78,7 @@ const sendPaymentReminderEmail = async (userEmail, appointmentData) => {
         <h3 style="margin-top: 0; color: #0277bd;">Hướng dẫn thanh toán</h3>
         <p>Để hoàn tất đăng ký, vui lòng thực hiện thanh toán theo các bước sau:</p>
         <ol style="padding-left: 20px; margin-bottom: 0;">
-          <li>Đăng nhập vào tài khoản của bạn trên hệ thống"</li>
+          <li>Đăng nhập vào tài khoản của bạn trên hệ thống</li>
           <li>Chọn mục "Lịch hẹn"</li>
           <li>Chọn mục "Thanh toán"</li>
         </ol>
@@ -132,8 +130,8 @@ const sendBookingConfirmationEmail = async (userEmail, userData) => {
       port: 587,
       secure: false,
       auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
       },
     });
 
