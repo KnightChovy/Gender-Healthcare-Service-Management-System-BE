@@ -27,6 +27,6 @@ Router.use('/doctors', doctorRoute);
 Router.use('/appointments', appointmentRoute);
 Router.use('/managers', managerRoute);
 Router.use('/services', serviceRoute);
-Router.use('/email', emailRoute);
+Router.use('/emails', emailRoute);
 
 export const API_V1 = Router;

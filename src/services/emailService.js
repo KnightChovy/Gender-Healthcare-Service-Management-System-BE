@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const sendEmailService = async (email) => {
+const sendEmail = async (email) => {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -45,4 +45,86 @@ export const sendEmailService = async (email) => {
       message: error.message || 'Failed to send email',
     };
   }
+};
+
+const sendPaymentReminderEmail = async (userEmail, appointmentData) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: `"Gender Healthcare Service" <${process.env.EMAIL_USERNAME}>`,
+      to: userEmail,
+      subject: 'Nhắc nhở thanh toán để hoàn tất đăng ký lịch tư vấn',
+      html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #FF9800; margin: 0;">Lịch tư vấn đã được lên lịch</h2>
+        <p style="color: #888;">Vui lòng kiểm tra và thanh toán trên hệ thống để hoàn tất đăng ký.</p>
+      </div>
+      
+      <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <p style="margin-top: 0;">Xin chào <strong>${appointmentData.patientName}</strong>,</p>
+        <p>Chúng tôi muốn nhắc bạn rằng lịch tư vấn của bạn đã được lên lịch. Để hoàn tất quá trình đăng ký, vui lòng đăng nhập vào hệ thống và thực hiện thanh toán phí tư vấn.</p>
+      </div>
+      
+      <div style="background-color: #e3f2fd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h3 style="margin-top: 0; color: #0277bd;">Hướng dẫn thanh toán</h3>
+        <p>Để hoàn tất đăng ký, vui lòng thực hiện thanh toán theo các bước sau:</p>
+        <ol style="padding-left: 20px; margin-bottom: 0;">
+          <li>Đăng nhập vào tài khoản của bạn trên hệ thống"</li>
+          <li>Chọn mục "Lịch hẹn"</li>
+          <li>Chọn mục "Thanh toán"</li>
+        </ol>
+      </div>
+      
+      <div style="background-color: #fff8e1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h3 style="margin-top: 0; color: #ff9800;">Lưu ý quan trọng</h3>
+        <ul style="padding-left: 20px; margin-bottom: 0;">
+          <li>Cuộc hẹn của bạn sẽ chỉ được xác nhận sau khi thanh toán thành công.</li>
+          <li>Vui lòng thanh toán trong vòng 24 giờ để tránh bị hủy lịch hẹn.</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; color: #555;">
+        <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+        <p>Email: support@genderhealthcare.com | Hotline: 0907865147</p>
+      </div>
+      
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+        <p style="margin: 0;">Trân trọng,</p>
+        <p style="margin: 5px 0 0;"><strong>Đội ngũ Gender Healthcare Service</strong></p>
+      </div>
+    </div>
+  `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Payment reminder email sent:', info.messageId);
+
+    return {
+      status: 'success',
+      message: 'Payment reminder email sent successfully',
+      info: info.messageId,
+    };
+  } catch (error) {
+    console.error('Error sending payment reminder email:', error);
+    return {
+      status: 'error',
+      message: error.message || 'Failed to send payment reminder email',
+    };
+  }
+};
+
+export const emailService = {
+  sendEmail,
+  sendPaymentReminderEmail,
 };

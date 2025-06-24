@@ -19,19 +19,14 @@ const getAllDoctors = async (req, res) => {
   }
 };
 
-/**
- * Controller lấy khung giờ làm việc của bác sĩ theo ngày
- */
 const getAvailableTimeslots = async (req, res) => {
   try {
     const { doctor_id } = req.params;
-    // Không bắt buộc tham số date nữa
 
     console.log(
       `API nhận request lấy lịch làm việc của bác sĩ ${doctor_id}`
     );
 
-    // Lấy userId từ token
     const userId = req.jwtDecoded?.data?.user_id;
     console.log(`User ${userId} đang xem lịch của bác sĩ ${doctor_id}`);
 
