@@ -23,7 +23,7 @@ const paymentSession = async (user_id, price) => {
       },
     ],
     success_url: 'http://localhost:5173/success',
-    cancel_url: 'http://localhost:5173/rejected',
+    cancel_url: 'http://localhost:5173/cancel',
     metadata: {
       user_id: user_id
     }
