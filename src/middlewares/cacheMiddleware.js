@@ -3,11 +3,6 @@ import { env } from '../config/environment.js';
 
 let isReadOnly = false;
 
-/**
- * Middleware để lấy dữ liệu từ cache hoặc chuyển đến controller
- * @param {string} keyPrefix - Tiền tố key để lưu trong Redis
- * @param {number} ttl - Thời gian cache tồn tại (giây)
- */
 export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
   return async (req, res, next) => {
     if (!redisClient.isOpen) {
@@ -68,13 +63,11 @@ export const cacheMiddleware = (keyPrefix, ttl = env.REDIS_TTL || 3600) => {
   };
 };
 
-/**
- * Hàm xóa cache
- * @param {string} pattern - Pattern key cần xóa (hỗ trợ *)
- */
 export const clearCache = async (pattern) => {
   if (!redisClient.isOpen || isReadOnly) {
-    console.log('Redis không kết nối hoặc ở chế độ chỉ đọc, không thể xóa cache');
+    console.log(
+      'Redis không kết nối hoặc ở chế độ chỉ đọc, không thể xóa cache'
+    );
     return;
   }
 

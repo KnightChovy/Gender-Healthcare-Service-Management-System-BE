@@ -5,6 +5,7 @@ import { doctorRoute } from './doctorRoute';
 import { appointmentRoute } from './appointmentRoute';
 import { managerRoute } from './managerRoute';
 import { serviceRoute } from './serviceRoute';
+import { emailRoute } from './emailRoute';
 
 const Router = express.Router();
 
@@ -26,5 +27,6 @@ Router.use('/doctors', doctorRoute);
 Router.use('/appointments', appointmentRoute);
 Router.use('/managers', managerRoute);
 Router.use('/services', serviceRoute);
+Router.use('/email', emailRoute);
 
 export const API_V1 = Router;

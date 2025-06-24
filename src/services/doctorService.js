@@ -316,7 +316,6 @@ const getAllDoctorTimeslots = async (doctorId) => {
   try {
     console.log(`Lấy tất cả lịch làm việc của bác sĩ ${doctorId}`);
 
-    // Kiểm tra bác sĩ tồn tại
     const doctorExists = await MODELS.DoctorModel.count({
       where: { doctor_id: doctorId },
     });
@@ -327,7 +326,6 @@ const getAllDoctorTimeslots = async (doctorId) => {
       throw error;
     }
 
-    // Truy vấn tất cả availability của bác sĩ
     const availabilities = await MODELS.AvailabilityModel.findAll({
       where: {
         doctor_id: doctorId,
@@ -384,7 +382,7 @@ const getAllDoctorTimeslots = async (doctorId) => {
     availabilities.forEach((avail) => {
       availDateMap[avail.avail_id] = avail.date;
     });
-    console.log('availDateMap', availDateMap)
+    console.log('availDateMap', availDateMap);
     const schedulesByDate = {};
 
     timeslots.forEach((slot) => {
@@ -400,21 +398,24 @@ const getAllDoctorTimeslots = async (doctorId) => {
         };
       }
 
-
       schedulesByDate[date].timeslots.push({
         timeslot_id: slot.timeslot_id,
         time_start: slot.time_start,
         time_end: slot.time_end,
         appointment_times: bookedTimes,
-        is_booked: bookedTimes.length > 0
+        is_booked: bookedTimes.length > 0,
       });
     });
 
-    const schedules = Object.values(schedulesByDate).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const schedules = Object.values(schedulesByDate).sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
 
     // Sắp xếp timeslots trong mỗi ngày
-    schedules.forEach(schedule => {
-      schedule.timeslots.sort((a, b) => a.time_start.localeCompare(b.time_start));
+    schedules.forEach((schedule) => {
+      schedule.timeslots.sort((a, b) =>
+        a.time_start.localeCompare(b.time_start)
+      );
     });
 
     console.log(
@@ -444,15 +445,17 @@ const getDayOfWeek = (dateString) => {
 
 const getDoctorByID = async (doctor) => {
   try {
-    const data = await doctorModel.findOneDoctor({ where: { doctor_id: doctor.doctor_id } })
-    const plainData = data.get({ plain: true })
-    console.log('data', plainData)
-    return plainData
+    const data = await doctorModel.findOneDoctor({
+      where: { doctor_id: doctor.doctor_id },
+    });
+    const plainData = data.get({ plain: true });
+    console.log('data', plainData);
+    return plainData;
   } catch (error) {
     console.error('Error getting doctor by ID:', error);
     throw new Error('Không thể lấy bác sĩ');
   }
-}
+};
 
 export const doctorService = {
   getAllDoctors,
@@ -461,5 +464,5 @@ export const doctorService = {
   generateUniqueAvailabilityId,
   getDoctorAvailableTimeslots,
   getAllDoctorTimeslots,
-  getDoctorByID
+  getDoctorByID,
 };

@@ -16,14 +16,23 @@ const initAllModels = () => {
   MODELS.DoctorModel = doctorModel.initDoctorModel();
   MODELS.AppointmentModel = appointmentModel.initAppointmentModel();
   MODELS.RefreshTokenModel = refreshTokenModel.initRefreshTokenModel();
-  MODELS.DetailAppointmentTestModel = detailAppointmentTestModel.initDetailAppointmentTestModel();
+  MODELS.DetailAppointmentTestModel =
+    detailAppointmentTestModel.initDetailAppointmentTestModel();
   MODELS.ServiceTestModel = serviceTestModel.initServiceTestModel();
   MODELS.TimeslotModel = timeslotModel.initTimeslotModel();
   MODELS.AvailabilityModel = availabilityModel.initAvailabilityModel();
 
   console.log('Setting up model associations...');
-  setupDoctorAssociations(MODELS.UserModel, MODELS.DoctorModel, doctorModel.initCertificateModel(), MODELS.AppointmentModel, MODELS.DetailAppointmentTestModel, MODELS.ServiceTestModel, MODELS.TimeslotModel, MODELS.AvailabilityModel);
-
+  setupDoctorAssociations(
+    MODELS.UserModel,
+    MODELS.DoctorModel,
+    doctorModel.initCertificateModel(),
+    MODELS.AppointmentModel,
+    MODELS.DetailAppointmentTestModel,
+    MODELS.ServiceTestModel,
+    MODELS.TimeslotModel,
+    MODELS.AvailabilityModel
+  );
 };
 
 export { initAllModels, MODELS };
