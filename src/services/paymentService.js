@@ -34,8 +34,40 @@ const paymentSession = async (user_id, price, appointment_id) => {
 
 }
 
+// const stripeWebhookService = (req, res) => {
+//   console.log('da vo day roi ne')
+//   const sig = req.headers['stripe-signature'];
+//   let event;
+
+//   try {
+//     event = stripe.webhooks.constructEvent(
+//       req.body,
+//       sig,
+//       env.STRIPE_WEBHOOK_SECRET
+//     );
+//   } catch (err) {
+//     console.error('Webhook signature verification failed.', err.message);
+//     return res.status(400).send(`Webhook Error: ${err.message}`);
+//   }
+//   const session = event.data.object;
+//   const appoiment_id = event.metadata.appoiment_id;
+
+//   console.log(event.type)
+//   switch (event.type) {
+//     case 'checkout.session.completed':
+//       appointmentServices.handlePaymentAppoinment(appoiment_id)
+//       console.log('Checkout session completed:');
+//       break;
+//     default:
+//       console.log(`Unhandled event type ${event.type}`);
+//   }
+
+//   res.json({ received: true });
+// };
+
 const stripeWebhookService = (req, res) => {
-  console.log('da vo day roi ne')
+  console.log('🎯 Nhận webhook Stripe');
+
   const sig = req.headers['stripe-signature'];
   let event;
 
@@ -46,19 +78,26 @@ const stripeWebhookService = (req, res) => {
       env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error('Webhook signature verification failed.', err.message);
+    console.error('❌ Webhook signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-  const appoiment_id = event.metadata.appoiment_id;
 
-  let session;
-  console.log(event.type)
+  const session = event.data.object;
+
   switch (event.type) {
-    case 'checkout.session.completed':
-      session = event.data.object;
-      appointmentServices.handlePaymentAppoinment(appoiment_id)
-      console.log('Checkout session completed:');
+    case 'checkout.session.completed': {
+      console.log('✅ Checkout session completed:', session.id);
+      console.log('🔍 Metadata:', session.metadata);
+
+      const appointment_id = session.metadata?.appointment_id;
+      if (appointment_id) {
+        appointmentServices.handlePaymentAppoinment(appointment_id);
+      } else {
+        console.warn('⚠️ Không tìm thấy appointment_id trong metadata.');
+      }
       break;
+    }
+
     default:
       console.log(`Unhandled event type ${event.type}`);
   }
