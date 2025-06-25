@@ -1,6 +1,8 @@
 import Stripe from 'stripe';
 import { env } from '~/config/environment'
 import { appointmentServices } from './appointmentServices';
+import { emailService } from './emailService';
+import { MODELS } from '~/models/initModels'
 const stripe = Stripe(env.STRIPE_SECRET_KEY);
 
 const paymentSession = async (user_id, price, appointment_id) => {
@@ -83,7 +85,9 @@ const stripeWebhookService = (req, res) => {
   }
 
   const session = event.data.object;
+  const user_id = session.metadata?.user_id;
 
+  const user = MODELS.user.findOne({ where: { user_id: user_id } })
   switch (event.type) {
     case 'checkout.session.completed': {
       console.log('✅ Checkout session completed:', session.id);
@@ -92,6 +96,9 @@ const stripeWebhookService = (req, res) => {
       const appointment_id = session.metadata?.appointment_id;
       if (appointment_id) {
         appointmentServices.handlePaymentAppoinment(appointment_id);
+        if (user) {
+          const gmail = emailService.sendBookingConfirmation(user.user_id, user)
+        }
       } else {
         console.warn('⚠️ Không tìm thấy appointment_id trong metadata.');
       }
