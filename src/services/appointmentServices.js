@@ -92,7 +92,7 @@ export const getAppointmentsByUserId = async (userId) => {
     const result = appointments.map(app => {
       const plain = app.get({ plain: true });
       const { doctor, timeslot } = plain
-      const date = timeslot && timeslot.availability ? timeslot.availability.date : null
+      const date = plain.timeslot && plain.timeslot.availability ? plain.timeslot.availability.date : null
       if (plain.doctor) {
         delete plain.doctor;
       }
