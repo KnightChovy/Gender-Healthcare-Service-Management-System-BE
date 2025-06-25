@@ -222,6 +222,9 @@ export const updateAppointmentStatus = async (appointmentId, status, managerId) 
         updated_at: new Date()
       },
       {
+        booking: 0
+      },
+      {
         where: { appointment_id: appointmentId },
         returning: true
       }
