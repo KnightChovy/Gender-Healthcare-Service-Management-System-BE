@@ -93,6 +93,8 @@ export const getAppointmentsByUserId = async (userId) => {
       const plain = app.get({ plain: true });
       const { doctor, timeslot } = plain
       const { availability } = plain.timeslot
+      console.log('plain', plain)
+      console.log('avai', availability)
       const date = availability ? availability.date : null
       if (plain.doctor) {
         delete plain.doctor;
