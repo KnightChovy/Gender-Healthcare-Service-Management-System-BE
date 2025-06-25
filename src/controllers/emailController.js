@@ -104,8 +104,6 @@ const sendBookingConfirmation = async (req, res) => {
         message: 'appointment_id is required',
       });
     }
-
-    // Lấy thông tin appointment nhưng chỉ các trường cần thiết
     const appointment = await MODELS.AppointmentModel.findByPk(appointment_id, {
       attributes: ['appointment_id', 'user_id'],
     });
@@ -117,7 +115,6 @@ const sendBookingConfirmation = async (req, res) => {
       });
     }
 
-    // Lấy thông tin người dùng
     const user = await MODELS.UserModel.findByPk(appointment.user_id);
     if (!user) {
       return res.status(StatusCodes.NOT_FOUND).json({
@@ -126,7 +123,6 @@ const sendBookingConfirmation = async (req, res) => {
       });
     }
 
-    // Chỉ truyền thông tin tối thiểu cần thiết
     const userData = {
       patientName: user.first_name,
     };
@@ -163,5 +159,5 @@ const sendBookingConfirmation = async (req, res) => {
 export const emailController = {
   sendEmail,
   sendPaymentReminder,
-  sendBookingConfirmation, // Thêm controller mới vào export
+  sendBookingConfirmation,
 };

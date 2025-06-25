@@ -338,10 +338,8 @@ const getAllDoctorTimeslots = async (doctorId) => {
       return { schedules: [] };
     }
 
-    // Lấy tất cả avail_id
     const availIds = availabilities.map((avail) => avail.avail_id);
 
-    // Truy vấn tất cả timeslots của các availability
     const timeslots = await MODELS.TimeslotModel.findAll({
       where: {
         avail_id: {
@@ -351,19 +349,15 @@ const getAllDoctorTimeslots = async (doctorId) => {
       raw: true,
     });
 
-    // Lấy tất cả timeslot_id
     const timeslotIds = timeslots.map((ts) => ts.timeslot_id);
 
-    // Truy vấn tất cả appointments đã được đặt
-    // CẬP NHẬT: Lấy thêm trường appointment_time
     const appointments = await MODELS.AppointmentModel.findAll({
       where: {
         timeslot_id: {
           [Op.in]: timeslotIds,
         },
-        // Thêm điều kiện để lấy những appointment có appointment_time
         appointment_time: {
-          [Op.ne]: null, // appointment_time khác null
+          [Op.ne]: null,
         },
       },
       attributes: ['timeslot_id', 'appointment_time'],
@@ -382,6 +376,7 @@ const getAllDoctorTimeslots = async (doctorId) => {
     availabilities.forEach((avail) => {
       availDateMap[avail.avail_id] = avail.date;
     });
+    
     console.log('availDateMap', availDateMap);
     const schedulesByDate = {};
 
@@ -411,7 +406,6 @@ const getAllDoctorTimeslots = async (doctorId) => {
       (a, b) => new Date(a.date) - new Date(b.date)
     );
 
-    // Sắp xếp timeslots trong mỗi ngày
     schedules.forEach((schedule) => {
       schedule.timeslots.sort((a, b) =>
         a.time_start.localeCompare(b.time_start)
