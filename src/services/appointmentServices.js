@@ -219,10 +219,8 @@ export const updateAppointmentStatus = async (appointmentId, status, managerId) 
     await MODELS.AppointmentModel.update(
       {
         status: status,
+        booking: 0,
         updated_at: new Date()
-      },
-      {
-        booking: 0
       },
       {
         where: { appointment_id: appointmentId },
