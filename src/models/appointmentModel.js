@@ -67,6 +67,7 @@ const initAppointmentModel = () => {
         booking: {
           type: DataTypes.TINYINT(1),
           allowNull: true,
+          default: 0
         },
       },
       {
