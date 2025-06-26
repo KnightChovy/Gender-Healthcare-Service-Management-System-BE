@@ -149,14 +149,12 @@ const getUserProfile = async (userId) => {
 
 const createStaff = async (staffData) => {
   try {
-    // Kiểm tra user đã tồn tại
     const existingUser = await MODELS.UserModel.findOne({
       where: {
         [Op.or]: [{ username: staffData.username }, { email: staffData.email }],
       },
     });
 
-    // Xử lý nếu user đã tồn tại
     if (existingUser) {
       if (existingUser.username === staffData.username) {
         throw new ApiError(409, 'User with this username already exists');
@@ -164,10 +162,8 @@ const createStaff = async (staffData) => {
       throw new ApiError(409, 'User with this email already exists');
     }
 
-    // Mã hóa password
     staffData.password = hashPassword(staffData.password);
 
-    // Tạo ID mới
     const latestUser = await MODELS.UserModel.findOne({
       order: [['user_id', 'DESC']],
     });
@@ -180,7 +176,6 @@ const createStaff = async (staffData) => {
     const userId = `US${nextId.toString().padStart(6, '0')}`;
     const now = new Date();
 
-    // Tạo user mới
     const newUser = await MODELS.UserModel.create({
       user_id: userId,
       first_name: staffData.first_name,
@@ -197,13 +192,12 @@ const createStaff = async (staffData) => {
       updated_at: now,
     });
 
-    // Tạo bản ghi doctor nếu role là doctor
     if (staffData.role === 'doctor') {
       const latestDoctor = await MODELS.DoctorModel.findOne({
         order: [['doctor_id', 'DESC']],
       });
 
-      let doctorId = 'DR000001'; // Mặc định
+      let doctorId = 'DR000001';
       if (latestDoctor && latestDoctor.doctor_id) {
         try {
           const matches = latestDoctor.doctor_id.match(/^DR(\d+)$/);
@@ -220,15 +214,25 @@ const createStaff = async (staffData) => {
       }
 
       try {
-        // Tạo bản ghi doctor
-        await MODELS.DoctorModel.create({
+        const doctorData = {
           doctor_id: doctorId,
           user_id: userId,
+          first_name: staffData.first_name,
+          last_name: staffData.last_name,
+          gender: staffData.gender,
+          email: staffData.email,
+          phone: staffData.phone,
           bio: staffData.bio || '',
           created_at: now,
           updated_at: now,
           experience_year: parseInt(staffData.experience_year || '0'),
-        });
+        };
+
+        console.log('Creating doctor with data:', doctorData);
+
+        await MODELS.DoctorModel.create(doctorData);
+
+        console.log('Doctor record created successfully');
       } catch (doctorError) {
         console.error(
           'Warning: Could not create doctor record but user was created:',
