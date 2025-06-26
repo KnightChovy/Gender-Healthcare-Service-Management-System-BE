@@ -1,7 +1,7 @@
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from '~/services/userService';
-import { clearCache } from '../middlewares/cacheMiddleware.js';
+import { clearCache } from '~/middlewares/cacheMiddleware';
 import ApiError from '~/utils/ApiError';
 
 const getAllUsers = async (req, res) => {
@@ -105,7 +105,14 @@ const createStaff = async (req, res) => {
 
     const newStaff = await userService.createStaff(staffData);
 
-    await clearCache('user:all:*');
+    try {
+      await clearCache('user:all:*');
+    } catch (cacheError) {
+      console.warn(
+        'Không thể xóa cache, nhưng staff đã được tạo thành công:',
+        cacheError.message
+      );
+    }
 
     res.status(StatusCodes.CREATED).json({
       status: 'success',
