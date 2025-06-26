@@ -5,7 +5,21 @@ const createAppointment = async (data) => {
   try {
     const { appointment } = data;
     const mainAppointmentData = { ...appointment };
-
+    const { timeslot_id, appointment_time } = mainAppointmentData
+    console.log('timeslot_id', timeslot_id, appointment_time)
+    if (timeslot_id && appointment_time) {
+      const isDuplicateAppoinment = await MODELS.AppointmentModel.findOne({
+        where: {
+          appointment_time: appointment_time,
+          timeslot_id: timeslot_id
+        }
+      })
+      if(isDuplicateAppoinment) {
+        console.error('Error creating appointment: appointment_time already exists for this timeslot. Conflicting appointment:');
+        throw new Error('Failed to create appointment: The selected timeslot and time are already booked. Please choose a different time.');
+      }
+    }
+    
     const now = new Date();
     mainAppointmentData.created_at = now;
     mainAppointmentData.updated_at = now;
@@ -95,7 +109,7 @@ export const getAppointmentsByUserId = async (userId) => {
       console.log('plain', plain)
       console.log('avai', availability)
       const { availability } = plain.timeslot
-    
+
       const date = availability ? availability.date : null
       if (plain.doctor) {
         delete plain.doctor;

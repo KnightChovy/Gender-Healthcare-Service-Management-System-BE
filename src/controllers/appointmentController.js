@@ -7,12 +7,11 @@ import ApiError from '~/utils/ApiError';
 const createAppointment = async (req, res) => {
   try {
     const validatedData = appointmentValidation.validateAndTransformAppointmentData(req.body);
-    
-    const appointment = await appointmentServices.createAppointment(validatedData);
+    const result = await appointmentServices.createAppointment(validatedData);
     return res.status(201).json({
       success: true,
       message: 'Appointment created successfully',
-      data: appointment,
+      data: result,
     });
   } catch (err) {
     const status = err instanceof ApiError ? err.statusCode : 500;
@@ -70,7 +69,7 @@ const getUserAppointments = async (req, res) => {
 const getUserAppointmentsBySlug = async (req, res) => {
   try {
     const { slug } = req.params;
-    
+
     if (!slug) {
       throw new ApiError(400, 'User slug is required');
     }
@@ -131,7 +130,7 @@ const approveAppointment = async (req, res) => {
     }
 
     const result = await appointmentServices.updateAppointmentStatus(appointmentId, status, managerId);
-    
+
     return res.status(200).json({
       success: true,
       message: `Appointment ${status} successfully`,

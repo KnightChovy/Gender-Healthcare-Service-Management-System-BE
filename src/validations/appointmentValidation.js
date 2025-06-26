@@ -11,7 +11,7 @@ const appointmentSchema = Joi.object({
       'any.required': 'User ID is required'
     }),
 
-  selectedDoctor: Joi.string()
+  doctor_id: Joi.string()
     .pattern(/^DR\d{6}$/)
     .required()
     .messages({
@@ -77,7 +77,6 @@ const appointmentSchema = Joi.object({
 
 export const validateAndTransformAppointmentData = (appointmentData) => {
   try {
-    // Validate the input data
     const { error, value } = appointmentSchema.validate(appointmentData, {
       abortEarly: false,
       allowUnknown: true
@@ -88,21 +87,20 @@ export const validateAndTransformAppointmentData = (appointmentData) => {
       throw new ApiError(400, `Validation failed: ${errorMessages}`);
     }
 
-    // Transform validated data to appointment model structure
     const transformedData = {
       appointment: {
         user_id: value.user_id,
-        doctor_id: value.selectedDoctor,
+        doctor_id: value.doctor_id,
         timeslot_id: value.timeslot_id || null,
         descriptions: value.symptoms || value.notes || null,
         consultant_type: value.consultant_type || null,
-        status: value.status || 'pending',
+        status: 'pending',
         appointment_time: value.appointment_time || null,
         price_apm: value.price_apm || null,
-        booking: value.status === '0' ? 0 : 1
+        booking: 0
       }
     };
-
+    console.log('transformedData', transformedData)
     return transformedData;
   } catch (error) {
     if (error instanceof ApiError) {
