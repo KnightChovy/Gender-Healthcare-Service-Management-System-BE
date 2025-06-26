@@ -1263,7 +1263,7 @@
 
 /**
  * @swagger
- * /v1/emails/payment-reminder:
+ * /v2/emails/payment-reminder:
  *   post:
  *     summary: Gửi email nhắc thanh toán
  *     description: Gửi email thông báo và nhắc nhở người dùng thanh toán cho cuộc hẹn đã được chấp nhận
@@ -1354,7 +1354,7 @@
 
 /**
  * @swagger
- * /v1/emails/booking-confirmation:
+ * /v2/emails/booking-confirmation:
  *   post:
  *     summary: Gửi email xác nhận đặt lịch thành công
  *     description: Gửi email thông báo đặt lịch thành công và nhắc người dùng xem chi tiết trên hệ thống
@@ -1445,7 +1445,7 @@
 
 /**
  * @swagger
- * /v1/emails/sendEmail:
+ * /v2/emails/sendEmail:
  *   post:
  *     summary: Gửi email test
  *     description: API test gửi email đến một địa chỉ email cụ thể

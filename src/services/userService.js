@@ -2,6 +2,7 @@ import ApiError from '~/utils/ApiError';
 import { comparePassword, hashPassword } from '~/utils/crypto';
 import { StatusCodes } from 'http-status-codes';
 import { MODELS } from '~/models/initModels';
+import { Op } from 'sequelize';
 
 const getAllUsers = async () => {
   try {
@@ -17,7 +18,9 @@ const getAllUsers = async () => {
 
 const createUser = async (userData) => {
   try {
-    const existingUser = await MODELS.UserModel.findOne({ where: { username: userData.username } });
+    const existingUser = await MODELS.UserModel.findOne({
+      where: { username: userData.username },
+    });
     if (existingUser) {
       throw new ApiError(409, 'User with this username already exists');
     }
@@ -25,7 +28,9 @@ const createUser = async (userData) => {
 
     // Generate user_id if not provided
     if (!userData.user_id) {
-      const latestUser = await MODELS.UserModel.findOne({ order: [['user_id', 'DESC']] });
+      const latestUser = await MODELS.UserModel.findOne({
+        order: [['user_id', 'DESC']],
+      });
       let nextId = 1;
       if (latestUser) {
         const latestId = parseInt(latestUser.user_id.substring(2));
@@ -55,7 +60,9 @@ const createUser = async (userData) => {
 
 const updateUser = async (userId, userData) => {
   try {
-    const existingUser = await MODELS.UserModel.findOne({ where: { user_id: userId } });
+    const existingUser = await MODELS.UserModel.findOne({
+      where: { user_id: userId },
+    });
     if (!existingUser) {
       throw new ApiError(404, 'Không tìm thấy người dùng');
     }
@@ -64,7 +71,9 @@ const updateUser = async (userId, userData) => {
     }
     userData.updated_at = new Date();
     await MODELS.UserModel.update(userData, { where: { user_id: userId } });
-    const updatedUser = await MODELS.UserModel.findOne({ where: { user_id: userId } });
+    const updatedUser = await MODELS.UserModel.findOne({
+      where: { user_id: userId },
+    });
     if (!updatedUser) {
       throw new ApiError(500, 'Cập nhật thông tin không thành công');
     }
@@ -88,7 +97,10 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
       throw new ApiError(400, 'Mật khẩu hiện tại không đúng');
     }
     const hashedPassword = hashPassword(newPassword);
-    await MODELS.UserModel.update({ password: hashedPassword, updated_at: new Date() }, { where: { user_id: userId } });
+    await MODELS.UserModel.update(
+      { password: hashedPassword, updated_at: new Date() },
+      { where: { user_id: userId } }
+    );
     return true;
   } catch (error) {
     if (error instanceof ApiError) {
@@ -109,7 +121,6 @@ const getUserProfile = async (userId) => {
         message: `Không tìm thấy thông tin người dùng với ID: ${userId}`,
       };
     }
-    // Loại bỏ các thông tin nhạy cảm trước khi trả về
     const userProfile = {
       user_id: user.user_id,
       username: user.username,
@@ -130,9 +141,117 @@ const getUserProfile = async (userId) => {
     throw error.statusCode
       ? error
       : {
-        statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-        message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
-      };
+          statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+          message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
+        };
+  }
+};
+
+const createStaff = async (staffData) => {
+  try {
+    // Kiểm tra user đã tồn tại
+    const existingUser = await MODELS.UserModel.findOne({
+      where: {
+        [Op.or]: [{ username: staffData.username }, { email: staffData.email }],
+      },
+    });
+
+    // Xử lý nếu user đã tồn tại
+    if (existingUser) {
+      if (existingUser.username === staffData.username) {
+        throw new ApiError(409, 'User with this username already exists');
+      }
+      throw new ApiError(409, 'User with this email already exists');
+    }
+
+    // Mã hóa password
+    staffData.password = hashPassword(staffData.password);
+
+    // Tạo ID mới
+    const latestUser = await MODELS.UserModel.findOne({
+      order: [['user_id', 'DESC']],
+    });
+
+    let nextId = 1;
+    if (latestUser) {
+      const latestId = parseInt(latestUser.user_id.substring(2));
+      nextId = latestId + 1;
+    }
+    const userId = `US${nextId.toString().padStart(6, '0')}`;
+    const now = new Date();
+
+    // Tạo user mới
+    const newUser = await MODELS.UserModel.create({
+      user_id: userId,
+      first_name: staffData.first_name,
+      last_name: staffData.last_name,
+      username: staffData.username,
+      email: staffData.email,
+      password: staffData.password,
+      gender: staffData.gender,
+      phone: staffData.phone,
+      role: staffData.role,
+      status: 1,
+      birthday: staffData.birthday || null,
+      created_at: now,
+      updated_at: now,
+    });
+
+    // Tạo bản ghi doctor nếu role là doctor
+    if (staffData.role === 'doctor') {
+      const latestDoctor = await MODELS.DoctorModel.findOne({
+        order: [['doctor_id', 'DESC']],
+      });
+
+      let doctorId = 'DR000001'; // Mặc định
+      if (latestDoctor && latestDoctor.doctor_id) {
+        try {
+          const matches = latestDoctor.doctor_id.match(/^DR(\d+)$/);
+          if (matches && matches[1]) {
+            const latestId = parseInt(matches[1]);
+            doctorId = `DR${(latestId + 1).toString().padStart(6, '0')}`;
+          }
+        } catch (parseError) {
+          console.warn(
+            'Error parsing doctor ID, using default:',
+            parseError.message
+          );
+        }
+      }
+
+      try {
+        // Tạo bản ghi doctor
+        await MODELS.DoctorModel.create({
+          doctor_id: doctorId,
+          user_id: userId,
+          bio: staffData.bio || '',
+          created_at: now,
+          updated_at: now,
+          experience_year: parseInt(staffData.experience_year || '0'),
+        });
+      } catch (doctorError) {
+        console.error(
+          'Warning: Could not create doctor record but user was created:',
+          doctorError.message
+        );
+      }
+    }
+
+    return {
+      user_id: newUser.user_id,
+      username: newUser.username,
+      email: newUser.email,
+      phone: newUser.phone,
+      role: newUser.role,
+      first_name: newUser.first_name,
+      last_name: newUser.last_name,
+    };
+  } catch (error) {
+    console.error('Error in createStaff:', error);
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, `Failed to create staff: ${error.message}`);
   }
 };
 
@@ -142,4 +261,5 @@ export const userService = {
   updateUser,
   changePassword,
   getUserProfile,
+  createStaff,
 };

@@ -1,7 +1,6 @@
 // ~/models/userModel.js
 import { DataTypes } from 'sequelize';
 import { GET_DB } from '~/config/mysql';
-import bcrypt from 'bcrypt';
 let User = null;
 
 const initUserModel = () => {

@@ -98,10 +98,38 @@ const getMyProfile = async (req, res) => {
   }
 };
 
+const createStaff = async (req, res) => {
+  try {
+    const staffData = req.body;
+    console.log('Đang tạo Staff với dữ liệu:', staffData);
+
+    const newStaff = await userService.createStaff(staffData);
+
+    await clearCache('user:all:*');
+
+    res.status(StatusCodes.CREATED).json({
+      status: 'success',
+      message: 'Staff created successfully',
+      user: newStaff,
+    });
+  } catch (error) {
+    console.error('Error in createStaff:', error);
+    const status =
+      error instanceof ApiError
+        ? error.statusCode
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+    res.status(status).json({
+      status: 'error',
+      message: error.message,
+    });
+  }
+};
+
 export const userController = {
   getAllUsers,
   createUser,
   updateUser,
   changePassword,
   getMyProfile,
+  createStaff,
 };

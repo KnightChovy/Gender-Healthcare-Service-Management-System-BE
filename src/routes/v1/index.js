@@ -6,6 +6,7 @@ import { appointmentRoute } from './appointmentRoute';
 import { managerRoute } from './managerRoute';
 import { serviceRoute } from './serviceRoute';
 import { emailRoute } from './emailRoute';
+import { adminRoute } from './adminRoute';
 
 const Router = express.Router();
 
@@ -28,5 +29,6 @@ Router.use('/appointments', appointmentRoute);
 Router.use('/managers', managerRoute);
 Router.use('/services', serviceRoute);
 Router.use('/emails', emailRoute);
+Router.use('/admins', adminRoute);
 
 export const API_V1 = Router;
