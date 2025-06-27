@@ -156,8 +156,62 @@ const sendBookingConfirmation = async (req, res) => {
   }
 };
 
+const sendAppointmentFeedbackEmail = async (req, res) => {
+  try {
+    const { appointment_id, patient_email, patient_name, doctor_name } =
+      req.body;
+
+    if (!appointment_id || !patient_email) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'appointment_id và patient_email là bắt buộc',
+      });
+    }
+
+    // Tạo link chứa appointment_id
+    const frontendUrl =
+      process.env.FRONTEND_URL || 'https://genderhealthcare.vercel.app';
+    const feedbackLink = `${frontendUrl}/feedback?appointment_id=${appointment_id}`;
+
+    const emailData = {
+      patientName: patient_name || 'Quý khách',
+      doctorName: doctor_name || 'Bác sĩ',
+      feedbackLink: feedbackLink,
+    };
+
+    console.log(`Sending feedback request email to: ${patient_email}`);
+    const response = await emailService.sendAppointmentFeedbackEmail(
+      patient_email,
+      emailData
+    );
+
+    if (response.status === 'error') {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Email đánh giá cuộc hẹn đã được gửi thành công',
+      data: {
+        emailSent: true,
+        appointmentId: appointment_id,
+        sentTo: patient_email,
+        feedbackLink: feedbackLink,
+      },
+    });
+  } catch (error) {
+    console.error('Error in sendAppointmentFeedbackEmail:', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      status: 'error',
+      message: 'Lỗi server khi gửi email đánh giá cuộc hẹn',
+      error: error.message,
+    });
+  }
+};
+
 export const emailController = {
   sendEmail,
   sendPaymentReminder,
   sendBookingConfirmation,
+  sendAppointmentFeedbackEmail,
 };

@@ -9,5 +9,8 @@ Router.route('/payment-reminder').post(emailController.sendPaymentReminder);
 Router.route('/booking-confirmation').post(
   emailController.sendBookingConfirmation
 );
+Router.route('/appointment-feedback').post(
+  emailController.sendAppointmentFeedbackEmail
+);
 
 export const emailRoute = Router;
