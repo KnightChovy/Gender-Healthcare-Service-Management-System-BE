@@ -1512,8 +1512,7 @@
  * @swagger
  * /v1/admins/createStaff:
  *   post:
- *     summary: Tạo tài khoản nhân viên mới
- *     description: Tạo mới tài khoản nhân viên hoặc bác sĩ trong hệ thống (chỉ admin mới có quyền)
+ *     summary: Tạo nhân viên/bác sĩ mới
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -1523,144 +1522,19 @@
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/CreateStaffRequest'
- *           examples:
- *             staffExample:
- *               value:
- *                 username: "staff1"
- *                 password: "Staff@123"
- *                 confirm_password: "Staff@123"
- *                 first_name: "Nhân"
- *                 last_name: "Viên"
- *                 gender: "male"
- *                 email: "staff@example.com"
- *                 phone: "0987654321"
- *                 role: "staff"
- *                 birthday: "1990-01-01"
- *             doctorExample:
- *               value:
- *                 username: "doctor1"
- *                 password: "Doctor@123"
- *                 confirm_password: "Doctor@123"
- *                 first_name: "Bác"
- *                 last_name: "Sĩ"
- *                 gender: "female"
- *                 email: "doctor@example.com"
- *                 phone: "0912345678"
- *                 role: "doctor"
- *                 birthday: "1985-05-15"
- *                 experience_year: 5
- *                 bio: "Bác sĩ chuyên khoa tâm lý với 5 năm kinh nghiệm"
  *     responses:
  *       201:
- *         description: Tạo tài khoản thành công
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "success"
- *                 message:
- *                   type: string
- *                   example: "Staff created successfully"
- *                 user:
- *                   type: object
- *                   properties:
- *                     user_id:
- *                       type: string
- *                       example: "US000010"
- *                     username:
- *                       type: string
- *                       example: "staff1"
- *                     email:
- *                       type: string
- *                       example: "staff@example.com"
- *                     phone:
- *                       type: string
- *                       example: "0987654321"
- *                     role:
- *                       type: string
- *                       example: "staff"
- *                     first_name:
- *                       type: string
- *                       example: "Nhân"
- *                     last_name:
- *                       type: string
- *                       example: "Viên"
+ *         description: Tạo thành công
  *       400:
- *         description: Dữ liệu đầu vào không hợp lệ
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "Dữ liệu không hợp lệ"
- *                 errors:
- *                   type: array
- *                   items:
- *                     type: string
- *                   example: [
- *                     "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt",
- *                     "Giới tính phải là: male hoặc female"
- *                   ]
+ *         description: Dữ liệu không hợp lệ
  *       401:
- *         description: Không có quyền truy cập
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "Not authenticated. Token is missing or invalid."
+ *         description: Chưa xác thực
  *       403:
- *         description: Không có quyền thực hiện
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "Forbidden: You do not have permission. Access is restricted to managers only."
+ *         description: Không có quyền
  *       409:
  *         description: Tài khoản đã tồn tại
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "User with this username already exists"
  *       500:
  *         description: Lỗi server
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "Failed to create staff"
  */
 
 /**
@@ -1682,67 +1556,51 @@
  *       properties:
  *         username:
  *           type: string
- *           maxLength: 20
- *           example: "staff1"
- *           description: Tên đăng nhập cho nhân viên mới
+ *           example: "khiemmadit"
  *         password:
  *           type: string
- *           format: password
- *           minLength: 8
- *           example: "Staff@123"
- *           description: Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt
+ *           example: "Phat@123"
  *         confirm_password:
  *           type: string
- *           format: password
- *           example: "Staff@123"
- *           description: Xác nhận mật khẩu phải khớp với mật khẩu
+ *           example: "Phat@123"
  *         first_name:
  *           type: string
- *           maxLength: 100
- *           example: "Nhân"
- *           description: Họ của nhân viên
+ *           example: "Khiêm"
  *         last_name:
  *           type: string
- *           maxLength: 100
- *           example: "Viên"
- *           description: Tên của nhân viên
+ *           example: "Phan"
  *         gender:
  *           type: string
  *           enum: [male, female]
  *           example: "male"
- *           description: Giới tính (male hoặc female)
  *         email:
  *           type: string
- *           format: email
- *           maxLength: 50
- *           example: "staff@example.com"
- *           description: Email của nhân viên
+ *           example: "tanphatphan901@gmail.com"
  *         phone:
  *           type: string
- *           pattern: "^[0-9]{10,11}$"
- *           maxLength: 11
- *           example: "0987654321"
- *           description: Số điện thoại (10-11 số)
+ *           example: "0868331121"
  *         role:
  *           type: string
  *           enum: [staff, doctor, manager]
- *           example: "staff"
- *           description: Vai trò của nhân viên
+ *           example: "doctor"
  *         birthday:
  *           type: string
- *           format: date
- *           example: "1990-01-01"
- *           description: Ngày sinh (định dạng YYYY-MM-DD)
+ *           example: "2004-03-25"
  *         experience_year:
  *           type: integer
- *           minimum: 0
- *           example: 5
- *           description: Số năm kinh nghiệm (chỉ bắt buộc khi role là doctor)
+ *           example: 6
  *         bio:
  *           type: string
- *           maxLength: 1000
- *           example: "Bác sĩ chuyên khoa tâm lý với nhiều năm kinh nghiệm"
- *           description: Tiểu sử nghề nghiệp (chỉ áp dụng cho doctor)
+ *           example: "Bác sĩ chuyên khoa với nhiều kinh nghiệm trong lĩnh vực phụ khoa"
+ *         specialization:
+ *           type: string
+ *           enum: [phu_khoa, tam_ly, da_lieu, noi_tiet, dinh_duong, sin_ly, suc_khoe_tinh_duc, suc_khoe_sinh_san]
+ *           example: "phu_khoa"
+ *         certificate:
+ *           type: array
+ *           items:
+ *             type: string
+ *           example: ["Chuyên khoa"]
  */
 
 /**
