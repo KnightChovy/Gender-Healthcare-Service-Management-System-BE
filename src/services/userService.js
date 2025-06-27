@@ -156,9 +156,6 @@ const createStaff = async (staffData) => {
     });
 
     if (existingUser) {
-      if (existingUser.username === staffData.username) {
-        throw new ApiError(409, 'User with this username already exists');
-      }
       throw new ApiError(409, 'User with this email already exists');
     }
 

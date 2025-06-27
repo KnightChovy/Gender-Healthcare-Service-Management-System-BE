@@ -105,15 +105,6 @@ const createStaff = async (req, res) => {
 
     const newStaff = await userService.createStaff(staffData);
 
-    try {
-      await clearCache('user:all:*');
-    } catch (cacheError) {
-      console.warn(
-        'Không thể xóa cache, nhưng staff đã được tạo thành công:',
-        cacheError.message
-      );
-    }
-
     res.status(StatusCodes.CREATED).json({
       status: 'success',
       message: 'Staff created successfully',
