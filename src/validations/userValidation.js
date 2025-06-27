@@ -277,37 +277,60 @@ const staffSchema = Joi.object({
     'string.empty': 'Tên không được để trống',
   }),
 
-  role: Joi.string().valid('manager', 'doctor').required().messages({
-    'any.only': 'Chức vụ phải là: manager, doctor',
+  role: Joi.string().valid('manager', 'doctor', 'staff').required().messages({
+    'any.only': 'Chức vụ phải là: manager, doctor hoặc staff',
     'any.required': 'Chức vụ là bắt buộc',
     'string.empty': 'Chức vụ không được để trống',
   }),
+
   birthday: Joi.date().allow(null).optional(),
 
-  // Các trường bổ sung cho doctor (chỉ yêu cầu khi role là doctor)
-  // experience_year: Joi.when('role', {
-  //   is: 'doctor',
-  //   then: Joi.number().min(0).required().messages({
-  //     'number.base': 'Số năm kinh nghiệm phải là số',
-  //     'number.min': 'Số năm kinh nghiệm không được âm',
-  //     'any.required': 'Số năm kinh nghiệm là bắt buộc cho bác sĩ',
-  //   }),
-  //   otherwise: Joi.number().min(0).optional(),
-  // }),
+  experience_year: Joi.when('role', {
+    is: 'doctor',
+    then: Joi.number().integer().min(0).required().messages({
+      'number.base': 'Số năm kinh nghiệm phải là số',
+      'number.integer': 'Số năm kinh nghiệm phải là số nguyên',
+      'number.min': 'Số năm kinh nghiệm không được âm',
+      'any.required': 'Số năm kinh nghiệm là bắt buộc cho bác sĩ',
+    }),
+    otherwise: Joi.number().optional(),
+  }),
 
-  // bio: Joi.when('role', {
-  //   is: 'doctor',
-  //   then: Joi.string().max(1000).allow('', null).messages({
-  //     'string.max': 'Tiểu sử không được quá 1000 ký tự',
-  //   }),
-  //   otherwise: Joi.string().allow('', null).optional(),
-  // }),
+  bio: Joi.when('role', {
+    is: 'doctor',
+    then: Joi.string().max(1000).allow('', null).messages({
+      'string.max': 'Tiểu sử không được quá 1000 ký tự',
+    }),
+    otherwise: Joi.string().allow('', null).optional(),
+  }),
 
-  // status: Joi.number().valid(0, 1).default(1).optional(),
+  specialization: Joi.when('role', {
+    is: 'doctor',
+    then: Joi.string().required().messages({
+      'string.empty': 'Chuyên khoa không được để trống',
+      'any.required': 'Chuyên khoa là bắt buộc cho bác sĩ',
+    }),
+    otherwise: Joi.string().allow('', null).optional(),
+  }),
+
+  certificate: Joi.when('role', {
+    is: 'doctor',
+    then: Joi.array().items(Joi.string()).min(1).required().messages({
+      'array.base': 'Chứng chỉ phải là một mảng',
+      'array.min': 'Phải có ít nhất một chứng chỉ',
+      'any.required': 'Chứng chỉ là bắt buộc cho bác sĩ',
+    }),
+    otherwise: Joi.array().items(Joi.string()).optional(),
+  }),
+
+  status: Joi.number().valid(0, 1).default(1).optional(),
 });
 
 export const validateCreateStaff = (req, res, next) => {
   console.log('Staff validation data:', req.body);
+
+  const { role } = req.body;
+
   const { error } = staffSchema.validate(req.body, { abortEarly: false });
 
   if (error) {
@@ -319,7 +342,22 @@ export const validateCreateStaff = (req, res, next) => {
     });
   }
 
-  delete req.body.confirm_password;
+  if (role === 'doctor') {
+    if (req.body.experience_year && isNaN(Number(req.body.experience_year))) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'Số năm kinh nghiệm phải là số',
+      });
+    }
 
+    if (req.body.certificate && !Array.isArray(req.body.certificate)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'Chứng chỉ phải là một mảng',
+      });
+    }
+  }
+
+  delete req.body.confirm_password;
   next();
 };

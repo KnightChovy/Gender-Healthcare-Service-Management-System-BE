@@ -100,26 +100,61 @@ const getMyProfile = async (req, res) => {
 
 const createStaff = async (req, res) => {
   try {
-    const staffData = req.body;
-    console.log('Đang tạo Staff với dữ liệu:', staffData);
+    const {
+      username,
+      password,
+      first_name,
+      last_name,
+      gender,
+      email,
+      phone,
+      role,
+    } = req.body;
 
-    const newStaff = await userService.createStaff(staffData);
+    console.log('Received data in controller:', req.body);
 
-    res.status(StatusCodes.CREATED).json({
+    if (
+      !username ||
+      !password ||
+      !first_name ||
+      !last_name ||
+      !gender ||
+      !email ||
+      !phone ||
+      !role
+    ) {
+      console.log('Missing required fields:', {
+        username: !username,
+        password: !password,
+        first_name: !first_name,
+        last_name: !last_name,
+        gender: !gender,
+        email: !email,
+        phone: !phone,
+        role: !role,
+      });
+
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'Vui lòng cung cấp đầy đủ thông tin cần thiết',
+      });
+    }
+
+    const newStaff = await userService.createStaff(req.body);
+
+    return res.status(StatusCodes.CREATED).json({
       status: 'success',
-      message: 'Staff created successfully',
-      user: newStaff,
+      message: 'Tạo nhân viên mới thành công',
+      data: newStaff,
     });
   } catch (error) {
-    console.error('Error in createStaff:', error);
-    const status =
-      error instanceof ApiError
-        ? error.statusCode
-        : StatusCodes.INTERNAL_SERVER_ERROR;
-    res.status(status).json({
-      status: 'error',
-      message: error.message,
-    });
+    console.error('Error in createStaff controller:', error);
+    return res
+      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({
+        status: 'error',
+        message: error.message || 'Lỗi khi tạo nhân viên mới',
+      });
   }
 };
 
