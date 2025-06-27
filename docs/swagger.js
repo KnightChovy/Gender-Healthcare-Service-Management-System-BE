@@ -1744,12 +1744,13 @@
  *           example: "Bác sĩ chuyên khoa tâm lý với nhiều năm kinh nghiệm"
  *           description: Tiểu sử nghề nghiệp (chỉ áp dụng cho doctor)
  */
+
 /**
  * @swagger
  * /v1/emails/appointment-feedback:
  *   post:
  *     summary: Gửi email yêu cầu đánh giá cuộc hẹn
- *     description: Gửi email kèm đường dẫn đánh giá đến bệnh nhân sau khi cuộc hẹn hoàn thành
+ *     description: Gửi email kèm đường dẫn đánh giá đến người dùng sau khi cuộc hẹn hoàn thành
  *     tags: [Emails]
  *     requestBody:
  *       required: true
@@ -1759,25 +1760,11 @@
  *             type: object
  *             required:
  *               - appointment_id
- *               - patient_email
  *             properties:
  *               appointment_id:
  *                 type: string
  *                 example: "AP000123"
  *                 description: ID của cuộc hẹn đã hoàn thành
- *               patient_email:
- *                 type: string
- *                 format: email
- *                 example: "patient@example.com"
- *                 description: Email của bệnh nhân
- *               patient_name:
- *                 type: string
- *                 example: "Nguyễn Văn A"
- *                 description: Tên bệnh nhân
- *               doctor_name:
- *                 type: string
- *                 example: "Bác sĩ Lê B"
- *                 description: Tên bác sĩ
  *     responses:
  *       200:
  *         description: Email đã được gửi thành công
@@ -1809,28 +1796,8 @@
  *                       example: "https://genderhealthcare.vercel.app/feedback?appointment_id=AP000123"
  *       400:
  *         description: Thiếu thông tin cần thiết
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "appointment_id và patient_email là bắt buộc"
+ *       404:
+ *         description: Không tìm thấy cuộc hẹn hoặc người dùng
  *       500:
  *         description: Lỗi server
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "Lỗi server khi gửi email đánh giá cuộc hẹn"
  */

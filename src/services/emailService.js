@@ -205,42 +205,68 @@ const sendAppointmentFeedbackEmail = async (email, data) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"Gender Healthcare Service" <${env.EMAIL_USERNAME}>`,
       to: email,
       subject: 'Đánh giá dịch vụ tư vấn - Gender Healthcare',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <img src="https://i.imgur.com/YourLogo.png" alt="Gender Healthcare Logo" style="max-height: 80px;">
-          </div>
-          
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
           <h2 style="color: #3B82F6; text-align: center; margin-bottom: 20px;">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</h2>
-          
-          <p>Xin chào <strong>${data.patientName}</strong>,</p>
-          
-          <p>Cuộc hẹn tư vấn của bạn với <strong>${data.doctorName}</strong> đã hoàn thành.</p>
-          
-          <p>Để giúp chúng tôi nâng cao chất lượng dịch vụ, mong bạn dành chút thời gian đánh giá trải nghiệm:</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${data.feedbackLink}" style="background-color: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-              Đánh giá ngay
-            </a>
-          </div>
-          
-          <p>Phản hồi của bạn rất quan trọng với chúng tôi và sẽ giúp chúng tôi cải thiện dịch vụ tốt hơn.</p>
-          
-          <p>Nếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ thêm, đừng ngần ngại liên hệ với chúng tôi.</p>
-          
-          <div style="margin-top: 30px;">
-            <p>Trân trọng,<br>
-            <strong>Gender Healthcare Team</strong></p>
-          </div>
-          
-          <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #666; text-align: center;">
-            <p>Đây là email tự động, vui lòng không trả lời. Nếu bạn cần hỗ trợ, hãy liên hệ với chúng tôi qua email hoặc hotline.</p>
-          </div>
         </div>
+        
+        <p>Xin chào <strong>${data.patientName}</strong>,</p>
+        
+        <p>Cuộc hẹn tư vấn của bạn với <strong>${
+          data.doctorName
+        }</strong> đã hoàn thành.</p>
+
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 20px 0; border-left: 4px solid #3B82F6;">
+          <h3 style="margin-top: 0; color: #3B82F6;">Chi tiết cuộc hẹn</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Loại dịch vụ:</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
+                data.appointmentType || ''
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Ngày tư vấn:</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
+                data.appointmentDate || 'Không xác định'
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Thời gian:</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
+                data.appointmentTime || 'Không xác định'
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Chi phí:</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
+                data.appointmentFee || ''
+              }</td>
+            </tr>
+          </table>
+        </div>
+        
+        <p>Để giúp chúng tôi nâng cao chất lượng dịch vụ, mong bạn dành chút thời gian đánh giá trải nghiệm:</p>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${
+            data.feedbackLink
+          }" style="background-color: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            Đánh giá ngay
+          </a>
+        </div>
+        
+        <p>Phản hồi của bạn rất quan trọng với chúng tôi và giúp chúng tôi cải thiện dịch vụ.</p>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px;">
+          <p>Trân trọng,<br>
+          <strong>Gender Healthcare Team</strong></p>
+        </div>
+      </div>
       `,
     };
 

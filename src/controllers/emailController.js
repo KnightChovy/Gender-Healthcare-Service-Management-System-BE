@@ -1,6 +1,7 @@
 import { emailService } from '~/services/emailService';
 import { StatusCodes } from 'http-status-codes';
 import { MODELS } from '~/models/initModels';
+import { Sequelize } from 'sequelize';
 
 const sendEmail = async (req, res) => {
   try {
@@ -158,30 +159,95 @@ const sendBookingConfirmation = async (req, res) => {
 
 const sendAppointmentFeedbackEmail = async (req, res) => {
   try {
-    const { appointment_id, patient_email, patient_name, doctor_name } =
-      req.body;
+    const { appointment_id } = req.body;
 
-    if (!appointment_id || !patient_email) {
+    if (!appointment_id) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'appointment_id và patient_email là bắt buộc',
+        message: 'appointment_id is required',
       });
     }
 
-    // Tạo link chứa appointment_id
-    const frontendUrl =
-      process.env.FRONTEND_URL || 'https://genderhealthcare.vercel.app';
-    const feedbackLink = `${frontendUrl}/feedback?appointment_id=${appointment_id}`;
+    const appointment = await MODELS.AppointmentModel.findByPk(appointment_id);
+    if (!appointment) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        status: 'error',
+        message: 'Appointment not found',
+      });
+    }
+
+    const user = await MODELS.UserModel.findByPk(appointment.user_id);
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        status: 'error',
+        message: 'User not found',
+      });
+    }
+
+    const doctor_id = appointment.doctor_id;
+    console.log('Looking for doctor with ID:', doctor_id);
+
+    const doctor = await MODELS.DoctorModel.findByPk(doctor_id);
+
+    console.log(
+      'Doctor info:',
+      doctor
+        ? `ID: ${doctor.id}, Name: ${doctor.first_name} ${doctor.last_name}`
+        : 'Doctor not found'
+    );
+
+    console.log('Looking for availability with avail_id:', appointment_id);
+    let appointmentDate = 'Không xác định';
+
+    const availability = await MODELS.AvailabilityModel.findOne({
+      where: { avail_id: appointment_id.replace('AP', 'AV') },
+    });
+
+    if (availability && availability.date) {
+      const dateParts = availability.date.toString().split('-');
+      if (dateParts.length === 3) {
+        appointmentDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+      }
+      console.log('Found date from availability:', appointmentDate);
+    }
+
+    const timeslot = await MODELS.TimeslotModel.findByPk(
+      appointment.timeslot_id
+    );
+
+    let appointmentTime = 'Không xác định';
+    if (timeslot && timeslot.time_start && timeslot.time_end) {
+      const startTime = timeslot.time_start.substring(0, 5) || '';
+      const endTime = timeslot.time_end.substring(0, 5) || '';
+      if (startTime && endTime) {
+        appointmentTime = `${startTime} - ${endTime}`;
+      }
+    }
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const feedbackLink = `${frontendUrl}/feedback/appointment/${appointment_id}`;
 
     const emailData = {
-      patientName: patient_name || 'Quý khách',
-      doctorName: doctor_name || 'Bác sĩ',
+      patientName: `${user.last_name} ${user.first_name || ''}`.trim(),
+      doctorName:
+        doctor && doctor.first_name
+          ? `Bác sĩ ${doctor.last_name} ${doctor.first_name || ''}`.trim()
+          : 'Bác sĩ tư vấn',
       feedbackLink: feedbackLink,
+      appointmentId: appointment_id,
+      appointmentType: appointment.consultant_type || 'Tư vấn chung',
+      appointmentDate: appointmentDate,
+      appointmentTime: appointmentTime,
+      appointmentFee: appointment.price_apm
+        ? `${parseFloat(appointment.price_apm).toLocaleString('vi-VN')} VND`
+        : '350.000 VND',
     };
 
-    console.log(`Sending feedback request email to: ${patient_email}`);
+    console.log(`Sending feedback request email to: ${user.email}`);
+    console.log('Email data:', emailData);
+
     const response = await emailService.sendAppointmentFeedbackEmail(
-      patient_email,
+      user.email,
       emailData
     );
 
@@ -195,7 +261,7 @@ const sendAppointmentFeedbackEmail = async (req, res) => {
       data: {
         emailSent: true,
         appointmentId: appointment_id,
-        sentTo: patient_email,
+        sentTo: user.email,
         feedbackLink: feedbackLink,
       },
     });
