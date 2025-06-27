@@ -1793,11 +1793,47 @@
  *                       example: "patient@example.com"
  *                     feedbackLink:
  *                       type: string
- *                       example: "https://genderhealthcare.vercel.app/feedback?appointment_id=AP000123"
+ *                       example: "http://localhost:5173/feedback/appointment/AP000123"
  *       400:
  *         description: Thiếu thông tin cần thiết
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "appointment_id is required"
  *       404:
  *         description: Không tìm thấy cuộc hẹn hoặc người dùng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Appointment not found"
  *       500:
  *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi server khi gửi email đánh giá cuộc hẹn"
+ *                 error:
+ *                   type: string
+ *                   example: "Error details"
  */
