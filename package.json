@@ -16,7 +16,7 @@
     "dev": "nodemon --exec babel-node ./src/server.js"
   },
   "dependencies": {
-    "@babel/runtime": "^7.26.10",
+    "@babel/runtime": "^7.27.4",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
