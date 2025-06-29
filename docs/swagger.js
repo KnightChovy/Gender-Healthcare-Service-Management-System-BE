@@ -1705,7 +1705,6 @@
  *         required: true
  *         schema:
  *           type: string
- *         description: "Mã cuộc hẹn (ví dụ: AP000001)"
  *     requestBody:
  *       required: true
  *       content:
