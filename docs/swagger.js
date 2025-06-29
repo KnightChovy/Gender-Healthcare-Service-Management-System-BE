@@ -1688,10 +1688,7 @@
  *                   example: "error"
  *                 message:
  *                   type: string
- *                   example: "Lỗi server khi gửi email đánh giá cuộc hẹn"
- *                 error:
- *                   type: string
- *                   example: "Error details"
+ *                   example: "Internal server error while sending email"
  */
 
 /**
@@ -1708,6 +1705,7 @@
  *         required: true
  *         schema:
  *           type: string
+ *         description: "Mã cuộc hẹn (ví dụ: AP000001)"
  *     requestBody:
  *       required: true
  *       content:
