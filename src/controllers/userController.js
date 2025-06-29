@@ -72,7 +72,6 @@ const changePassword = async (req, res) => {
 
 const getMyProfile = async (req, res) => {
   try {
-    // Kiểm tra req.user tồn tại
     if (!req.jwtDecoded) {
       throw new ApiError(401, 'User not authenticated properly');
     }

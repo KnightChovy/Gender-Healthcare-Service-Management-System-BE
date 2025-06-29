@@ -78,6 +78,7 @@ const updateUser = async (userId, userData) => {
     if (!updatedUser) {
       throw new ApiError(500, 'Cập nhật thông tin không thành công');
     }
+    console.log('updatee user', updatedUser);
     return updatedUser;
   } catch (error) {
     if (error instanceof ApiError) {

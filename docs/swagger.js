@@ -1533,8 +1533,6 @@
  *         description: Không có quyền
  *       409:
  *         description: Tài khoản đã tồn tại
- *       500:
- *         description: Lỗi server
  */
 
 /**

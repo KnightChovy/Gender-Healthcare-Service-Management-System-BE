@@ -7,16 +7,18 @@ const appointmentSchema = Joi.object({
     .pattern(/^US\d{6}$/)
     .required()
     .messages({
-      'string.pattern.base': 'User ID must be US followed by 6 digits (e.g., US000001)',
-      'any.required': 'User ID is required'
+      'string.pattern.base':
+        'User ID must be US followed by 6 digits (e.g., US000001)',
+      'any.required': 'User ID is required',
     }),
 
   doctor_id: Joi.string()
     .pattern(/^DR\d{6}$/)
     .required()
     .messages({
-      'string.pattern.base': 'Doctor ID must be DR followed by 6 digits (e.g., DR000001)',
-      'any.required': 'Doctor selection is required'
+      'string.pattern.base':
+        'Doctor ID must be DR followed by 6 digits (e.g., DR000001)',
+      'any.required': 'Doctor selection is required',
     }),
 
   timeslot_id: Joi.string()
@@ -24,28 +26,24 @@ const appointmentSchema = Joi.object({
     .allow('', null)
     .optional()
     .messages({
-      'string.pattern.base': 'Timeslot ID must be TS followed by 6 digits (e.g., TS000001)'
+      'string.pattern.base':
+        'Timeslot ID must be TS followed by 6 digits (e.g., TS000001)',
     }),
 
-  consultant_type: Joi.string()
-    .max(150)
-    .allow('', null)
-    .optional()
-    .messages({
-      'string.max': 'Consultant type cannot exceed 150 characters'
-    }),
+  consultant_type: Joi.string().max(150).allow('', null).optional().messages({
+    'string.max': 'Consultant type cannot exceed 150 characters',
+  }),
 
   status: Joi.string()
     .valid('pending', 'confirmed', 'completed', 'cancelled', '0', '1')
     .default('pending')
     .optional()
     .messages({
-      'any.only': 'Status must be one of: pending, confirmed, completed, cancelled, 0, 1'
+      'any.only':
+        'Status must be one of: pending, confirmed, completed, cancelled, 0, 1',
     }),
 
-  appointment_time: Joi.string()
-    .allow('', null)
-    .optional(),
+  appointment_time: Joi.string().allow('', null).optional(),
 
   price_apm: Joi.number()
     .min(0)
@@ -55,35 +53,39 @@ const appointmentSchema = Joi.object({
     .optional()
     .messages({
       'number.min': 'Price cannot be negative',
-      'number.max': 'Price cannot exceed 999,999,999.99'
+      'number.max': 'Price cannot exceed 999,999,999.99',
     }),
 
-  symptoms: Joi.string()
-    .max(65535)
-    .allow('', null)
-    .optional()
-    .messages({
-      'string.max': 'Symptoms description cannot exceed 65,535 characters'
-    }),
+  symptoms: Joi.string().max(65535).allow('', null).optional().messages({
+    'string.max': 'Symptoms description cannot exceed 65,535 characters',
+  }),
 
-  notes: Joi.string()
-    .max(65535)
-    .allow('', null)
-    .optional()
-    .messages({
-      'string.max': 'Notes cannot exceed 65,535 characters'
-    })
+  notes: Joi.string().max(65535).allow('', null).optional().messages({
+    'string.max': 'Notes cannot exceed 65,535 characters',
+  }),
+});
+
+const feedbackSchema = Joi.object({
+  rating: Joi.number().min(1).max(5).required().precision(2).messages({
+    'any.required': 'Đánh giá là bắt buộc',
+  }),
+
+  feedback: Joi.string().allow('', null).max(500).messages({
+    'string.max': 'Nội dung đánh giá không được quá 500 ký tự',
+  }),
 });
 
 export const validateAndTransformAppointmentData = (appointmentData) => {
   try {
     const { error, value } = appointmentSchema.validate(appointmentData, {
       abortEarly: false,
-      allowUnknown: true
+      allowUnknown: true,
     });
 
     if (error) {
-      const errorMessages = error.details.map(detail => detail.message).join(', ');
+      const errorMessages = error.details
+        .map((detail) => detail.message)
+        .join(', ');
       throw new ApiError(400, `Validation failed: ${errorMessages}`);
     }
 
@@ -97,10 +99,10 @@ export const validateAndTransformAppointmentData = (appointmentData) => {
         status: 'pending',
         appointment_time: value.appointment_time || null,
         price_apm: value.price_apm || null,
-        booking: 0
-      }
+        booking: 0,
+      },
     };
-    console.log('transformedData', transformedData)
+    console.log('transformedData', transformedData);
     return transformedData;
   } catch (error) {
     if (error instanceof ApiError) {
@@ -110,6 +112,22 @@ export const validateAndTransformAppointmentData = (appointmentData) => {
   }
 };
 
+export const validateFeedback = (req, res, next) => {
+  const { error } = feedbackSchema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(400).json({
+      status: 'error',
+      message: 'Dữ liệu không hợp lệ',
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
+
 export const appointmentValidation = {
-  validateAndTransformAppointmentData
-}; 
+  validateAndTransformAppointmentData,
+  validateFeedback
+};
