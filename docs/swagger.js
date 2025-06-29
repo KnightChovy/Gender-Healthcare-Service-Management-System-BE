@@ -1693,3 +1693,120 @@
  *                   type: string
  *                   example: "Error details"
  */
+
+/**
+ * @swagger
+ * /v1/appointments/{appointment_id}/feedback:
+ *   post:
+ *     summary: Đánh giá và nhận xét cho cuộc hẹn
+ *     tags: [Appointments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: appointment_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Mã cuộc hẹn (ví dụ: AP000001)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - rating
+ *             properties:
+ *               rating:
+ *                 type: number
+ *                 format: float
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 4.5
+ *                 description: Điểm đánh giá từ 1-5 sao (có thể là số thập phân)
+ *               feedback:
+ *                 type: string
+ *                 example: "Bác sĩ rất tận tình và chuyên nghiệp"
+ *                 description: Nhận xét về cuộc hẹn
+ *     responses:
+ *       200:
+ *         description: Đánh giá thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Gửi đánh giá thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     appointment_id:
+ *                       type: string
+ *                       example: "AP000001"
+ *                     rating:
+ *                       type: number
+ *                       example: 4.5
+ *                     feedback:
+ *                       type: string
+ *                       example: "Bác sĩ rất tận tình và chuyên nghiệp"
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Dữ liệu không hợp lệ"
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["Đánh giá phải từ 1 đến 5 sao"]
+ *       401:
+ *         description: Chưa đăng nhập
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       403:
+ *         description: Không có quyền đánh giá
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Bạn không có quyền đánh giá cuộc hẹn này"
+ *       404:
+ *         description: Không tìm thấy cuộc hẹn
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy cuộc hẹn hoặc bạn không có quyền đánh giá"
+ */
