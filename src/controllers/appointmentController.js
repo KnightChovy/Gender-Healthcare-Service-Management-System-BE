@@ -215,12 +215,11 @@ const ApproveAppointments = async (req, res) => {
 
 const submitFeedback = async (req, res) => {
   try {
-    console.log('dataaaaaaa',  req.body)
+    console.log('dataaaaaaa', req.body)
+    const isValidate = appointmentValidation.validateFeedback
     const { appointment_id } = req.params;
     const { rating, feedback } = req.body;
     const userId = req.jwtDecoded.data?.user_id;
-    console.log('data', req.jwtDecoded)
-    console.log('data 2', req.jwtDecoded.data)
     if (!userId) {
       throw new ApiError(401, 'User not authenticated properly');
     }

@@ -113,6 +113,7 @@ export const validateAndTransformAppointmentData = (appointmentData) => {
 };
 
 export const validateFeedback = (req, res, next) => {
+  console.log('feeback',req.body)
   const { error } = feedbackSchema.validate(req.body, { abortEarly: false });
   console.log('token')
   if (error) {
@@ -125,7 +126,7 @@ export const validateFeedback = (req, res, next) => {
   }
   console.log('token tesst')
 
-  next();
+  // next();
 };
 
 export const appointmentValidation = {
