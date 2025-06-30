@@ -219,6 +219,7 @@ const submitFeedback = async (req, res) => {
     const { rating, feedback } = req.body;
     const userId = req.jwtDecoded.data?.user_id;
     console.log('data', req.jwtDecoded)
+    console.log('data 2', req.jwtDecoded.data)
     if (!userId) {
       throw new ApiError(401, 'User not authenticated properly');
     }
