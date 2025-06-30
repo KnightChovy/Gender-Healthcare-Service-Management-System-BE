@@ -30,4 +30,10 @@ Router.route('/:doctor_id/appointments').get(
   appointmentController.getDoctorAppointments
 );
 
+Router.route('/:doctor_id/appointments').post(
+  isAuth,
+  isDoctor,
+  appointmentController.doctorCompleteAppointment
+);
+
 export const doctorRoute = Router;

@@ -17,7 +17,7 @@ const initAllModels = () => {
   MODELS.AppointmentModel = appointmentModel.initAppointmentModel();
   MODELS.RefreshTokenModel = refreshTokenModel.initRefreshTokenModel();
   MODELS.DetailAppointmentTestModel =
-    detailAppointmentTestModel.initDetailAppointmentTestModel();
+  detailAppointmentTestModel.initDetailAppointmentTestModel();
   MODELS.ServiceTestModel = serviceTestModel.initServiceTestModel();
   MODELS.TimeslotModel = timeslotModel.initTimeslotModel();
   MODELS.AvailabilityModel = availabilityModel.initAvailabilityModel();

@@ -216,7 +216,6 @@ const ApproveAppointments = async (req, res) => {
 const submitFeedback = async (req, res) => {
   try {
     console.log('dataaaaaaa', req.body)
-    const isValidate = appointmentValidation.validateFeedback
     const { appointment_id } = req.params;
     const { rating, feedback } = req.body;
     const userId = req.jwtDecoded.data?.user_id;
@@ -259,7 +258,24 @@ const submitFeedback = async (req, res) => {
       });
   }
 };
-
+const doctorCompleteAppointment = async (req, res) => {
+  try {
+    const appointment_id = req.body
+    const doctor_id = req.params
+    console.log('appointment_id', 'doctor_id', appointment_id, doctor_id)
+    const completedAppointment = appointmentServices.doctorCompleteAppointment(appointment_id, doctor_id)
+    return res.status(200).json({
+      message: 'Cập nhật trạng thái cuộc hẹn thành công',
+      appointment: completedAppointment,
+    });
+  } catch (error) {
+    console.error('Lỗi cập nhật trạng thái cuộc hẹn:', error);
+    return res.status(500).json({
+      message: 'Có lỗi xảy ra khi cập nhật trạng thái cuộc hẹn',
+      error: error.message,
+    });
+  }
+}
 export const appointmentController = {
   createAppointment,
   getAllAppointments,
@@ -269,4 +285,5 @@ export const appointmentController = {
   approveAppointment,
   ApproveAppointments,
   submitFeedback,
+  doctorCompleteAppointment
 };

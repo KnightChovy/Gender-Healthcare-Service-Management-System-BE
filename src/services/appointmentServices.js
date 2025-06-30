@@ -34,9 +34,7 @@ const createAppointment = async (data) => {
         attributes: ['appointment_id'],
         order: [['appointment_id', 'DESC']],
       });
-      const latestId = latestAppointment
-        ? latestAppointment.appointment_id
-        : null;
+      const latestId = latestAppointment ? latestAppointment.appointment_id : null;
       mainAppointmentData.appointment_id = generateAppointmentId(latestId);
     }
 
@@ -82,8 +80,7 @@ export const getAllAppointments = async () => {
           ? `${plain.first_name} + ${plain.last_name}`.trim()
           : '',
         doctor_name: plain.doctor
-          ? `${plain.doctor.first_name || ''} ${
-              plain.doctor.last_name || ''
+          ? `${plain.doctor.first_name || ''} ${plain.doctor.last_name || ''
             }`.trim()
           : '',
       };
@@ -375,6 +372,29 @@ const submitFeedback = async (appointmentId, userId, feedbackData) => {
   }
 };
 
+const doctorCompleteAppointment = async (appointment_id, doctor_id) => {
+  try {
+    const appoinment = await MODELS.AppointmentModel.findOne({ where: { appointment_id: appointment_id } })
+    if (!appoinment) {
+      throw new ApiError(500, 'không tìm thấy appointment');
+    }
+    const completedAppointment = await MODELS.AppointmentModel.update(
+      { status: 'completed'},
+      {
+        where: { appointment_id: appointment_id }
+      }
+    )
+
+    return completedAppointment
+
+  } catch (error) {
+    console.error('Error in submitFeedback service:', error);
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(500, `Lỗi khi cập nhật appointment: ${error.message}`);
+  }
+}
 export const appointmentServices = {
   createAppointment,
   getAllAppointments,
@@ -384,4 +404,5 @@ export const appointmentServices = {
   updateAppointmentStatus,
   handlePaymentAppoinment,
   submitFeedback,
+  doctorCompleteAppointment
 };

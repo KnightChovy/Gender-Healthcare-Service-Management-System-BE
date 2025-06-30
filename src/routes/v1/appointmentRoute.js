@@ -19,7 +19,7 @@ Router.get('/user/:userId?', isAuth, appointmentController.getUserAppointments);
 Router.post(
   '/:appointment_id/feedback',
   isAuth,
-  // isUser,
+  isUser,
   appointmentValidation.validateFeedback,
   appointmentController.submitFeedback
 );
