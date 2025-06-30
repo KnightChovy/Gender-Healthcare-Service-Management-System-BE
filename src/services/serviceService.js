@@ -12,13 +12,16 @@ const getAllServices = async () => {
 const bookingService = async (dataBooking) => {
   try {
     const { ...mainData } = dataBooking
-    const appointment = MODELS.AppointmentModel.findOne({
+    console.log('mainData',mainData)
+    const appointment = await MODELS.AppointmentModel.findOne({
       where: {
         appointment_id: mainData.appointment_id,
         user_id: mainData.user_id
       }
     })
+
     const { services } = mainData
+
     if (!appointment) {
       console.log('error when booking service')
       throw new Error('Failed to booking services: ');
@@ -47,7 +50,7 @@ const bookingService = async (dataBooking) => {
       const createData = {
         appointmentTest_id: appointmentTestId,
         appointment_id: mainData.appointment_id,
-        service_id: services.service_id,
+        service_id: service.service_id,
         name: service.name,
         price: service.price,
         created_at: now,
