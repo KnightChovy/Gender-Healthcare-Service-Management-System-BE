@@ -262,7 +262,7 @@ const doctorCompleteAppointment = async (req, res) => {
   try {
     const appointment_id = req.body
     const doctor_id = req.params
-    console.log('appointment_id', 'doctor_id', appointment_id, doctor_id)
+    console.log('app_id', appointment_id)
     const completedAppointment = appointmentServices.doctorCompleteAppointment(appointment_id, doctor_id)
     return res.status(200).json({
       message: 'Cập nhật trạng thái cuộc hẹn thành công',
