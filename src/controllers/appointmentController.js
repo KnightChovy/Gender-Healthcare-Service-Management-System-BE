@@ -171,7 +171,6 @@ const ApproveAppointments = async (req, res) => {
     if (!status) {
       throw new ApiError(400, 'Status is required');
     }
-
     const appointmentIdArray = Array.isArray(appointmentIds)
       ? appointmentIds
       : [appointmentIds];
@@ -219,7 +218,7 @@ const submitFeedback = async (req, res) => {
     const { appointment_id } = req.params;
     const { rating, feedback } = req.body;
     const userId = req.jwtDecoded.data?.user_id;
-
+    console.log('data', req.jwtDecoded)
     if (!userId) {
       throw new ApiError(401, 'User not authenticated properly');
     }

@@ -12,8 +12,6 @@ const createCheckoutSession = async (req, res) => {
 };
 
 export const stripeWebhook = (req, res) => {
-  // Delegate all logic to the service
-  console.log('herre')
   return paymentService.stripeWebhookService(req, res);
 };
 

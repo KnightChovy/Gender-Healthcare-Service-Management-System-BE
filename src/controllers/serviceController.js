@@ -17,6 +17,20 @@ const getAllServices = async (req, res) => {
   }
 };
 
+const bookingService = async (req, res) => {
+  try {
+    const dataBooking = req.data
+    console.log('dataBooking', dataBooking)
+    const isBooking = serviceService.bookingService(dataBooking)
+  } catch (error) {
+    console.log('Error when booking service', error)
+    return res.status().json({
+      success: false,
+      message: error.message || 'Failed to get services',
+    });
+  }
+}
 export const serviceController = {
   getAllServices,
+  bookingService
 }; 

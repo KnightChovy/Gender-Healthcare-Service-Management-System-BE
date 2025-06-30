@@ -216,8 +216,7 @@ const sendAppointmentFeedbackEmail = async (email, data) => {
         
         <p>Xin chào <strong>${data.patientName}</strong>,</p>
         
-        <p>Cuộc hẹn tư vấn của bạn với <strong>${
-          data.doctorName
+        <p>Cuộc hẹn tư vấn của bạn với <strong>${data.doctorName
         }</strong> đã hoàn thành.</p>
 
         <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 20px 0; border-left: 4px solid #3B82F6;">
@@ -225,27 +224,23 @@ const sendAppointmentFeedbackEmail = async (email, data) => {
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
               <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Loại dịch vụ:</td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
-                data.appointmentType || ''
-              }</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${data.appointmentType || ''
+        }</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Ngày tư vấn:</td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
-                data.appointmentDate || 'Không xác định'
-              }</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${data.appointmentDate || 'Không xác định'
+        }</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Thời gian:</td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
-                data.appointmentTime || 'Không xác định'
-              }</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${data.appointmentTime || 'Không xác định'
+        }</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Chi phí:</td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
-                data.appointmentFee || ''
-              }</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${data.appointmentFee || ''
+        }</td>
             </tr>
           </table>
         </div>
@@ -253,9 +248,8 @@ const sendAppointmentFeedbackEmail = async (email, data) => {
         <p>Để giúp chúng tôi nâng cao chất lượng dịch vụ, mong bạn dành chút thời gian đánh giá trải nghiệm:</p>
         
         <div style="text-align: center; margin: 20px 0;">
-          <a href="${
-            data.feedbackLink
-          }" style="background-color: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+          <a href="${data.feedbackLink
+        }" style="background-color: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Đánh giá ngay
           </a>
         </div>
