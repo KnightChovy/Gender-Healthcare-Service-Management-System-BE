@@ -260,7 +260,8 @@ const submitFeedback = async (req, res) => {
 };
 const doctorCompleteAppointment = async (req, res) => {
   try {
-    const appointment_id = req.body
+    const data = req.body
+    const { appointment_id } = data
     const doctor_id = req.params
     console.log('app_id', appointment_id)
     const completedAppointment = appointmentServices.doctorCompleteAppointment(appointment_id, doctor_id)
