@@ -28,7 +28,7 @@ const bookingService = async (req, res) => {
     });
   } catch (error) {
     console.log('Error when booking service', error)
-    return res.status().json({
+    return res.status(400).json({
       success: false,
       message: error.message || 'Failed to get services',
     });
