@@ -19,7 +19,7 @@ const getAllServices = async (req, res) => {
 
 const bookingService = async (req, res) => {
   try {
-    const dataBooking = req.appointmentData
+    const dataBooking = req.body.bookingData
     console.log('dataBooking', dataBooking)
     const isBooking = serviceService.bookingService(dataBooking)
   } catch (error) {

@@ -388,7 +388,7 @@ const doctorCompleteAppointment = async (appointment_id, doctor_id) => {
     return completedAppointment
 
   } catch (error) {
-    console.error('Error in submitFeedback service:', error);
+    console.error('Error in service:', error);
     if (error instanceof ApiError) {
       throw error;
     }
