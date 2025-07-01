@@ -334,7 +334,7 @@ const createStaff = async (staffData) => {
 
 const getServicesByUserId = async (userId) => {
   try {
-    const services = await MODELS.ServiceModel.findOne({ where: { user_id: userId } })
+    const services = await MODELS.OrderModel.findOne({ where: { user_id: userId } })
     console.log('services', services)
     if (!services) {
       throw new ApiError(404, 'Không tìm thấy dịch vụ')
