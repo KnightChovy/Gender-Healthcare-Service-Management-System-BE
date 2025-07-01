@@ -143,9 +143,9 @@ const getUserProfile = async (userId) => {
     throw error.statusCode
       ? error
       : {
-          statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-          message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
-        };
+        statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+        message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
+      };
   }
 };
 
@@ -332,6 +332,18 @@ const createStaff = async (staffData) => {
   }
 };
 
+const getServicesByUserId = async (userId) => {
+  try {
+    const services = await MODELS.ServiceModel.findOne({ where: { user_id: userId } })
+    if (!services) {
+      throw new ApiError(404, 'Không tìm thấy dịch vụ')
+    }
+    return services
+  } catch (error) {
+    throw new ApiError(500, 'Lỗi khi lấy dịch vụ')
+  }
+}
+
 export const userService = {
   getAllUsers,
   createUser,
@@ -339,4 +351,5 @@ export const userService = {
   changePassword,
   getUserProfile,
   createStaff,
+  getServicesByUserId
 };

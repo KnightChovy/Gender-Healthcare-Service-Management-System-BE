@@ -20,8 +20,13 @@ const bookingService = async (bookingData) => {
     console.log('services', serviceData)
     console.log('appointment_id', appointment_id)
     console.log('payment_method', payment_method)
-    // if(user_id){
-    //   const isDuplicateService = MODELS.OrderModel.findOne
+    // if (user_id) {
+    //   const isDuplicateService = await serviceData.map(async (service) => {
+    //     const isDuplicate = await MODELS.OrderDetailModel.findOne({ where: { service_id: service.service_id, user_id: user_id } })
+    //     if (isDuplicate) {
+    //       throw new ApiError('Error, the service is already booked')
+    //     }
+    //   })
     // }
     let order_type = 'with_consultan'
     if (appointment_id) {

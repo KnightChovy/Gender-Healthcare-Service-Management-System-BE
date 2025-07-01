@@ -1,7 +1,6 @@
 import { emailService } from '~/services/emailService';
 import { StatusCodes } from 'http-status-codes';
 import { MODELS } from '~/models/initModels';
-import { Sequelize } from 'sequelize';
 
 const sendEmail = async (req, res) => {
   try {

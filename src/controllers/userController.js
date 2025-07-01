@@ -157,6 +157,19 @@ const createStaff = async (req, res) => {
   }
 };
 
+const getServicesByUserId = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const services = await userService.getServicesByUserId(userId);
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      services,
+    });
+  } catch (error) {
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    return res.status(status).json({ message: error.message });
+  }
+}
 export const userController = {
   getAllUsers,
   createUser,
@@ -164,4 +177,5 @@ export const userController = {
   changePassword,
   getMyProfile,
   createStaff,
+  getServicesByUserId
 };

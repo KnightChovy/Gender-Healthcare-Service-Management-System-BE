@@ -215,7 +215,6 @@ const ApproveAppointments = async (req, res) => {
 
 const submitFeedback = async (req, res) => {
   try {
-    console.log('dataaaaaaa', req.body)
     const { appointment_id } = req.params;
     const { rating, feedback } = req.body;
     const userId = req.jwtDecoded.data?.user_id;

@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { userController } from '~/controllers/userController';
 import { cacheMiddleware } from '~/middlewares/cacheMiddleware';
 import isAuth from '~/middlewares/isAuthMiddleware';
+import isUser from '~/middlewares/isUserMiddleware';
 import {
   validateChangePassword,
   validateCreateUser,
@@ -25,6 +26,8 @@ Router.route('/:id')
   .put(isAuth, validateUpdateUser, userController.updateUser)
   .patch(isAuth, validateChangePassword, userController.changePassword);
 
+Router.route('/:id/services')
+  .get(isAuth, isUser, userController.getServicesByUserId)
 //   .delete(userController.deleteUser)
 
 // // User profile routes
