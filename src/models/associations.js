@@ -6,7 +6,8 @@ export const setupDoctorAssociations = (UserModel,
   ServiceTestModel,
   TimeslotModel,
   AvailabilityModel,
-  OrderModel
+  OrderModel,
+  OrderDetailModel
 ) => {
 
   UserModel.hasOne(DoctorModel, {
@@ -140,5 +141,37 @@ export const setupDoctorAssociations = (UserModel,
     foreignKey: 'user_id',
     sourceKey: 'user_id',
     as: 'orders',
+  });
+
+  // ORDER DETAIL ASSOCIATIONS
+  OrderDetailModel.belongsTo(OrderModel, {
+    foreignKey: 'order_id',
+    targetKey: 'order_id',
+    as: 'order',
+  });
+  OrderModel.hasMany(OrderDetailModel, {
+    foreignKey: 'order_id',
+    sourceKey: 'order_id',
+    as: 'order_details',
+  });
+  OrderDetailModel.belongsTo(AppointmentModel, {
+    foreignKey: 'appointment_id',
+    targetKey: 'appointment_id',
+    as: 'appointment',
+  });
+  AppointmentModel.hasMany(OrderDetailModel, {
+    foreignKey: 'appointment_id',
+    sourceKey: 'appointment_id',
+    as: 'order_details',
+  });
+  OrderDetailModel.belongsTo(ServiceTestModel, {
+    foreignKey: 'service_id',
+    targetKey: 'service_id',
+    as: 'service',
+  });
+  ServiceTestModel.hasMany(OrderDetailModel, {
+    foreignKey: 'service_id',
+    sourceKey: 'service_id',
+    as: 'order_details',
   });
 };

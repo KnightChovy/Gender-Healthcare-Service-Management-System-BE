@@ -19,21 +19,21 @@ const getAllServices = async (req, res) => {
 
 const bookingService = async (req, res) => {
   try {
-    const dataBooking = req.body.bookingData
+    const dataBooking = req.body.bookingData;
     console.log('dataBooking', dataBooking)
-    const isBooking = await serviceService.bookingService(dataBooking)
+    const result = await serviceService.bookingService(dataBooking);
     return res.status(200).json({
       success: true,
-      data: isBooking,
+      data: result,
     });
   } catch (error) {
-    console.log('Error when booking service', error)
-    return res.status(400).json({
+    return res.status(500).json({
       success: false,
-      message: error.message || 'Failed to get services',
+      message: error.message || 'Failed to book directly',
     });
   }
 }
+
 export const serviceController = {
   getAllServices,
   bookingService

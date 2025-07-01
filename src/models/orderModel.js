@@ -1,7 +1,6 @@
 // ~/models/orderModel.js
 import { DataTypes } from 'sequelize';
 import { GET_DB } from '~/config/mysql';
-import { MODELS } from './initModels';
 
 let Order = null;
 
@@ -16,33 +15,25 @@ const initOrderModel = () => {
           primaryKey: true,
           allowNull: false,
         },
-        appointment_id: {
-          type: DataTypes.STRING(20),
-          allowNull: false,
-        },
         user_id: {
           type: DataTypes.STRING(20),
           allowNull: false,
         },
-        total_price: {
-          type: DataTypes.DECIMAL(10, 2),
+        order_type: {
+          type: DataTypes.STRING(50),
+          allowNull: true,
+        },
+        order_status: {
+          type: DataTypes.STRING(50),
           allowNull: false,
         },
-        payment_status: {
-          type: DataTypes.ENUM('unpaid', 'paid', 'refunded', 'cancelled'),
-          defaultValue: 'unpaid',
-        },
         payment_method: {
-          type: DataTypes.ENUM('cash', 'momo', 'vnpay', 'bank_transfer'),
-          defaultValue: 'cash',
+          type: DataTypes.STRING(50),
+          allowNull: true,
         },
         created_at: {
           type: DataTypes.DATE,
-          defaultValue: DataTypes.NOW,
-        },
-        updated_at: {
-          type: DataTypes.DATE,
-          defaultValue: DataTypes.NOW,
+          allowNull: true,
         },
       },
       {
@@ -53,7 +44,6 @@ const initOrderModel = () => {
   }
   return Order;
 };
-
 
 export const orderModel = {
   initOrderModel,

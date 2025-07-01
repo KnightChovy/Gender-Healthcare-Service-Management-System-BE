@@ -8,6 +8,7 @@ import { timeslotModel } from './timeslotModel';
 import { availabilityModel } from './availabilityModel';
 import { setupDoctorAssociations } from './associations';
 import { orderModel  } from './orderModel';
+import { orderDetailModel } from './orderDetailModel';
 let MODELS = {};
 
 const initAllModels = () => {
@@ -21,7 +22,8 @@ const initAllModels = () => {
   MODELS.ServiceTestModel = serviceTestModel.initServiceTestModel();
   MODELS.TimeslotModel = timeslotModel.initTimeslotModel();
   MODELS.AvailabilityModel = availabilityModel.initAvailabilityModel();
-  MODELS.OrderModel = orderModel.initOrderModel()
+  MODELS.OrderModel = orderModel.initOrderModel();
+  MODELS.OrderDetailModel = orderDetailModel.initOrderDetailModel();
   console.log('Setting up model associations...');
   setupDoctorAssociations(
     MODELS.UserModel,
@@ -32,7 +34,8 @@ const initAllModels = () => {
     MODELS.ServiceTestModel,
     MODELS.TimeslotModel,
     MODELS.AvailabilityModel,
-    MODELS.OrderModel
+    MODELS.OrderModel,
+    MODELS.OrderDetailModel
   );
 };
 
