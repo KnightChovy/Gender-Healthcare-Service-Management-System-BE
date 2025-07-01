@@ -20,14 +20,18 @@ const bookingService = async (bookingData) => {
     console.log('services', serviceData)
     console.log('appointment_id', appointment_id)
     console.log('payment_method', payment_method)
-    // if (user_id) {
-    //   const isDuplicateService = await serviceData.map(async (service) => {
-    //     const isDuplicate = await MODELS.OrderDetailModel.findOne({ where: { service_id: service.service_id, user_id: user_id } })
-    //     if (isDuplicate) {
-    //       throw new ApiError('Error, the service is already booked')
-    //     }
-    //   })
-    // }
+    let duplicateServiceIds = [];
+    let nonDuplicateServices = serviceData;
+    if (user_id) {
+      const duplicateChecks = await Promise.all(
+        serviceData.map(async (service) => {
+          const isDuplicate = await MODELS.OrderDetailModel.findOne({ where: { service_id: service.service_id, user_id: user_id } });
+          return isDuplicate ? service.service_id : null;
+        })
+      );
+      duplicateServiceIds = duplicateChecks.filter(Boolean);
+      nonDuplicateServices = serviceData.filter(service => !duplicateServiceIds.includes(service.service_id));
+    }
     let order_type = 'with_consultan'
     if (appointment_id) {
       const appointment = await MODELS.AppointmentModel.findOne({ where: { appointment_id: appointment_id } })
@@ -76,7 +80,7 @@ const bookingService = async (bookingData) => {
       baseOrderDetailId = lastDetailIdNum + 1;
     }
 
-    const orderDetailCreates = serviceData.map((service, idx) => {
+    const orderDetailCreates = nonDuplicateServices.map((service, idx) => {
       const order_detail_id = 'ODT' + String(baseOrderDetailId + idx).padStart(6, '0');
       return MODELS.OrderDetailModel.create({
         order_detail_id,
@@ -88,10 +92,15 @@ const bookingService = async (bookingData) => {
     });
     const orderDetails = await Promise.all(orderDetailCreates);
 
+    let message = 'Booking order and order details created successfully';
+    if (duplicateServiceIds.length > 0) {
+      message += `. The following services were already booked and skipped: ${duplicateServiceIds.join(', ')}`;
+    }
     return {
-      message: 'Booking order and order details created successfully',
+      message,
       order,
       order_details: orderDetails,
+      skipped_services: duplicateServiceIds,
     };
   } catch (error) {
     throw new Error('Failed to book directly: ' + error.message);

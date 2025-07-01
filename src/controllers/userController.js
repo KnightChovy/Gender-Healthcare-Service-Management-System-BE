@@ -160,6 +160,7 @@ const createStaff = async (req, res) => {
 const getServicesByUserId = async (req, res) => {
   try {
     const userId = req.params.id;
+    console.log('userId', userId)
     const services = await userService.getServicesByUserId(userId);
     return res.status(StatusCodes.OK).json({
       success: true,
