@@ -49,7 +49,6 @@ const sendEmail = async (email) => {
 
 const sendPaymentReminderEmail = async (appointmentId) => {
   try {
-    // Truy vấn dữ liệu thay vì nhận từ controller
     const appointment = await MODELS.AppointmentModel.findByPk(appointmentId);
     if (!appointment) {
       throw new ApiError(404, 'Appointment not found');
@@ -60,10 +59,8 @@ const sendPaymentReminderEmail = async (appointmentId) => {
       throw new ApiError(404, 'User not found');
     }
 
-    // Lấy thông tin bác sĩ
     const doctor = await MODELS.DoctorModel.findByPk(appointment.doctor_id);
 
-    // Lấy thông tin về ngày hẹn từ bảng Availability
     let appointmentDate = 'Không xác định';
     const availability = await MODELS.AvailabilityModel.findOne({
       where: { avail_id: appointmentId.replace('AP', 'AV') },
@@ -76,7 +73,6 @@ const sendPaymentReminderEmail = async (appointmentId) => {
       }
     }
 
-    // Lấy thông tin về khung giờ hẹn
     const timeslot = await MODELS.TimeslotModel.findByPk(
       appointment.timeslot_id
     );
@@ -90,7 +86,6 @@ const sendPaymentReminderEmail = async (appointmentId) => {
       }
     }
 
-    // Tính thời hạn thanh toán (24 giờ từ khi đặt lịch)
     let paymentDeadline = 'Trong vòng 24 giờ';
     if (appointment.createdAt) {
       const deadlineDate = new Date(appointment.createdAt);
@@ -104,11 +99,9 @@ const sendPaymentReminderEmail = async (appointmentId) => {
       });
     }
 
-    // Tạo URL cho thanh toán
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const paymentLink = `${frontendUrl}/payment/${appointmentId}`;
+    // const paymentLink = `${frontendUrl}/payment/${appointmentId}`;
 
-    // Chuẩn bị dữ liệu
     const appointmentData = {
       patientName: `${user.last_name} ${user.first_name || ''}`.trim(),
       doctorName: doctor
@@ -121,10 +114,9 @@ const sendPaymentReminderEmail = async (appointmentId) => {
         ? `${parseFloat(appointment.price_apm).toLocaleString('vi-VN')} VND`
         : '300.000 VND',
       paymentDeadline: paymentDeadline,
-      paymentLink: paymentLink,
+      paymentLink: 'http://localhost:5173/my-appointments',
     };
 
-    // Cấu hình gửi email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       host: 'smtp.gmail.com',
@@ -205,7 +197,7 @@ const sendPaymentReminderEmail = async (appointmentId) => {
         <div style="text-align: center; margin: 20px 0;">
           <a href="${
             appointmentData.paymentLink ||
-            'https://genderhealthcare.com/payment'
+            'http://localhost:5173/my-appointments'
           }" style="background-color: #FF9800; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Thanh toán ngay
           </a>
@@ -234,7 +226,7 @@ const sendPaymentReminderEmail = async (appointmentId) => {
       info: info.messageId,
       sentTo: user.email,
       appointmentId: appointmentId,
-      paymentLink: paymentLink,
+      paymentLink: 'http://localhost:5173/my-appointments',
     };
   } catch (error) {
     console.error('Error sending payment reminder email:', error);
@@ -287,7 +279,7 @@ const sendBookingConfirmationEmail = async (appointmentId) => {
     }
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const dashboardLink = `${frontendUrl}/my-appointments`;
+    // const dashboardLink = `${frontendUrl}/my-appointments`;
     // const meetingLink = `${frontendUrl}/meeting/${appointmentId}`;
 
     const userData = {
@@ -305,7 +297,7 @@ const sendBookingConfirmationEmail = async (appointmentId) => {
         ? 'Online'
         : 'Tại phòng khám',
       meetingLink: 'https://meet.google.com/ymf-dwbi-uhy',
-      dashboardLink: dashboardLink,
+      dashboardLink: 'http://localhost:5173/my-appointments',
     };
 
     const transporter = nodemailer.createTransport({
@@ -389,8 +381,7 @@ const sendBookingConfirmationEmail = async (appointmentId) => {
         
         <div style="text-align: center; margin: 20px 0;">
           <a href="${
-            userData.dashboardLink ||
-            'https://genderhealthcare.com/my-appointments'
+            userData.dashboardLink || 'http://localhost:5173/my-appointments'
           }" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Xem lịch hẹn của tôi
           </a>
