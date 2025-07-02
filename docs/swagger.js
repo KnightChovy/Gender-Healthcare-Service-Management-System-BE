@@ -1732,3 +1732,84 @@
  *       404:
  *         description: Không tìm thấy
  */
+
+/**
+ * @swagger
+ * /v1/emails/forget-password:
+ *   post:
+ *     summary: Gửi email OTP để đặt lại mật khẩu
+ *     tags: [Emails]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "dinhhoangphuc"
+ *               email:
+ *                 type: string
+ *                 example: "phuc@example.com"
+ *     responses:
+ *       200:
+ *         description: OTP đã được gửi đến email
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *       404:
+ *         description: Không tìm thấy người dùng
+ *       500:
+ *         description: Lỗi server
+ */
+
+/**
+ * @swagger
+ * /v1/auth/forget-password:
+ *   patch:
+ *     summary: Đặt lại mật khẩu
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - newPassword
+ *               - confirmPassword
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "dinhhoangphuc"
+ *               newPassword:
+ *                 type: string
+ *                 example: "AAaa11@@22"
+ *               confirmPassword:
+ *                 type: string
+ *                 example: "AAaa11@@22"
+ *     responses:
+ *       200:
+ *         description: Mật khẩu đã được đặt lại thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Password reset successfully"
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *       404:
+ *         description: Không tìm thấy người dùng
+ *       500:
+ *         description: Lỗi server
+ */
