@@ -12,5 +12,7 @@ Router.route('/booking-confirmation').post(
 Router.route('/appointment-feedback').post(
   emailController.sendAppointmentFeedbackEmail
 );
-
+Router.route('/forget-password').post(
+  emailController.sendEmailForgetPassword
+);
 export const emailRoute = Router;

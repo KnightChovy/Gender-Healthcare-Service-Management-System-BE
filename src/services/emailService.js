@@ -86,18 +86,18 @@ const sendPaymentReminderEmail = async (appointmentId) => {
       }
     }
 
-    let paymentDeadline = 'Trong vòng 24 giờ';
-    if (appointment.createdAt) {
-      const deadlineDate = new Date(appointment.createdAt);
-      deadlineDate.setHours(deadlineDate.getHours() + 24);
-      paymentDeadline = deadlineDate.toLocaleString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    }
+    // let paymentDeadline = 'Trong vòng 24 giờ';
+    // if (appointment.createdAt) {
+    //   const deadlineDate = new Date(appointment.createdAt);
+    //   deadlineDate.setHours(deadlineDate.getHours() + 24);
+    //   paymentDeadline = deadlineDate.toLocaleString('vi-VN', {
+    //     day: '2-digit',
+    //     month: '2-digit',
+    //     year: 'numeric',
+    //     hour: '2-digit',
+    //     minute: '2-digit',
+    //   });
+    // }
 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     // const paymentLink = `${frontendUrl}/payment/${appointmentId}`;
@@ -113,7 +113,6 @@ const sendPaymentReminderEmail = async (appointmentId) => {
       appointmentFee: appointment.price_apm
         ? `${parseFloat(appointment.price_apm).toLocaleString('vi-VN')} VND`
         : '300.000 VND',
-      paymentDeadline: paymentDeadline,
       paymentLink: 'http://localhost:5173/my-appointments',
     };
 
@@ -133,16 +132,16 @@ const sendPaymentReminderEmail = async (appointmentId) => {
       to: user.email,
       subject: 'Nhắc nhở thanh toán để hoàn tất đăng ký lịch tư vấn',
       html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h2 style="color: #FF9800; text-align: center; margin-bottom: 20px;">Nhắc nhở thanh toán đặt lịch</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 15px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 15px;">
+          <h2 style="color: #FF9800; text-align: center; margin-bottom: 15px;">Nhắc nhở thanh toán đặt lịch</h2>
         </div>
         
         <p>Xin chào <strong>${appointmentData.patientName}</strong>,</p>
         
         <p>Chúng tôi xin nhắc nhở rằng bạn đã đặt lịch tư vấn tại Gender Healthcare Service và hiện tại đang chờ hoàn tất thanh toán.</p>
 
-        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 20px 0; border-left: 4px solid #FF9800;">
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 10px; margin: 15px 0; border-left: 4px solid #FF9800;">
           <h3 style="margin-top: 0; color: #FF9800;">Chi tiết cuộc hẹn</h3>
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
@@ -175,16 +174,10 @@ const sendPaymentReminderEmail = async (appointmentId) => {
                 appointmentData.appointmentFee || 'Đang chờ thanh toán'
               }</td>
             </tr>
-            <tr>
-              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Thời hạn thanh toán:</td>
-              <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500; color: #f44336;">${
-                appointmentData.paymentDeadline || '24 giờ kể từ khi đặt lịch'
-              }</td>
-            </tr>
           </table>
         </div>
         
-        <div style="background-color: #fff8e1; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <div style="background-color: #fff8e1; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
           <h3 style="margin-top: 0; color: #FF9800;">Hướng dẫn thanh toán</h3>
           <ol style="padding-left: 20px; margin-bottom: 0;">
             <li>Đăng nhập vào tài khoản của bạn trên Gender Healthcare</li>
@@ -194,7 +187,7 @@ const sendPaymentReminderEmail = async (appointmentId) => {
           </ol>
         </div>
         
-        <div style="text-align: center; margin: 20px 0;">
+        <div style="text-align: center; margin: 15px 0;">
           <a href="${
             appointmentData.paymentLink ||
             'http://localhost:5173/my-appointments'
@@ -203,13 +196,13 @@ const sendPaymentReminderEmail = async (appointmentId) => {
           </a>
         </div>
         
-        <div style="text-align: center; margin-top: 30px; color: #555;">
+        <div style="text-align: center; margin-top: 15px; color: #555;">
           <p>Nếu bạn đã thanh toán nhưng vẫn nhận được email này, vui lòng bỏ qua thông báo.</p>
           <p>Nếu cần hỗ trợ, vui lòng liên hệ với chúng tôi:</p>
           <p>Email: support@genderhealthcare.com | Hotline: 0907865147</p>
         </div>
         
-        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+        <div style="margin-top: 15px; border-top: 1px solid #e0e0e0; padding-top: 15px; text-align: center;">
           <p style="margin: 0;">Trân trọng,</p>
           <p style="margin: 5px 0 0;"><strong>Đội ngũ Gender Healthcare Service</strong></p>
         </div>
@@ -293,9 +286,7 @@ const sendBookingConfirmationEmail = async (appointmentId) => {
       appointmentFee: appointment.price_apm
         ? `${parseFloat(appointment.price_apm).toLocaleString('vi-VN')} VND`
         : '300.000 VND',
-      appointmentMode: appointment.consultant_type?.includes('online')
-        ? 'Online'
-        : 'Tại phòng khám',
+      appointmentMode: appointment.consultant_type,
       meetingLink: 'https://meet.google.com/ymf-dwbi-uhy',
       dashboardLink: 'http://localhost:5173/my-appointments',
     };
@@ -359,9 +350,9 @@ const sendBookingConfirmationEmail = async (appointmentId) => {
               }</td>
             </tr>
             <tr>
-              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Hình thức:</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%; color: #666;">Loại tư vấn:</td>
               <td style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: 500;">${
-                userData.appointmentMode || 'Online'
+                userData.appointmentMode || 'Tư vấn chung'
               }</td>
             </tr>
           </table>
@@ -519,11 +510,14 @@ const sendAppointmentFeedbackEmail = async (appointmentId) => {
           </a>
         </div>
         
-        <p>Nếu bạn gặp bất kỳ vấn đề nào, vui lòng liên hệ với chúng tôi qua email support@genderhealthcare.com hoặc hotline 0907865147.</p>
+        <div style="text-align: center; margin-top: 15px; color: #555;">
+          <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+          <p>Email: support@genderhealthcare.com | Hotline: 0907865147</p>
+        </div>
         
-        <div style="margin-top: 30px; border-top: 1px solid #e0e0e0; padding-top: 20px;">
-          <p>Trân trọng,</p>
-          <p><strong>Đội ngũ Gender Healthcare Service</strong></p>
+        <div style="margin-top: 10px; border-top: 1px solid #e0e0e0; padding-top: 10px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ Gender Healthcare Service</strong></p>
         </div>
       </div>
       `,
@@ -550,9 +544,64 @@ const sendAppointmentFeedbackEmail = async (appointmentId) => {
   }
 };
 
+const sendEmailForgetPassword = async (username, email) => {
+  try {
+    const user = await MODELS.UserModel.findOne({
+      where: { username: username },
+    });
+
+    if (!user) {
+      throw new ApiError(404, 'user not found!');
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: `"Gender Healthcare Service" <${process.env.EMAIL_USERNAME}>`,
+      to: email,
+      subject: 'Email to change password from Gender Healthcare Service',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee;">
+          <h3 style="color: #4CAF50;">OTP sử dụng để thay đổi mật khẩu:</h3>
+          <h1 style="padding: 5px; border: 1px solid #eee;">123456</h1>
+          <p>Đây là email gửi từ GenCare Center.</p>
+          <p>Nếu bạn nhận được email này, đừng cung cấp mã OTP cho bất kì ai!</p>
+          <p>Trân trọng,<br>Gender Healthcare Service Team</p>
+        </div>
+      `,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Feedback request email sent:', info.messageId);
+
+    return {
+      status: 'success',
+      message: 'Email gửi otp để thay đổi mật khẩu',
+      info: info.messageId,
+      sentTo: user.email,
+    };
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return {
+      status: 'error',
+      message: error.message || 'Failed to send email',
+    };
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
   sendBookingConfirmationEmail,
   sendAppointmentFeedbackEmail,
+  sendEmailForgetPassword,
 };

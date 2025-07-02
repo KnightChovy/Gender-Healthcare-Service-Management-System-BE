@@ -40,10 +40,14 @@ const sendPaymentReminder = async (req, res) => {
       });
     }
 
-    console.log(`Sending payment reminder email for appointment: ${appointment_id}`);
-    
+    console.log(
+      `Sending payment reminder email for appointment: ${appointment_id}`
+    );
+
     // Gọi service với chỉ appointment_id, service sẽ xử lý tất cả các logic
-    const response = await emailService.sendPaymentReminderEmail(appointment_id);
+    const response = await emailService.sendPaymentReminderEmail(
+      appointment_id
+    );
 
     if (response.status === 'error') {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(response);
@@ -56,7 +60,7 @@ const sendPaymentReminder = async (req, res) => {
         emailSent: true,
         appointmentId: appointment_id,
         sentTo: response.sentTo,
-        paymentLink: response.paymentLink
+        paymentLink: response.paymentLink,
       },
     });
   } catch (error) {
@@ -81,9 +85,13 @@ const sendBookingConfirmation = async (req, res) => {
       });
     }
 
-    console.log(`Sending booking confirmation email for appointment: ${appointment_id}`);
-    
-    const response = await emailService.sendBookingConfirmationEmail(appointment_id);
+    console.log(
+      `Sending booking confirmation email for appointment: ${appointment_id}`
+    );
+
+    const response = await emailService.sendBookingConfirmationEmail(
+      appointment_id
+    );
 
     if (response.status === 'error') {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(response);
@@ -95,7 +103,7 @@ const sendBookingConfirmation = async (req, res) => {
       data: {
         emailSent: true,
         appointmentId: appointment_id,
-        sentTo: response.sentTo
+        sentTo: response.sentTo,
       },
     });
   } catch (error) {
@@ -120,9 +128,13 @@ const sendAppointmentFeedbackEmail = async (req, res) => {
       });
     }
 
-    console.log(`Sending feedback request email for appointment: ${appointment_id}`);
-    
-    const response = await emailService.sendAppointmentFeedbackEmail(appointment_id);
+    console.log(
+      `Sending feedback request email for appointment: ${appointment_id}`
+    );
+
+    const response = await emailService.sendAppointmentFeedbackEmail(
+      appointment_id
+    );
 
     if (response.status === 'error') {
       return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(response);
@@ -135,7 +147,7 @@ const sendAppointmentFeedbackEmail = async (req, res) => {
         emailSent: true,
         appointmentId: appointment_id,
         sentTo: response.sentTo,
-        feedbackLink: response.feedbackLink
+        feedbackLink: response.feedbackLink,
       },
     });
   } catch (error) {
@@ -149,9 +161,39 @@ const sendAppointmentFeedbackEmail = async (req, res) => {
   }
 };
 
+const sendEmailForgetPassword = async (req, res) => {
+  try {
+    const {username, email} = req.body
+
+    const response = emailService.sendEmailForgetPassword(username, email);
+
+    if (response.status === 'error') {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(response);
+    }
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Email gửi mã OTP đã được gửi thành công',
+      data: {
+        emailSent: true,
+        sentTo: response.sentTo,
+      },
+    });
+
+  } catch (error) {
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(statusCode).json({
+      status: 'error',
+      message: error.message || 'Lỗi server',
+      error: error.message,
+    });
+  }
+};
+
 export const emailController = {
   sendEmail,
   sendPaymentReminder,
   sendBookingConfirmation,
   sendAppointmentFeedbackEmail,
+  sendEmailForgetPassword,
 };
