@@ -137,7 +137,7 @@ export const setupDoctorAssociations = (UserModel,
     as: 'user_oder',
   });
 
-  UserModel.hasMany(OrderModel, {
+  UserModel.hasOne(OrderModel, {
     foreignKey: 'user_id',
     sourceKey: 'user_id',
     as: 'orders',

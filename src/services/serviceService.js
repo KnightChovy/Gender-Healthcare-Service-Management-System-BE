@@ -22,16 +22,22 @@ const bookingService = async (bookingData) => {
     console.log('payment_method', payment_method)
     let duplicateServiceIds = [];
     let nonDuplicateServices = serviceData;
-    if (user_id) {
-      const duplicateChecks = await Promise.all(
-        serviceData.map(async (service) => {
-          const isDuplicate = await MODELS.OrderDetailModel.findOne({ where: { service_id: service.service_id, user_id: user_id } });
-          return isDuplicate ? service.service_id : null;
-        })
-      );
-      duplicateServiceIds = duplicateChecks.filter(Boolean);
-      nonDuplicateServices = serviceData.filter(service => !duplicateServiceIds.includes(service.service_id));
-    }
+    // if (user_id) {
+    //   const duplicateChecks = await Promise.all(
+    //     serviceData.map(async (service) => {
+    //       const order = await MODELS.OrderModel.findOne({ where: { user_id: user_id } })
+    //       console.log('order', order)
+
+    //       if (order) {
+    //         const isDuplicate = await MODELS.OrderDetailModel.findOne({ where: { service_id: service.service_id, order_id: order.order_id } });
+    //         return isDuplicate ? service.service_id : null;
+    //       }
+    //       return null;
+    //     })
+    //   );
+    //   duplicateServiceIds = duplicateChecks.filter(Boolean);
+    //   nonDuplicateServices = serviceData.filter(service => !duplicateServiceIds.includes(service.service_id));
+    // }
     let order_type = 'with_consultan'
     if (appointment_id) {
       const appointment = await MODELS.AppointmentModel.findOne({ where: { appointment_id: appointment_id } })
@@ -69,7 +75,7 @@ const bookingService = async (bookingData) => {
       order_status: 'pending',
       created_at: now,
     });
-
+    console.log('order', order)
     const latestOrderDetail = await MODELS.OrderDetailModel.findOne({
       attributes: ['order_detail_id'],
       order: [['order_detail_id', 'DESC']],

@@ -27,7 +27,7 @@ Router.route('/:id')
   .patch(isAuth, validateChangePassword, userController.changePassword);
 
 Router.route('/:id/services')
-  .get(isAuth, isUser, userController.getServicesByUserId)
+  .get(userController.getServicesByUserId)
 //   .delete(userController.deleteUser)
 
 // // User profile routes
