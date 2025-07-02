@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import bcrypt from 'bcrypt'
 
 dotenv.config()
-function sha256(content) {
+export function sha256(content) {
   return createHash('sha256').update(content).digest('hex')
 }
 

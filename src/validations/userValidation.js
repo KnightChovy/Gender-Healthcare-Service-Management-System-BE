@@ -110,15 +110,14 @@ const updateUserSchema = Joi.object({
     }),
 
   confirm_password: Joi.when('password', {
-    is: Joi.exist(), // Khi password tồn tại
+    is: Joi.exist(),
     then: Joi.string().valid(Joi.ref('password')).required().messages({
       'any.only': 'Mật khẩu xác nhận không khớp với mật khẩu mới',
       'any.required': 'Xác nhận mật khẩu là bắt buộc khi thay đổi mật khẩu',
     }),
-    otherwise: Joi.optional(), // Nếu không có password, trường này là tùy chọn
+    otherwise: Joi.optional(),
   }),
 
-  // Giữ lại tất cả các quy tắc validation cho các trường khác từ userSchema
   email: userSchema.extract('email'),
   phone: userSchema.extract('phone'),
   gender: userSchema.extract('gender'),
@@ -191,6 +190,53 @@ const changePasswordSchema = Joi.object({
       'string.empty': 'Xác nhận mật khẩu không được để trống!',
     }),
 });
+
+const forgetPasswordSchema = Joi.object({
+  username: Joi.string().max(20).required().messages({
+    'string.max': 'Tên đăng nhập không được quá 20 ký tự',
+    'any.required': 'Tên đăng nhập là bắt buộc',
+    'string.empty': 'Tên đăng nhập không được để trống',
+  }),
+
+  newPassword: Joi.string()
+    .min(8)
+    .pattern(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .required()
+    .messages({
+      'string.min': 'Mật khẩu mới phải có ít nhất 8 ký tự',
+      'string.pattern.base':
+        'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt',
+      'any.required': 'Mật khẩu mới là bắt buộc!',
+      'string.empty': 'Mật khẩu mới không được để trống!',
+    }),
+
+  confirmPassword: Joi.string()
+    .valid(Joi.ref('newPassword'))
+    .required()
+    .messages({
+      'any.only': 'Mật khẩu xác nhận không khớp với mật khẩu mới!',
+      'any.required': 'Xác nhận mật khẩu là bắt buộc!',
+      'string.empty': 'Xác nhận mật khẩu không được để trống!',
+    }),
+});
+
+export const validateForgetPassword = (req, res, next) => {
+  const { error } = forgetPasswordSchema.validate(req.body, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Dữ liệu không hợp lệ',
+      errors: errorMessages,
+    });
+  }
+
+  next();
+};
 
 export const validateChangePassword = (req, res, next) => {
   const { error } = changePasswordSchema.validate(req.body, {
