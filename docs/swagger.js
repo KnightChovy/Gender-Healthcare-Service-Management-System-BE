@@ -1813,3 +1813,291 @@
  *       500:
  *         description: Lỗi server
  */
+
+/**
+ * @swagger
+ * /v1/users/{id}/services:
+ *   get:
+ *     summary: Get services by user ID
+ *     description: Retrieve all services associated with a specific user.
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: User ID
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Services retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 service:
+ *                   type: object
+ *       404:
+ *         description: User or services not found
+ */
+
+/**
+ * @swagger
+ * /v1/services:
+ *   get:
+ *     summary: Get all services
+ *     description: Retrieve a list of all available services/tests.
+ *     tags: [Services]
+ *     responses:
+ *       200:
+ *         description: List of services retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ServiceTest'
+ */
+
+/**
+ * @swagger
+ * /v1/services/bookingService:
+ *   post:
+ *     summary: Book a service
+ *     description: Book one or more services/tests for a user.
+ *     tags: [Services]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bookingData:
+ *                 type: object
+ *                 properties:
+ *                   user_id:
+ *                     type: string
+ *                   appointment_id:
+ *                     type: string
+ *                   payment_method:
+ *                     type: string
+ *                   serviceData:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         service_id:
+ *                           type: string
+ *     responses:
+ *       200:
+ *         description: Booking successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Invalid booking data
+ *       401:
+ *         description: Unauthorized - Missing or invalid token
+ */
+
+/**
+ * @swagger
+ * /v1/managers/appointments/{appointmentId}/approve:
+ *   patch:
+ *     summary: Approve a specific appointment
+ *     description: Approve a single appointment by its ID (Manager only).
+ *     tags: [Managers]
+ *     parameters:
+ *       - in: path
+ *         name: appointmentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Appointment ID
+ *     responses:
+ *       200:
+ *         description: Appointment approved successfully
+ *       404:
+ *         description: Appointment not found
+ *       403:
+ *         description: Forbidden
+ */
+
+/**
+ * @swagger
+ * /v1/managers/appointments/approve:
+ *   patch:
+ *     summary: Approve multiple appointments
+ *     description: Approve multiple appointments at once (Manager only).
+ *     tags: [Managers]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               appointmentIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Appointments approved successfully
+ *       400:
+ *         description: Invalid request data
+ *       403:
+ *         description: Forbidden
+ */
+
+/**
+ * @swagger
+ * /v1/emails/forget-password:
+ *   post:
+ *     summary: Send password reset email
+ *     description: Send a password reset email to the user.
+ *     tags: [Emails]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Password reset email sent successfully
+ *       400:
+ *         description: Invalid email address
+ *       404:
+ *         description: User not found
+ */
+
+/**
+ * @swagger
+ * /v1/doctors/profile:
+ *   get:
+ *     summary: Get doctor profile
+ *     description: Retrieve the profile of the currently authenticated doctor.
+ *     tags: [Doctors]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Doctor profile retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /v1/doctors/{doctor_id}/available-timeslots:
+ *   get:
+ *     summary: Get available timeslots for a doctor
+ *     description: Retrieve all available timeslots for a specific doctor.
+ *     tags: [Doctors]
+ *     parameters:
+ *       - in: path
+ *         name: doctor_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Doctor ID
+ *     responses:
+ *       200:
+ *         description: Available timeslots retrieved successfully
+ *       404:
+ *         description: Doctor or timeslots not found
+ */
+
+/**
+ * @swagger
+ * /v1/doctors/{doctor_id}/appointments:
+ *   post:
+ *     summary: Mark appointment as completed by doctor
+ *     description: Mark a specific appointment as completed by the doctor.
+ *     tags: [Doctors]
+ *     parameters:
+ *       - in: path
+ *         name: doctor_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Doctor ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               appointment_id:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Appointment marked as completed
+ *       400:
+ *         description: Invalid request data
+ *       404:
+ *         description: Appointment not found
+ */
+
+/**
+ * @swagger
+ * /v2/payment/webhook:
+ *   post:
+ *     summary: Stripe webhook endpoint
+ *     description: Endpoint for Stripe to send webhook events.
+ *     tags: [Payments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Webhook received successfully
+ *       400:
+ *         description: Invalid webhook event
+ */
+
+/**
+ * @swagger
+ * /v2/payment/create-checkout-session:
+ *   post:
+ *     summary: Create Stripe checkout session
+ *     description: Create a new Stripe checkout session for payment.
+ *     tags: [Payments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Checkout session created successfully
+ *       400:
+ *         description: Invalid request data
+ */

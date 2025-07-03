@@ -34,6 +34,10 @@ const initServiceTestModel = () => {
           type: DataTypes.INTEGER,
           allowNull: true,
         },
+        category_id: {
+          type: DataTypes.STRING(20),
+          allowNull: true,
+        },
         created_at: {
           type: DataTypes.DATE,
           allowNull: true,

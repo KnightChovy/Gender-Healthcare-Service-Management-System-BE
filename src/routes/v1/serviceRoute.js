@@ -6,6 +6,6 @@ import isUser from '~/middlewares/isUserMiddleware';
 const Router = express.Router();
 
 Router.get('/', serviceController.getAllServices);
-Router.post('/bookingService',serviceController.bookingService);
+Router.post('/bookingService', isAuth, isUser, serviceController.bookingService);
 
 export const serviceRoute = Router; 

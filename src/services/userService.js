@@ -334,18 +334,11 @@ const createStaff = async (staffData) => {
 
 const getServicesByUserId = async (user_id) => {
   try {
-    console.log('userId', user_id)
-    console.log('MODELS.OrderModel', MODELS.OrderModel)
-    const user = await MODELS.UserModel.findOne({ where: { user_id: user_id } })
-    console.log('MODELS.OrderModel', MODELS.UserModel)
-
-    const service = await MODELS.OrderModel.findOne({ where: { user_id: user.user_id } })
-    console.log('service', service)
-
-    if (!service) {
+    const order = await MODELS.OrderModel.findAll({ where: { user_id: user_id } })
+    if (!order) {
       throw new ApiError(404, 'Không tìm thấy dịch vụ')
     }
-    return service
+    return order
   } catch (error) {
     throw new ApiError(500, 'Lỗi khi lấy dịch vụ')
   }

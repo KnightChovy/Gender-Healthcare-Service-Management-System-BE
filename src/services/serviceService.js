@@ -16,35 +16,38 @@ const bookingService = async (bookingData) => {
     // if (!user_id || !order_type || !order_status || !appointment_id || !Array.isArray(serviceData) || serviceData.length === 0) {
     //   throw new Error('Missing required booking data');
     // }
-    console.log('user_id', user_id)
-    console.log('services', serviceData)
-    console.log('appointment_id', appointment_id)
-    console.log('payment_method', payment_method)
     let duplicateServiceIds = [];
-    let nonDuplicateServices = serviceData;
-    // if (user_id) {
-    //   const duplicateChecks = await Promise.all(
-    //     serviceData.map(async (service) => {
-    //       const order = await MODELS.OrderModel.findOne({ where: { user_id: user_id } })
-    //       console.log('order', order)
-
-    //       if (order) {
-    //         const isDuplicate = await MODELS.OrderDetailModel.findOne({ where: { service_id: service.service_id, order_id: order.order_id } });
-    //         return isDuplicate ? service.service_id : null;
-    //       }
-    //       return null;
-    //     })
-    //   );
-    //   duplicateServiceIds = duplicateChecks.filter(Boolean);
-    //   nonDuplicateServices = serviceData.filter(service => !duplicateServiceIds.includes(service.service_id));
-    // }
+    let nonDuplicateServices = [];
+    if (user_id) {
+      const orders = await MODELS.OrderModel.findAll({ where: { user_id: user_id, order_status: 'pending' } });
+      let pendingServiceIDs = []
+      for (const order of orders) {
+        const orderDetails = await MODELS.OrderDetailModel.findAll({ where: { order_id: order.order_id } });
+        const service_ids = orderDetails.map(od => od.service_id)
+        pendingServiceIDs.push(...service_ids);
+      }
+      console.log('pendingServiceIDs', pendingServiceIDs);
+      const service_ids = serviceData.map((service) => {
+        return service.service_id;
+      })
+      const duplicateChecks = service_ids.filter(id => pendingServiceIDs.includes(id))
+      console.log('duplicateChecks', duplicateChecks)
+    //  duplicateServiceIds = duplicateChecks.filter(Boolean);
+      console.log('serviceData', serviceData)
+      nonDuplicateServices = service_ids.filter(service_id => {
+        return !duplicateChecks.includes(service_id)
+      });
+      console.log('nonDuplicateServices', nonDuplicateServices)
+    }
+    if (nonDuplicateServices.length <= 0) {
+      throw new ApiError('Error, service pending')
+    }
     let order_type = 'with_consultan'
     if (appointment_id) {
       const appointment = await MODELS.AppointmentModel.findOne({ where: { appointment_id: appointment_id } })
       if (appointment) {
         const isCompleted = appointment.status === 'completed'
         if (!isCompleted) {
-          console.log('The appoiment must be completed')
           throw new ApiError('Error, the appointment must be completed')
         }
         order_type = 'with_consultan'
@@ -62,10 +65,7 @@ const bookingService = async (bookingData) => {
       baseOrderId = lastIdNum + 1;
     }
     const order_id = 'OD' + String(baseOrderId).padStart(6, '0');
-    console.log('order_id', order_id)
     const now = new Date();
-
-
 
     const order = await MODELS.OrderModel.create({
       order_id,
@@ -75,7 +75,6 @@ const bookingService = async (bookingData) => {
       order_status: 'pending',
       created_at: now,
     });
-    console.log('order', order)
     const latestOrderDetail = await MODELS.OrderDetailModel.findOne({
       attributes: ['order_detail_id'],
       order: [['order_detail_id', 'DESC']],
@@ -86,14 +85,14 @@ const bookingService = async (bookingData) => {
       baseOrderDetailId = lastDetailIdNum + 1;
     }
 
-    const orderDetailCreates = nonDuplicateServices.map((service, idx) => {
+    const orderDetailCreates = nonDuplicateServices.map((service_id, idx) => {
       const order_detail_id = 'ODT' + String(baseOrderDetailId + idx).padStart(6, '0');
       return MODELS.OrderDetailModel.create({
         order_detail_id,
         order_id,
-        service_id: service.service_id,
-        appointment_id: service.appointment_id ? service.appointment_id : null,
-        testresult_id: service.testresult_id ? service.testresult_id : null,
+        service_id: service_id,
+        appointment_id: appointment_id ? appointment_id : null,
+        testresult_id: null,
       });
     });
     const orderDetails = await Promise.all(orderDetailCreates);

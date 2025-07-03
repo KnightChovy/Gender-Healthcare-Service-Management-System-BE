@@ -160,11 +160,10 @@ const createStaff = async (req, res) => {
 const getServicesByUserId = async (req, res) => {
   try {
     const user_id = req.params.id;
-    console.log('userId', user_id)
-    const service = await userService.getServicesByUserId(user_id);
+    const orders = await userService.getServicesByUserId(user_id);
     return res.status(StatusCodes.OK).json({
       success: true,
-      service,
+      orders,
     });
   } catch (error) {
     const status = error instanceof ApiError ? error.statusCode : 500;

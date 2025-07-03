@@ -7,7 +7,8 @@ export const setupDoctorAssociations = (UserModel,
   TimeslotModel,
   AvailabilityModel,
   OrderModel,
-  OrderDetailModel
+  OrderDetailModel,
+  ServiceCategoryModel
 ) => {
 
   UserModel.hasOne(DoctorModel, {
@@ -122,25 +123,24 @@ export const setupDoctorAssociations = (UserModel,
   });
 
   //ODER MODEL
-  OrderModel.belongsTo(AppointmentModel, {
-    foreignKey: 'appointment_id',
-    targetKey: 'appointment_id',
-    as: 'appointment',
-  })
-  AppointmentModel.hasOne(OrderModel, {
-    foreignKey: 'appointment_id',
-    as: 'order',
-  });
+  // OrderModel.belongsTo(AppointmentModel, {
+  //   foreignKey: 'appointment_id',
+  //   targetKey: 'appointment_id',
+  //   as: 'appointment',
+  // });
+  // AppointmentModel.hasOne(OrderModel, {
+  //   foreignKey: 'appointment_id',
+  //   as: 'order',
+  // });
   OrderModel.belongsTo(UserModel, {
     foreignKey: 'user_id',
     targetKey: 'user_id',
-    as: 'user_oder',
+    as: 'user',
   });
-
-  UserModel.hasOne(OrderModel, {
+  UserModel.hasMany(OrderModel, {
     foreignKey: 'user_id',
     sourceKey: 'user_id',
-    as: 'orders',
+    as: 'order',
   });
 
   // ORDER DETAIL ASSOCIATIONS
@@ -152,7 +152,7 @@ export const setupDoctorAssociations = (UserModel,
   OrderModel.hasMany(OrderDetailModel, {
     foreignKey: 'order_id',
     sourceKey: 'order_id',
-    as: 'order_details',
+    as: 'orderDetails',
   });
   OrderDetailModel.belongsTo(AppointmentModel, {
     foreignKey: 'appointment_id',
@@ -162,7 +162,7 @@ export const setupDoctorAssociations = (UserModel,
   AppointmentModel.hasMany(OrderDetailModel, {
     foreignKey: 'appointment_id',
     sourceKey: 'appointment_id',
-    as: 'order_details',
+    as: 'orderDetails',
   });
   OrderDetailModel.belongsTo(ServiceTestModel, {
     foreignKey: 'service_id',
@@ -172,6 +172,18 @@ export const setupDoctorAssociations = (UserModel,
   ServiceTestModel.hasMany(OrderDetailModel, {
     foreignKey: 'service_id',
     sourceKey: 'service_id',
-    as: 'order_details',
+    as: 'orderDetails',
+  });
+
+  // ServiceTestModel <-> ServiceCategoryModel association
+  ServiceTestModel.belongsTo(ServiceCategoryModel, {
+    foreignKey: 'category_id',
+    targetKey: 'category_id',
+    as: 'category',
+  });
+  ServiceCategoryModel.hasMany(ServiceTestModel, {
+    foreignKey: 'category_id',
+    sourceKey: 'category_id',
+    as: 'services',
   });
 };
