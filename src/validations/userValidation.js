@@ -1,12 +1,11 @@
 import Joi from 'joi';
 import { StatusCodes } from 'http-status-codes';
 
-// Schema chung cho cả tạo mới và cập nhật user
 const userSchema = Joi.object({
   user_id: Joi.string()
     .pattern(/^US[0-9]{6}$/)
-    .max(20) // Tăng max length để chấp nhận IDs khi số user tăng
-    .allow(null, '') // Cho phép null khi tạo mới vì sẽ được tạo tự động
+    .max(20)
+    .allow(null, '')
     .messages({
       'string.pattern.base':
         'ID người dùng phải có dạng US + 6 chữ số (ví dụ: US000001)',
@@ -82,21 +81,14 @@ const userSchema = Joi.object({
     'string.max': 'Họ không được quá 100 ký tự',
   }),
 
-  status: Joi.number()
-    .valid(0, 1) // 0: inactive, 1: active
-    .max(20)
-    .allow(null, '')
-    .default(1),
+  status: Joi.number().valid(0, 1).max(20).allow(null, '').default(1),
 });
 
-// Schema cho cập nhật người dùng - Linh hoạt hơn schema tạo mới
 const updateUserSchema = Joi.object({
-  // Các trường có thể cập nhật nhưng không bắt buộc
   username: Joi.string().max(20).optional().messages({
     'string.max': 'Tên đăng nhập không được quá 20 ký tự',
   }),
 
-  // Mật khẩu không bắt buộc khi cập nhật
   password: Joi.string()
     .min(8)
     .pattern(
@@ -405,5 +397,78 @@ export const validateCreateStaff = (req, res, next) => {
   }
 
   delete req.body.confirm_password;
+  next();
+};
+
+const updateDoctorSchema = Joi.object({
+  username: Joi.string().max(20).optional().messages({
+    'string.max': 'Tên đăng nhập không được quá 20 ký tự',
+  }),
+
+  password: Joi.string()
+    .min(8)
+    .pattern(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    )
+    .optional()
+    .messages({
+      'string.min': 'Mật khẩu phải có ít nhất 8 ký tự',
+      'string.pattern.base':
+        'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt',
+    }),
+
+  confirm_password: Joi.when('password', {
+    is: Joi.exist(),
+    then: Joi.string().valid(Joi.ref('password')).required().messages({
+      'any.only': 'Mật khẩu xác nhận không khớp với mật khẩu mới',
+      'any.required': 'Xác nhận mật khẩu là bắt buộc khi thay đổi mật khẩu',
+    }),
+    otherwise: Joi.optional(),
+  }),
+
+  email: userSchema.extract('email'),
+  phone: userSchema.extract('phone'),
+  gender: userSchema.extract('gender'),
+  birthday: userSchema.extract('birthday'),
+  address: userSchema.extract('address'),
+  first_name: userSchema.extract('first_name'),
+  last_name: userSchema.extract('last_name'),
+  status: userSchema.extract('status'),
+  user_id: userSchema.extract('user_id'),
+
+  // Các trường đặc biệt của bác sĩ
+  experience_year: Joi.number().integer().min(0).optional().messages({
+    'number.base': 'Số năm kinh nghiệm phải là số',
+    'number.integer': 'Số năm kinh nghiệm phải là số nguyên',
+    'number.min': 'Số năm kinh nghiệm không được âm',
+  }),
+
+  bio: Joi.string().max(1000).allow('', null).optional().messages({
+    'string.max': 'Tiểu sử không được quá 1000 ký tự',
+  }),
+
+  specialization: Joi.string().optional().messages({
+    'string.empty': 'Chuyên khoa không được để trống khi cập nhật',
+  }),
+
+  certificate: Joi.array().items(Joi.string()).optional().messages({
+    'array.base': 'Chứng chỉ phải là một mảng',
+  }),
+});
+
+export const validateUpdateDoctor = (req, res, next) => {
+  const { error } = updateDoctorSchema.validate(req.body, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const errorMessages = error.details.map((detail) => detail.message);
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: 'Dữ liệu không hợp lệ',
+      errors: errorMessages,
+    });
+  }
+  delete req.body.confirm_password;
+
   next();
 };

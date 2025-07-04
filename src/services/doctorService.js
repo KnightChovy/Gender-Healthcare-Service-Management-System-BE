@@ -2,6 +2,11 @@ import { StatusCodes } from 'http-status-codes';
 import { Model, Op } from 'sequelize';
 import { MODELS } from '~/models/initModels';
 import { doctorModel } from '~/models/doctorModel';
+import ApiError from '~/utils/ApiError';
+import { hashPassword } from '~/utils/crypto';
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const getAllDoctors = async () => {
   try {
@@ -376,7 +381,7 @@ const getAllDoctorTimeslots = async (doctorId) => {
     availabilities.forEach((avail) => {
       availDateMap[avail.avail_id] = avail.date;
     });
-    
+
     console.log('availDateMap', availDateMap);
     const schedulesByDate = {};
 
@@ -451,6 +456,137 @@ const getDoctorByID = async (doctor) => {
   }
 };
 
+const updateDoctorProfile = async (
+  doctorId,
+  doctorData,
+  currentUserId,
+  userRole
+) => {
+  try {
+    const sequelize = new Sequelize({
+      host: process.env.DB_HOST || 'localhost',
+      username: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || '123456',
+      database:
+        process.env.DB_NAME || 'Gender_Healthcare_Service_Management_System',
+      dialect: 'mysql',
+      port: process.env.DB_PORT || 3306,
+    });
+
+    const transaction = await sequelize.transaction();
+
+    try {
+      const doctor = await MODELS.DoctorModel.findOne({
+        where: { doctor_id: doctorId },
+      });
+
+      if (!doctor) {
+        await transaction.rollback();
+        throw new Error('Không tìm thấy thông tin bác sĩ');
+      }
+
+      const userId = doctor.user_id;
+      if (currentUserId !== userId && userRole !== 'admin') {
+        await transaction.rollback();
+        throw new Error('Unauthorized');
+      }
+
+      if (
+        doctorData.email ||
+        doctorData.phone ||
+        doctorData.first_name ||
+        doctorData.last_name ||
+        doctorData.gender ||
+        doctorData.birthday ||
+        doctorData.address
+      ) {
+        await MODELS.UserModel.update(
+          {
+            email: doctorData.email,
+            phone: doctorData.phone,
+            first_name: doctorData.first_name,
+            last_name: doctorData.last_name,
+            gender: doctorData.gender,
+            birthday: doctorData.birthday,
+            address: doctorData.address,
+          },
+          {
+            where: { user_id: userId },
+            transaction: transaction,
+          }
+        );
+      }
+
+      if (
+        doctorData.bio ||
+        doctorData.experience_year ||
+        doctorData.first_name ||
+        doctorData.last_name
+      ) {
+        await MODELS.DoctorModel.update(
+          {
+            bio: doctorData.bio,
+            experience_year: doctorData.experience_year,
+            first_name: doctorData.first_name,
+            last_name: doctorData.last_name,
+          },
+          {
+            where: { doctor_id: doctorId },
+            transaction: transaction,
+          }
+        );
+      }
+
+      // Xử lý chứng chỉ nếu có
+      if (doctorData.certificate && Array.isArray(doctorData.certificate)) {
+        await MODELS.CertificateModel.destroy({
+          where: { doctor_id: doctorId },
+          transaction: transaction,
+        });
+
+        if (doctorData.certificate.length > 0) {
+          let lastCertId = await MODELS.CertificateModel.findOne({
+            attributes: ['certificates_id'],
+            order: [['certificates_id', 'DESC']],
+            raw: true,
+          });
+
+          let nextCertId = 1;
+          if (lastCertId) {
+            nextCertId = parseInt(lastCertId.certificates_id.substring(2)) + 1;
+          }
+
+          const certificates = doctorData.certificate.map((cert, index) => {
+            const certId = `CT${String(nextCertId + index).padStart(6, '0')}`;
+
+            return {
+              certificates_id: certId,
+              doctor_id: doctorId,
+              certificate: cert,
+              specialization: doctorData.specialization || null,
+            };
+          });
+
+          await MODELS.CertificateModel.bulkCreate(certificates, {
+            transaction: transaction,
+          });
+        }
+      }
+
+      await transaction.commit();
+
+      const updatedDoctor = await getDoctorByID(doctor);
+      return updatedDoctor;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error in updateDoctorProfile:', error);
+    throw error;
+  }
+};
+
 export const doctorService = {
   getAllDoctors,
   createDoctorSchedule,
@@ -459,4 +595,5 @@ export const doctorService = {
   getDoctorAvailableTimeslots,
   getAllDoctorTimeslots,
   getDoctorByID,
+  updateDoctorProfile,
 };

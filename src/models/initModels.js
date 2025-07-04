@@ -7,7 +7,7 @@ import { serviceTestModel } from './serviceTestModel';
 import { timeslotModel } from './timeslotModel';
 import { availabilityModel } from './availabilityModel';
 import { setupDoctorAssociations } from './associations';
-import { orderModel  } from './orderModel';
+import { orderModel } from './orderModel';
 import { orderDetailModel } from './orderDetailModel';
 import { serviceCategoryModel } from './serviceCategoryModel';
 let MODELS = {};
@@ -16,10 +16,11 @@ const initAllModels = () => {
   console.log('Initializing models...');
   MODELS.UserModel = userModel.initUserModel();
   MODELS.DoctorModel = doctorModel.initDoctorModel();
+  MODELS.CertificateModel = doctorModel.initCertificateModel();
   MODELS.AppointmentModel = appointmentModel.initAppointmentModel();
   MODELS.RefreshTokenModel = refreshTokenModel.initRefreshTokenModel();
   MODELS.DetailAppointmentTestModel =
-  detailAppointmentTestModel.initDetailAppointmentTestModel();
+    detailAppointmentTestModel.initDetailAppointmentTestModel();
   MODELS.ServiceTestModel = serviceTestModel.initServiceTestModel();
   MODELS.TimeslotModel = timeslotModel.initTimeslotModel();
   MODELS.AvailabilityModel = availabilityModel.initAvailabilityModel();
@@ -30,7 +31,7 @@ const initAllModels = () => {
   setupDoctorAssociations(
     MODELS.UserModel,
     MODELS.DoctorModel,
-    doctorModel.initCertificateModel(),
+    MODELS.CertificateModel,
     MODELS.AppointmentModel,
     MODELS.DetailAppointmentTestModel,
     MODELS.ServiceTestModel,

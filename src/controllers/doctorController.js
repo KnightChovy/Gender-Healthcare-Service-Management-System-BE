@@ -23,9 +23,7 @@ const getAvailableTimeslots = async (req, res) => {
   try {
     const { doctor_id } = req.params;
 
-    console.log(
-      `API nhận request lấy lịch làm việc của bác sĩ ${doctor_id}`
-    );
+    console.log(`API nhận request lấy lịch làm việc của bác sĩ ${doctor_id}`);
 
     const userId = req.jwtDecoded?.data?.user_id;
     console.log(`User ${userId} đang xem lịch của bác sĩ ${doctor_id}`);
@@ -85,12 +83,14 @@ const chooseSchedule = async (req, res) => {
 
 const getDoctorByID = async (req, res) => {
   try {
-    const doctor = req.doctor
+    const doctor = req.doctor;
     if (!doctor) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy bác sĩ' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Không tìm thấy bác sĩ' });
     }
-    const result = await doctorService.getDoctorByID(doctor)
-    console.log('result', result)
+    const result = await doctorService.getDoctorByID(doctor);
+    console.log('result', result);
     return res.status(StatusCodes.OK).json({
       success: true,
       message: 'Lấy thông tin bác sĩ thành công',
@@ -103,11 +103,60 @@ const getDoctorByID = async (req, res) => {
       message: error.message || 'Lỗi khi lấy bác sĩ',
     });
   }
-}
+};
+
+const updateDoctorProfile = async (req, res) => {
+  try {
+    const doctorId = req.params.doctor_id;
+    const userId = req.jwtDecoded?.data?.user_id;
+    const userRole = req.jwtDecoded?.data?.role;
+    const doctorData = req.body;
+
+    if (!req.jwtDecoded || !req.jwtDecoded.data) {
+      return res.status(401).json({
+        success: false,
+        message: 'Không tìm thấy thông tin người dùng từ token',
+      });
+    }
+
+    const updatedDoctor = await doctorService.updateDoctorProfile(
+      doctorId,
+      doctorData,
+      userId,
+      userRole
+    );
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Cập nhật thông tin bác sĩ thành công',
+      data: updatedDoctor,
+    });
+  } catch (error) {
+    console.error('Error updating doctor profile:', error);
+
+    if (error.message === 'Unauthorized') {
+      return res.status(403).json({
+        success: false,
+        message: 'Bạn không có quyền cập nhật hồ sơ này',
+      });
+    }
+
+    const statusCode =
+      error instanceof ApiError
+        ? error.statusCode
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message || 'Lỗi khi cập nhật thông tin bác sĩ',
+    });
+  }
+};
 
 export const doctorController = {
   getAllDoctors,
   getAvailableTimeslots,
   chooseSchedule,
-  getDoctorByID
+  getDoctorByID,
+  updateDoctorProfile,
 };

@@ -2075,3 +2075,108 @@
  *       400:
  *         description: Invalid request data
  */
+
+/**
+ * @swagger
+ * /v1/doctors/{doctor_id}:
+ *   patch:
+ *     summary: Cập nhật thông tin bác sĩ
+ *     description: Cập nhật hồ sơ của bác sĩ, bao gồm thông tin cá nhân và chứng chỉ
+ *     tags: [Doctors]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: doctor_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của bác sĩ cần cập nhật
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               first_name:
+ *                 type: string
+ *                 example: "Nguyễn"
+ *               last_name:
+ *                 type: string
+ *                 example: "Bỉnh Khiêm"
+ *               email:
+ *                 type: string
+ *                 example: "doctor@example.com"
+ *               phone:
+ *                 type: string
+ *                 example: "0912345678"
+ *               address:
+ *                 type: string
+ *                 example: "123 Đường Sức Khỏe, Quận 1, TP.HCM"
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
+ *                 example: "male"
+ *               birthday:
+ *                 type: string
+ *                 format: date
+ *                 example: "1985-05-15"
+ *               bio:
+ *                 type: string
+ *                 example: "Tôi là bác sĩ với 10 năm kinh nghiệm trong lĩnh vực sản phụ khoa"
+ *               experience_year:
+ *                 type: integer
+ *                 example: 10
+ *               specialization:
+ *                 type: string
+ *                 example: "Nam khoa"
+ *               certificate:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["Chuyên khoa I", "Chuyên khoa II"]
+ *     responses:
+ *       200:
+ *         description: Cập nhật thông tin bác sĩ thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Cập nhật thông tin bác sĩ thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     doctor_id:
+ *                       type: string
+ *                       example: "DR000001"
+ *                     user_id:
+ *                       type: string
+ *                       example: "US000001"
+ *                     first_name:
+ *                       type: string
+ *                     last_name:
+ *                       type: string
+ *                     bio:
+ *                       type: string
+ *                     experience_year:
+ *                       type: integer
+ *                     user:
+ *                       type: object
+ *                     certificates:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *       401:
+ *         description: Chưa xác thực
+ *       403:
+ *         description: Không có quyền cập nhật hồ sơ này
+ */
