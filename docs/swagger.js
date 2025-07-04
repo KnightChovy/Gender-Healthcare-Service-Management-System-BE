@@ -1969,32 +1969,6 @@
 
 /**
  * @swagger
- * /v1/emails/forget-password:
- *   post:
- *     summary: Send password reset email
- *     description: Send a password reset email to the user.
- *     tags: [Emails]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *     responses:
- *       200:
- *         description: Password reset email sent successfully
- *       400:
- *         description: Invalid email address
- *       404:
- *         description: User not found
- */
-
-/**
- * @swagger
  * /v1/doctors/profile:
  *   get:
  *     summary: Get doctor profile
