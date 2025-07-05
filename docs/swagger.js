@@ -414,18 +414,11 @@
  * @swagger
  * /v1/doctors/schedule:
  *   post:
- *     summary: Tạo lịch làm việc cho bác sĩ
- *     description: Cho phép bác sĩ chọn ngày và các khung giờ làm việc trong ngày
+ *     summary: Tạo lịch làm việc tuần cho bác sĩ
+ *     description: Cho phép bác sĩ đăng ký lịch làm việc cho cả tuần
  *     tags: [Doctors]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: header
- *         name: x-access-token
- *         required: true
- *         description: Token nhận được khi đăng nhập
- *         schema:
- *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -433,45 +426,61 @@
  *           schema:
  *             type: object
  *             required:
- *               - date
- *               - timeSlots
+ *               - weekStartDate
+ *               - schedule
  *             properties:
- *               date:
+ *               weekStartDate:
  *                 type: string
  *                 format: date
- *                 description: Ngày làm việc (YYYY-MM-DD)
- *                 example: "2025-08-15"
- *               timeSlots:
+ *                 example: "2023-07-10"
+ *                 description: Ngày bắt đầu tuần (thứ Hai)
+ *               schedule:
  *                 type: array
- *                 description: Danh sách các khung giờ làm việc
  *                 items:
  *                   type: object
  *                   required:
- *                     - time_start
- *                     - time_end
+ *                     - date
+ *                     - timeSlots
  *                   properties:
- *                     time_start:
+ *                     date:
  *                       type: string
- *                       format: time
- *                       description: Giờ bắt đầu (HH:MM:SS)
- *                       example: "08:00:00"
- *                     time_end:
- *                       type: string
- *                       format: time
- *                       description: Giờ kết thúc (HH:MM:SS)
- *                       example: "09:00:00"
+ *                       format: date
+ *                       example: "2023-07-10"
+ *                       description: Ngày làm việc trong tuần
+ *                     timeSlots:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         required:
+ *                           - time_start
+ *                           - time_end
+ *                         properties:
+ *                           time_start:
+ *                             type: string
+ *                             format: time
+ *                             example: "08:00:00"
+ *                             description: Giờ bắt đầu làm việc
+ *                           time_end:
+ *                             type: string
+ *                             format: time
+ *                             example: "11:00:00"
+ *                             description: Giờ kết thúc làm việc
  *           example:
- *             date: "2025-08-15"
- *             timeSlots:
- *               - time_start: "08:00:00"
- *                 time_end: "09:00:00"
- *               - time_start: "09:30:00"
- *                 time_end: "10:30:00"
- *               - time_start: "13:00:00"
- *                 time_end: "14:00:00"
+ *             weekStartDate: "2023-07-10"
+ *             schedule:
+ *               - date: "2023-07-10"
+ *                 timeSlots:
+ *                   - time_start: "08:00:00"
+ *                     time_end: "11:00:00"
+ *                   - time_start: "13:30:00"
+ *                     time_end: "17:00:00"
+ *               - date: "2023-07-11"
+ *                 timeSlots:
+ *                   - time_start: "08:00:00"
+ *                     time_end: "12:00:00"
  *     responses:
- *       201:
- *         description: Lịch làm việc được tạo thành công
+ *       200:
+ *         description: Lịch làm việc cập nhật thành công
  *         content:
  *           application/json:
  *             schema:
@@ -482,48 +491,24 @@
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: "Đã tạo lịch làm việc thành công"
+ *                   example: "Cập nhật lịch làm việc thành công"
  *                 data:
  *                   type: object
  *                   properties:
- *                     availability:
- *                       type: object
- *                       properties:
- *                         avail_id:
- *                           type: string
- *                           example: "AV000004"
- *                         date:
- *                           type: string
- *                           example: "2025-08-15"
- *                     timeSlots:
+ *                     doctor_id:
+ *                       type: string
+ *                       example: "DR000001"
+ *                     weekStartDate:
+ *                       type: string
+ *                       example: "2023-07-10"
+ *                     schedule:
  *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           timeslot_id:
- *                             type: string
- *                             example: "TS000007"
- *                           time_start:
- *                             type: string
- *                             example: "08:00:00"
- *                           time_end:
- *                             type: string
- *                             example: "09:00:00"
- *                           status:
- *                             type: string
- *                             example: "available"
  *       400:
  *         description: Dữ liệu không hợp lệ
  *       401:
- *         description: Không được xác thực
- *       403:
- *         description: Không có quyền thực hiện
+ *         description: Chưa xác thực
  *       404:
  *         description: Không tìm thấy thông tin bác sĩ
- *       409:
- *         description: Xung đột dữ liệu
- *       500:
- *         description: Lỗi server
  */
 
 /**

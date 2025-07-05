@@ -1,11 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
-import { Model, Op } from 'sequelize';
+import { Op } from 'sequelize';
 import { MODELS } from '~/models/initModels';
 import { doctorModel } from '~/models/doctorModel';
-import ApiError from '~/utils/ApiError';
-import { hashPassword } from '~/utils/crypto';
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+import { env } from '~/config/environment';
 dotenv.config();
 
 const getAllDoctors = async () => {
@@ -129,37 +128,40 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
   }
 };
 
-const generateUniqueTimeSlotId = async () => {
+const generateUniqueTimeSlotId = async (transaction) => {
   try {
-    const timeSlots = await MODELS.TimeslotModel.findAll({
-      attributes: ['timeslot_id'],
+    // Sử dụng MAX trực tiếp để tìm ID lớn nhất
+    const result = await MODELS.TimeslotModel.findOne({
+      attributes: [
+        [Sequelize.fn('MAX', Sequelize.col('timeslot_id')), 'maxId'],
+      ],
       where: {
         timeslot_id: {
           [Op.like]: 'TS%',
         },
       },
+      transaction,
+      raw: true,
     });
 
     let maxId = 0;
-
-    timeSlots.forEach((slot) => {
-      if (slot.timeslot_id.match(/^TS\d{6}$/)) {
-        const idNum = parseInt(slot.timeslot_id.substring(2), 10);
-        if (idNum > maxId) {
-          maxId = idNum;
-        }
-      }
-    });
+    if (result && result.maxId && result.maxId.match(/^TS\d{6}$/)) {
+      maxId = parseInt(result.maxId.substring(2), 10);
+    }
 
     maxId++;
     const newId = `TS${String(maxId).padStart(6, '0')}`;
 
+    // Kiểm tra lại xem ID có tồn tại không
     const existing = await MODELS.TimeslotModel.findOne({
       where: { timeslot_id: newId },
+      transaction,
     });
 
     if (existing) {
-      return generateUniqueTimeSlotId(); // Đệ quy gọi lại nếu ID đã tồn tại
+      // Nếu tồn tại, tăng ID lên và thử lại
+      maxId++;
+      return `TS${String(maxId).padStart(6, '0')}`;
     }
 
     return newId;
@@ -169,37 +171,36 @@ const generateUniqueTimeSlotId = async () => {
   }
 };
 
-const generateUniqueAvailabilityId = async () => {
+const generateUniqueAvailabilityId = async (transaction) => {
   try {
-    const availabilities = await MODELS.AvailabilityModel.findAll({
-      attributes: ['avail_id'],
+    const result = await MODELS.AvailabilityModel.findOne({
+      attributes: [[Sequelize.fn('MAX', Sequelize.col('avail_id')), 'maxId']],
       where: {
         avail_id: {
           [Op.like]: 'AV%',
         },
       },
+      transaction,
+      raw: true,
     });
 
     let maxId = 0;
-
-    availabilities.forEach((avail) => {
-      if (avail.avail_id.match(/^AV\d{6}$/)) {
-        const idNum = parseInt(avail.avail_id.substring(2), 10);
-        if (idNum > maxId) {
-          maxId = idNum;
-        }
-      }
-    });
+    if (result && result.maxId && result.maxId.match(/^AV\d{6}$/)) {
+      maxId = parseInt(result.maxId.substring(2), 10);
+    }
 
     maxId++;
     const newId = `AV${String(maxId).padStart(6, '0')}`;
 
+    // Kiểm tra lại
     const existing = await MODELS.AvailabilityModel.findOne({
       where: { avail_id: newId },
+      transaction,
     });
 
     if (existing) {
-      return generateUniqueAvailabilityId(); // Đệ quy gọi lại nếu ID đã tồn tại
+      maxId++;
+      return `AV${String(maxId).padStart(6, '0')}`;
     }
 
     return newId;
@@ -464,13 +465,12 @@ const updateDoctorProfile = async (
 ) => {
   try {
     const sequelize = new Sequelize({
-      host: process.env.DB_HOST || 'localhost',
-      username: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || '123456',
-      database:
-        process.env.DB_NAME || 'Gender_Healthcare_Service_Management_System',
+      host: env.DB_HOST || 'localhost',
+      username: env.DB_USER || 'root',
+      password: env.DB_PASSWORD || '123456',
+      database: env.DB_NAME || 'Gender_Healthcare_Service_Management_System',
       dialect: 'mysql',
-      port: process.env.DB_PORT || 3306,
+      port: env.DB_PORT || 3306,
     });
 
     const transaction = await sequelize.transaction();
@@ -587,6 +587,144 @@ const updateDoctorProfile = async (
   }
 };
 
+export const createWeeklySchedule = async (
+  doctorId,
+  weekStartDate,
+  schedule
+) => {
+  let transaction;
+
+  try {
+    const sequelize = new Sequelize({
+      host: env.DB_HOST || 'localhost',
+      username: env.DB_USER || 'root',
+      password: env.DB_PASSWORD || '123456',
+      database: env.DB_NAME || 'Gender_Healthcare_Service_Management_System',
+      dialect: 'mysql',
+      port: env.DB_PORT || 3306,
+    });
+
+    transaction = await sequelize.transaction();
+
+    const doctor = await MODELS.DoctorModel.findOne({
+      where: { doctor_id: doctorId },
+    });
+
+    if (!doctor) {
+      throw new Error('Không tìm thấy thông tin bác sĩ');
+    }
+
+    const startDate = new Date(weekStartDate);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 6);
+
+    const availabilities = await MODELS.AvailabilityModel.findAll({
+      where: {
+        doctor_id: doctorId,
+        date: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+      transaction,
+    });
+
+    const availIds = availabilities.map((avail) => avail.avail_id);
+
+    if (availIds.length > 0) {
+      await MODELS.TimeslotModel.destroy({
+        where: { avail_id: { [Op.in]: availIds } },
+        transaction,
+      });
+
+      await MODELS.AvailabilityModel.destroy({
+        where: { avail_id: { [Op.in]: availIds } },
+        transaction,
+      });
+    }
+
+    const createdSchedules = [];
+
+    for (const daySchedule of schedule) {
+      const { date, timeSlots } = daySchedule;
+
+      const currentDate = new Date(date);
+      if (currentDate < startDate || currentDate > endDate) {
+        throw new Error(`Ngày ${date} không nằm trong tuần đã chọn`);
+      }
+
+      const avail_id = await generateUniqueAvailabilityId(transaction);
+      await MODELS.AvailabilityModel.create(
+        {
+          avail_id,
+          doctor_id: doctorId,
+          date,
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+        { transaction }
+      );
+
+      const dayTimeslots = [];
+
+      for (const slot of timeSlots) {
+        if (!slot.time_start || !slot.time_end) {
+          throw new Error('Định dạng timeSlots không hợp lệ');
+        }
+
+        const { time_start, time_end } = slot;
+
+        if (time_start >= time_end) {
+          throw new Error('Giờ bắt đầu phải sớm hơn giờ kết thúc');
+        }
+
+        const timeslot_id = await generateUniqueTimeSlotId(transaction);
+        const newTimeSlot = await MODELS.TimeslotModel.create(
+          {
+            timeslot_id,
+            avail_id,
+            time_start,
+            time_end,
+            status: 'available',
+          },
+          { transaction }
+        );
+
+        dayTimeslots.push({
+          timeslot_id: newTimeSlot.timeslot_id,
+          time_start: newTimeSlot.time_start,
+          time_end: newTimeSlot.time_end,
+        });
+      }
+
+      createdSchedules.push({
+        date,
+        dayOfWeek: getDayOfWeek(date),
+        timeslots: dayTimeslots,
+      });
+    }
+
+    await transaction.commit();
+
+    return {
+      doctor_id: doctorId,
+      weekStartDate,
+      schedule: createdSchedules,
+    };
+  } catch (error) {
+    console.error('Error in createWeeklySchedule:', error);
+
+    if (transaction && !transaction.finished) {
+      try {
+        await transaction.rollback();
+      } catch (rollbackError) {
+        console.error('Rollback error:', rollbackError);
+      }
+    }
+
+    throw error;
+  }
+};
+
 export const doctorService = {
   getAllDoctors,
   createDoctorSchedule,
@@ -596,4 +734,5 @@ export const doctorService = {
   getAllDoctorTimeslots,
   getDoctorByID,
   updateDoctorProfile,
+  createWeeklySchedule,
 };

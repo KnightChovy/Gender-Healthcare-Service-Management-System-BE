@@ -44,39 +44,38 @@ const getAvailableTimeslots = async (req, res) => {
   }
 };
 
-const chooseSchedule = async (req, res) => {
+export const chooseSchedule = async (req, res) => {
   try {
-    const doctor = req.doctor;
+    const { weekStartDate, schedule } = req.body;
+    const userId = req.jwtDecoded.data.user_id;
 
-    const { date, timeSlots } = req.body;
+    const doctor = await MODELS.DoctorModel.findOne({
+      where: { user_id: userId },
+    });
 
-    if (!date || !Array.isArray(timeSlots) || timeSlots.length === 0) {
-      throw new ApiError(400, 'Vui lòng cung cấp ngày và khung giờ làm việc');
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy thông tin bác sĩ',
+      });
     }
 
-    const result = await doctorService.createDoctorSchedule(
-      doctor.doctor_id,
-      date,
-      timeSlots
+    const result = await doctorService.createWeeklySchedule(
+      doctor.doctor_id, 
+      weekStartDate,
+      schedule
     );
 
-    console.log(
-      `[SUCCESS] Bác sĩ ${doctor.doctor_id} đã đăng ký thành công lịch làm việc cho ngày ${date}`
-    );
-    console.log(
-      `[SUCCESS] Đã tạo ${result.timeSlots.length} khung giờ làm việc`
-    );
-
-    return res.status(StatusCodes.CREATED).json({
+    return res.status(200).json({
       success: true,
-      message: 'Đã tạo lịch làm việc thành công',
+      message: 'Cập nhật lịch làm việc thành công',
       data: result,
     });
   } catch (error) {
-    const status = error instanceof ApiError ? error.statusCode : 500;
-    return res.status(status).json({
+    console.error('Error in chooseSchedule:', error);
+    return res.status(500).json({
       success: false,
-      message: error.message || 'Lỗi khi tạo lịch làm việc',
+      message: error.message || 'Lỗi khi cập nhật lịch làm việc',
     });
   }
 };
