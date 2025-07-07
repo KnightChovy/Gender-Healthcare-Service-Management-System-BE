@@ -169,7 +169,37 @@ const getServicesByUserId = async (req, res) => {
     const status = error instanceof ApiError ? error.statusCode : 500;
     return res.status(status).json({ message: error.message });
   }
-}
+};
+
+const cancelAppointment = async (req, res) => {
+  try {
+    const { appointment_id } = req.body;
+    const userId = req.jwtDecoded.data.user_id;
+
+    if (!appointment_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Thiếu mã cuộc hẹn',
+      });
+    }
+
+    const result = await userService.cancelAppointment(appointment_id, userId);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Hủy cuộc hẹn thành công',
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error in cancelAppointment controller:', error);
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Lỗi khi hủy cuộc hẹn',
+    });
+  }
+};
+
 export const userController = {
   getAllUsers,
   createUser,
@@ -177,5 +207,6 @@ export const userController = {
   changePassword,
   getMyProfile,
   createStaff,
-  getServicesByUserId
+  getServicesByUserId,
+  cancelAppointment,
 };

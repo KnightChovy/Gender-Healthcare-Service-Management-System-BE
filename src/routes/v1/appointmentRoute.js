@@ -23,4 +23,5 @@ Router.post(
   appointmentValidation.validateFeedback,
   appointmentController.submitFeedback
 );
+
 export const appointmentRoute = Router;

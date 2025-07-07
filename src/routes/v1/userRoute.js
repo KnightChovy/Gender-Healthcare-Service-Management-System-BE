@@ -26,10 +26,17 @@ Router.route('/:id')
   .put(isAuth, validateUpdateUser, userController.updateUser)
   .patch(isAuth, validateChangePassword, userController.changePassword);
 
-Router.route('/:id/services')
-  .get(isAuth, isUser, userController.getServicesByUserId)
+Router.route('/:id/services').get(
+  isAuth,
+  isUser,
+  userController.getServicesByUserId
+);
 //   .delete(userController.deleteUser)
 
+Router.route('/appointments/cancel').post(
+  isAuth, 
+  userController.cancelAppointment
+);
 // // User profile routes
 // Router.get('/profile/me', userController.getMyProfile)
 // Router.put('/profile/me', userController.updateMyProfile)

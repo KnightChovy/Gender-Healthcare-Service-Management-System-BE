@@ -143,9 +143,9 @@ const getUserProfile = async (userId) => {
     throw error.statusCode
       ? error
       : {
-        statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-        message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
-      };
+          statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+          message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
+        };
   }
 };
 
@@ -334,15 +334,68 @@ const createStaff = async (staffData) => {
 
 const getServicesByUserId = async (user_id) => {
   try {
-    const order = await MODELS.OrderModel.findAll({ where: { user_id: user_id } })
+    const order = await MODELS.OrderModel.findAll({
+      where: { user_id: user_id },
+    });
     if (!order) {
-      throw new ApiError(404, 'Không tìm thấy dịch vụ')
+      throw new ApiError(404, 'Không tìm thấy dịch vụ');
     }
-    return order
+    return order;
   } catch (error) {
-    throw new ApiError(500, 'Lỗi khi lấy dịch vụ')
+    throw new ApiError(500, 'Lỗi khi lấy dịch vụ');
   }
-}
+};
+
+const cancelAppointment = async (appointmentId, userId) => {
+  try {
+    const appointment = await MODELS.AppointmentModel.findOne({
+      where: {
+        appointment_id: appointmentId,
+        user_id: userId,
+      },
+    });
+
+    if (!appointment) {
+      throw new ApiError(
+        404,
+        'Không tìm thấy cuộc hẹn hoặc bạn không có quyền hủy cuộc hẹn này'
+      );
+    }
+
+    if (
+      appointment.status === 'completed' ||
+      appointment.status === 'rejected'
+    ) {
+      throw new ApiError(
+        400,
+        'Không thể hủy cuộc hẹn đã hoàn thành hoặc đã bị từ chối'
+      );
+    }
+
+    await appointment.update({
+      status: 'rejected',
+      updated_at: new Date(),
+    });
+
+    if (appointment.timeslot_id) {
+      await MODELS.TimeslotModel.update(
+        { status: 'available' },
+        {
+          where: { timeslot_id: appointment.timeslot_id },
+        }
+      );
+    }
+
+    return {
+      appointment_id: appointmentId,
+      status: 'rejected',
+      cancelled_at: new Date(),
+    };
+  } catch (error) {
+    console.error('Error in cancelAppointment service:', error);
+    throw error;
+  }
+};
 
 export const userService = {
   getAllUsers,
@@ -351,5 +404,6 @@ export const userService = {
   changePassword,
   getUserProfile,
   createStaff,
-  getServicesByUserId
+  getServicesByUserId,
+  cancelAppointment,
 };
