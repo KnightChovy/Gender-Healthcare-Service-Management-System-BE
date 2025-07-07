@@ -2168,7 +2168,7 @@
 
 /**
  * @swagger
- * /v1/users/appointments/cancel:
+ * /v1/users/cancel-appointment:
  *   post:
  *     summary: Hủy cuộc hẹn
  *     description: Cho phép người dùng hủy cuộc hẹn của họ
