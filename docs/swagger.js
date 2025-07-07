@@ -2165,3 +2165,58 @@
  *       403:
  *         description: Không có quyền cập nhật hồ sơ này
  */
+
+/**
+ * @swagger
+ * /v1/users/appointments/cancel:
+ *   post:
+ *     summary: Hủy cuộc hẹn
+ *     description: Cho phép người dùng hủy cuộc hẹn của họ
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - appointment_id
+ *             properties:
+ *               appointment_id:
+ *                 type: string
+ *                 example: "AP000001"
+ *     responses:
+ *       200:
+ *         description: Hủy cuộc hẹn thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Hủy cuộc hẹn thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     appointment_id:
+ *                       type: string
+ *                       example: "AP000001"
+ *                     status:
+ *                       type: string
+ *                       example: "rejected"
+ *                     cancelled_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Dữ liệu không hợp lệ hoặc không thể hủy
+ *       401:
+ *         description: Không được xác thực
+ *       404:
+ *         description: Không tìm thấy cuộc hẹn
+ */
