@@ -36,18 +36,22 @@ const getAllServices = async (req, res) => {
 
 const bookingService = async (req, res) => {
   try {
-    // Lấy user_id từ token JWT thay vì body để đảm bảo an toàn
+    // Lấy user_id từ token JWT
     const userId = req.jwtDecoded.data.user_id;
 
-    // Tạo đối tượng bookingData với user_id từ token
+    // Xử lý dữ liệu từ request một cách linh hoạt
+    // Kiểm tra xem data có trong bookingData hay trực tiếp trong body
+    const requestData = req.body.bookingData || req.body;
+
     const {
       serviceData,
       appointment_id,
       payment_method,
       appointment_date,
       appointment_time,
-    } = req.body;
+    } = requestData;
 
+    // Tạo đối tượng bookingData với user_id từ token
     const dataBooking = {
       user_id: userId,
       serviceData,
