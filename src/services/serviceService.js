@@ -133,7 +133,6 @@ const bookingService = async (bookingData) => {
   let transaction;
 
   try {
-    // Khởi tạo Sequelize instance như trong createWeeklySchedule
     const sequelize = new Sequelize({
       host: env.DB_HOST || 'localhost',
       username: env.DB_USER || 'root',
@@ -143,18 +142,15 @@ const bookingService = async (bookingData) => {
       port: env.DB_PORT || 3306,
     });
 
-    // Khởi tạo transaction từ instance Sequelize
     transaction = await sequelize.transaction();
 
     const { user_id, serviceData, appointment_id, payment_method } =
       bookingData;
 
-    // Validate đầu vào
     if (!user_id || !Array.isArray(serviceData) || serviceData.length === 0) {
       throw new ApiError(400, 'Vui lòng chọn ít nhất một dịch vụ');
     }
 
-    // Xử lý kiểm tra dịch vụ trùng lặp
     let nonDuplicateServices = [];
     let service_ids = [];
 
@@ -189,7 +185,6 @@ const bookingService = async (bookingData) => {
       );
       console.log('nonDuplicateServices', nonDuplicateServices);
 
-      // Xử lý trường hợp tất cả dịch vụ đều đã tồn tại
       if (nonDuplicateServices.length <= 0) {
         await transaction.rollback();
         throw new ApiError(
@@ -220,7 +215,7 @@ const bookingService = async (bookingData) => {
       }
     }
 
-    // Tạo đơn hàng
+    // Tạo
     const latestOrder = await MODELS.OrderModel.findOne({
       attributes: ['order_id'],
       order: [['order_id', 'DESC']],
@@ -248,7 +243,7 @@ const bookingService = async (bookingData) => {
       { transaction }
     );
 
-    // Tạo chi tiết đơn hàng
+    // Tạo od detail
     const latestOrderDetail = await MODELS.OrderDetailModel.findOne({
       attributes: ['order_detail_id'],
       order: [['order_detail_id', 'DESC']],
@@ -264,12 +259,12 @@ const bookingService = async (bookingData) => {
       baseOrderDetailId = lastDetailIdNum + 1;
     }
 
-    // Tạo các chi tiết đơn hàng với transaction
+    // Tạo od detail với transaction
     const orderDetails = [];
-    for (let idx = 0; idx < nonDuplicateServices.length; idx++) {
-      const service_id = nonDuplicateServices[idx];
+    for (let i = 0; i < nonDuplicateServices.length; i++) {
+      const service_id = nonDuplicateServices[i];
       const order_detail_id =
-        'ODT' + String(baseOrderDetailId + idx).padStart(6, '0');
+        'ODT' + String(baseOrderDetailId + i).padStart(6, '0');
 
       const orderDetail = await MODELS.OrderDetailModel.create(
         {
@@ -285,7 +280,7 @@ const bookingService = async (bookingData) => {
       orderDetails.push(orderDetail);
     }
 
-    // Commit transaction khi thành công
+    // Commit
     await transaction.commit();
 
     return {
@@ -297,7 +292,7 @@ const bookingService = async (bookingData) => {
       ),
     };
   } catch (error) {
-    // Rollback transaction nếu có lỗi và chưa kết thúc
+    // Rollback
     if (transaction && !transaction.finished) {
       try {
         await transaction.rollback();
@@ -308,7 +303,6 @@ const bookingService = async (bookingData) => {
 
     console.error('Lỗi trong bookingService:', error);
 
-    // Xử lý phân loại lỗi
     if (error instanceof ApiError) {
       throw error;
     }

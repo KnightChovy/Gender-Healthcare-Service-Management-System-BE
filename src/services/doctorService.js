@@ -468,7 +468,7 @@ const updateDoctorProfile = async (
       host: env.DB_HOST || 'localhost',
       username: env.DB_USER || 'root',
       password: env.DB_PASSWORD || '123456',
-      database: env.DB_NAME || 'Gender_Healthcare_Service_Management_System',
+      database: env.DB_NAME || 'gender_healthcare_service_management_system',
       dialect: 'mysql',
       port: env.DB_PORT || 3306,
     });
@@ -599,7 +599,7 @@ export const createWeeklySchedule = async (
       host: env.DB_HOST || 'localhost',
       username: env.DB_USER || 'root',
       password: env.DB_PASSWORD || '123456',
-      database: env.DB_NAME || 'Gender_Healthcare_Service_Management_System',
+      database: env.DB_NAME || 'gender_healthcare_service_management_system',
       dialect: 'mysql',
       port: env.DB_PORT || 3306,
     });

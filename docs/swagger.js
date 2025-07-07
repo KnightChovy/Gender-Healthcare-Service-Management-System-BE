@@ -1856,8 +1856,7 @@
  * @swagger
  * /v1/services/bookingService:
  *   post:
- *     summary: Book a service
- *     description: Book one or more services/tests for a user.
+ *     summary: Đặt dịch vụ y tế
  *     tags: [Services]
  *     security:
  *       - bearerAuth: []
@@ -1870,13 +1869,8 @@
  *             properties:
  *               bookingData:
  *                 type: object
+ *                 required: [serviceData, payment_method]
  *                 properties:
- *                   user_id:
- *                     type: string
- *                   appointment_id:
- *                     type: string
- *                   payment_method:
- *                     type: string
  *                   serviceData:
  *                     type: array
  *                     items:
@@ -1884,9 +1878,32 @@
  *                       properties:
  *                         service_id:
  *                           type: string
+ *                           example: "SV000001"
+ *                   payment_method:
+ *                     type: string
+ *                     enum: [cash, vnpay, credit_card]
+ *                     example: "vnpay"
+ *                   appointment_id:
+ *                     type: string
+ *                     nullable: true
+ *                     example: "AP000001"
+ *                   appointment_date:
+ *                     type: string
+ *                     format: date
+ *                     example: "2025-07-15"
+ *                   appointment_time:
+ *                     type: string
+ *                     example: "10:00 - 10:30"
+ *           example:
+ *             bookingData:
+ *               serviceData: [{"service_id": "SV000001"}, {"service_id": "SV000002"}]
+ *               payment_method: "vnpay"
+ *               appointment_id: null
+ *               appointment_date: "2025-07-15"
+ *               appointment_time: "10:00 - 10:30"
  *     responses:
  *       200:
- *         description: Booking successful
+ *         description: Đặt dịch vụ thành công
  *         content:
  *           application/json:
  *             schema:
@@ -1894,12 +1911,27 @@
  *               properties:
  *                 success:
  *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Đặt dịch vụ thành công"
  *                 data:
  *                   type: object
+ *                   properties:
+ *                     order:
+ *                       type: object
+ *                     order_details:
+ *                       type: array
+ *                     skipped_services:
+ *                       type: array
  *       400:
- *         description: Invalid booking data
+ *         description: Dữ liệu không hợp lệ hoặc dịch vụ đã tồn tại
  *       401:
- *         description: Unauthorized - Missing or invalid token
+ *         description: Chưa xác thực
+ *       404:
+ *         description: Không tìm thấy dịch vụ
+ *       500:
+ *         description: Lỗi hệ thống
  */
 
 /**
