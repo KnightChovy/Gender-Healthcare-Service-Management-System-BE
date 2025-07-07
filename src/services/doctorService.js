@@ -537,7 +537,6 @@ const updateDoctorProfile = async (
         );
       }
 
-      // Xử lý chứng chỉ nếu có
       if (doctorData.certificate && Array.isArray(doctorData.certificate)) {
         await MODELS.CertificateModel.destroy({
           where: { doctor_id: doctorId },
