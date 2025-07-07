@@ -33,8 +33,8 @@ Router.route('/:id/services').get(
 );
 //   .delete(userController.deleteUser)
 
-Router.route('/appointments/cancel').post(
-  isAuth, 
+Router.route('/cancel-appointments').post(
+  isAuth,
   userController.cancelAppointment
 );
 // // User profile routes
