@@ -2252,3 +2252,184 @@
  *       404:
  *         description: Không tìm thấy cuộc hẹn
  */
+
+/**
+ * @swagger
+ * /v1/emails/send-appointment-cancellation:
+ *   post:
+ *     summary: Gửi email thông báo hủy cuộc hẹn
+ *     description: Gửi email xác nhận đã hủy cuộc hẹn và thông báo hoàn tiền (nếu có) cho người dùng
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - appointment_id
+ *             properties:
+ *               appointment_id:
+ *                 type: string
+ *                 example: "AP000123"
+ *                 description: ID của cuộc hẹn đã hủy
+ *               reason:
+ *                 type: string
+ *                 example: "Thay đổi lịch trình cá nhân"
+ *                 description: Lý do hủy cuộc hẹn
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Email thông báo hủy cuộc hẹn đã được gửi thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emailSent:
+ *                       type: boolean
+ *                       example: true
+ *                     appointment_id:
+ *                       type: string
+ *                       example: "AP000123"
+ *                     sentTo:
+ *                       type: string
+ *                       example: "user@example.com"
+ *       400:
+ *         description: Thiếu thông tin cần thiết
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Thiếu thông tin cuộc hẹn (appointment_id)"
+ *       404:
+ *         description: Không tìm thấy cuộc hẹn hoặc người dùng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy cuộc hẹn với ID: AP000123"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi khi gửi email thông báo hủy cuộc hẹn"
+ *                 error:
+ *                   type: string
+ */
+
+/**
+ * @swagger
+ * /v1/test-appointments/user/{user_id}:
+ *   get:
+ *     summary: Gửi email tổng hợp dịch vụ đã đặt
+ *     description: Gửi email chứa thông tin tất cả dịch vụ y tế mà người dùng đã đặt cùng hướng dẫn chuẩn bị
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của người dùng cần gửi thông tin dịch vụ
+ *         example: "US000005"
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Email thông báo đặt dịch vụ đã được gửi thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emailSent:
+ *                       type: boolean
+ *                       example: true
+ *                     user_id:
+ *                       type: string
+ *                       example: "US000005"
+ *                     sentTo:
+ *                       type: string
+ *                       example: "user@example.com"
+ *       400:
+ *         description: Thiếu thông tin cần thiết
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "User ID is required"
+ *       404:
+ *         description: Không tìm thấy người dùng hoặc đơn hàng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy người dùng với ID: US000005"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error while sending email"
+ *                 error:
+ *                   type: string
+ */

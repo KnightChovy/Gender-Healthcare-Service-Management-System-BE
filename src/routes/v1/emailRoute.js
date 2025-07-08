@@ -1,6 +1,6 @@
 import express from 'express';
 import { emailController } from '~/controllers/emailController';
-import isAuth from '~/middlewares/isAuthMiddleware';
+// import isAuth from '~/middlewares/isAuthMiddleware';
 
 const Router = express.Router();
 
@@ -15,8 +15,13 @@ Router.route('/appointment-feedback').post(
 );
 Router.route('/forget-password').post(emailController.sendEmailForgetPassword);
 
-Router.route('/user/:user_id').post(
-  // isAuth,
-  emailController.sendBookingServiceSuccess
+Router.route('/user/:user_id').post(emailController.sendBookingServiceSuccess);
+
+Router.route('/send-order-cancellation').post(
+  emailController.sendOrderCancellationNotification
 );
+Router.route('/send-appointment-cancellation').post(
+  emailController.sendAppointmentCancellationNotification
+);
+
 export const emailRoute = Router;

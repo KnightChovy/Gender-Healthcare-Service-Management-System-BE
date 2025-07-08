@@ -235,6 +235,112 @@ const sendBookingServiceSuccess = async (req, res) => {
   }
 };
 
+const sendOrderCancellationNotification = async (req, res) => {
+  try {
+    const { order_id, user_id, reason } = req.body;
+
+    if (!order_id || !user_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'Thiếu thông tin bắt buộc (order_id, user_id)',
+      });
+    }
+
+    console.log(
+      `Sending order cancellation email for order: ${order_id}, user: ${user_id}`
+    );
+
+    const response = await emailService.sendOrderCancellationEmail(
+      order_id,
+      user_id,
+      reason
+    );
+
+    if (response.status === 'error') {
+      const statusCode = response.message.includes('Không tìm thấy')
+        ? StatusCodes.NOT_FOUND
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+
+      return res.status(statusCode).json({
+        status: 'error',
+        message: response.message,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Email thông báo hủy đơn hàng đã được gửi thành công',
+      data: {
+        emailSent: true,
+        order_id,
+        user_id,
+        sentTo: response.sentTo,
+      },
+    });
+  } catch (error) {
+    console.error('Error in sendOrderCancellationNotification:', error);
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(statusCode).json({
+      status: 'error',
+      message:
+        error.message || 'Lỗi server khi gửi email thông báo hủy đơn hàng',
+      error: error.message,
+    });
+  }
+};
+
+const sendAppointmentCancellationNotification = async (req, res) => {
+  try {
+    const { appointment_id, reason } = req.body;
+
+    if (!appointment_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'Thiếu thông tin cuộc hẹn (appointment_id)',
+      });
+    }
+
+    console.log(
+      `Sending appointment cancellation email for appointment: ${appointment_id}`
+    );
+
+    const response = await emailService.sendAppointmentCancellationEmail(
+      appointment_id,
+      reason
+    );
+
+    if (response.status === 'error') {
+      const statusCode = response.message.includes('Không tìm thấy')
+        ? StatusCodes.NOT_FOUND
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+
+      return res.status(statusCode).json({
+        status: 'error',
+        message: response.message,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Email thông báo hủy cuộc hẹn đã được gửi thành công',
+      data: {
+        emailSent: true,
+        appointment_id,
+        sentTo: response.sentTo,
+      },
+    });
+  } catch (error) {
+    console.error('Error in sendAppointmentCancellationNotification:', error);
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(statusCode).json({
+      status: 'error',
+      message:
+        error.message || 'Lỗi server khi gửi email thông báo hủy cuộc hẹn',
+      error: error.message,
+    });
+  }
+};
+
 export const emailController = {
   sendEmail,
   sendPaymentReminder,
@@ -242,4 +348,6 @@ export const emailController = {
   sendAppointmentFeedbackEmail,
   sendEmailForgetPassword,
   sendBookingServiceSuccess,
+  sendOrderCancellationNotification,
+  sendAppointmentCancellationNotification, 
 };

@@ -610,7 +610,6 @@ const sendEmailForgetPassword = async (username, email) => {
 
 const sendUserServicesSummaryEmail = async (user_id) => {
   try {
-    // Khởi tạo transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       host: 'smtp.gmail.com',
@@ -622,7 +621,6 @@ const sendUserServicesSummaryEmail = async (user_id) => {
       },
     });
 
-    // Lấy thông tin người dùng
     const user = await MODELS.UserModel.findOne({
       where: { user_id },
       attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
@@ -635,7 +633,6 @@ const sendUserServicesSummaryEmail = async (user_id) => {
       };
     }
 
-    // Lấy tất cả đơn hàng của người dùng
     const orders = await MODELS.OrderModel.findAll({
       where: { user_id },
       order: [['created_at', 'DESC']],
@@ -648,7 +645,6 @@ const sendUserServicesSummaryEmail = async (user_id) => {
       };
     }
 
-    // Tổng hợp tất cả chi tiết đơn hàng và dịch vụ
     const allOrderDetails = [];
     let totalAmount = 0;
 
@@ -680,7 +676,6 @@ const sendUserServicesSummaryEmail = async (user_id) => {
             service: detail.service,
           });
 
-          // Chuyển đổi price thành số trước khi cộng
           const price = detail.service.price
             ? parseFloat(detail.service.price)
             : 0;
@@ -689,7 +684,6 @@ const sendUserServicesSummaryEmail = async (user_id) => {
       });
     }
 
-    // Tạo danh sách dịch vụ HTML
     const servicesList = allOrderDetails
       .map((detail) => {
         const orderDate = new Date(detail.created_at).toLocaleDateString(
@@ -723,7 +717,6 @@ const sendUserServicesSummaryEmail = async (user_id) => {
       })
       .join('');
 
-    // Tạo phần hướng dẫn chuẩn bị
     const uniqueGuidelines = [
       ...new Set(
         allOrderDetails
@@ -838,6 +831,408 @@ const sendUserServicesSummaryEmail = async (user_id) => {
   }
 };
 
+const sendOrderCancellationEmail = async (
+  order_id,
+  user_id,
+  reason = 'Theo yêu cầu của khách hàng'
+) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    const user = await MODELS.UserModel.findOne({
+      where: { user_id },
+      attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+    });
+
+    if (!user) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy người dùng với ID: ${user_id}`,
+      };
+    }
+
+    const order = await MODELS.OrderModel.findOne({
+      where: { order_id },
+    });
+
+    if (!order) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy đơn hàng với ID: ${order_id}`,
+      };
+    }
+
+    const orderDetails = await MODELS.OrderDetailModel.findAll({
+      where: { order_id },
+      include: [
+        {
+          model: MODELS.ServiceTestModel,
+          as: 'service',
+          attributes: ['service_id', 'name', 'price', 'description'],
+        },
+      ],
+    });
+
+    let totalAmount = 0;
+    const servicesList = orderDetails
+      .map((detail) => {
+        const price = detail.service?.price
+          ? parseFloat(detail.service.price)
+          : 0;
+        totalAmount += price;
+
+        return `
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #eee;">${
+            detail.service?.name || 'Dịch vụ'
+          }</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">
+            ${new Intl.NumberFormat('vi-VN', {
+              style: 'currency',
+              currency: 'VND',
+            }).format(price)}
+          </td>
+        </tr>
+      `;
+      })
+      .join('');
+
+    const orderDate = new Date(order.created_at).toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    const cancellationDate = new Date().toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #e74c3c; text-align: center;">Thông báo hủy đơn hàng</h2>
+        </div>
+        
+        <p>Xin chào <strong>${user?.first_name || ''} ${
+      user?.last_name || ''
+    }</strong>,</p>
+        
+        <p>Chúng tôi xác nhận rằng đơn hàng của bạn đã được hủy thành công theo yêu cầu.</p>
+        
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color: #e74c3c; margin-top: 0;">Chi tiết đơn hàng đã hủy</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+            <tr>
+              <td style="padding: 8px 0; color: #666; width: 40%;">Mã đơn hàng:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${order_id}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Ngày đặt hàng:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${orderDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Ngày hủy:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${cancellationDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Lý do hủy:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${reason}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Trạng thái đơn hàng:</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #e74c3c;">Đã hủy</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background-color: #fff5f5; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+          <h3 style="color: #e74c3c; margin-top: 0;">Dịch vụ đã hủy</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">Tên dịch vụ</th>
+                <th style="padding: 8px; text-align: right; border-bottom: 2px solid #ddd;">Giá</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${servicesList}
+            </tbody>
+            <tfoot>
+              <tr style="background-color: #f9f9f9;">
+                <td style="padding: 8px; font-weight: bold; border-top: 2px solid #ddd;">Tổng cộng</td>
+                <td style="padding: 8px; font-weight: bold; border-top: 2px solid #ddd; text-align: right;">
+                  ${new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
+                  }).format(totalAmount)}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        ${
+          order.payment_method && order.order_status === 'paid'
+            ? `<div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #2ecc71;">
+          <h3 style="color: #2ecc71; margin-top: 0;">Thông tin hoàn tiền</h3>
+          <p>Vì đơn hàng của bạn đã được thanh toán, chúng tôi sẽ tiến hành hoàn tiền trong vòng 5-7 ngày làm việc.</p>
+          <p>Số tiền hoàn lại: <strong>${new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+          }).format(totalAmount)}</strong></p>
+          <p>Phương thức hoàn tiền: Chuyển khoản về tài khoản gốc</p>
+        </div>`
+            : ''
+        }
+        
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #6c757d;">
+          <h3 style="color: #6c757d; margin-top: 0;">Thông tin bổ sung</h3>
+          <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li style="margin-bottom: 5px;">Nếu bạn muốn đặt lại dịch vụ, vui lòng truy cập trang web hoặc ứng dụng của chúng tôi.</li>
+            <li style="margin-bottom: 5px;">Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với đội ngũ hỗ trợ khách hàng.</li>
+          </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="http://localhost:5173/services" style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            Đặt dịch vụ khác
+          </a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #555;">
+          <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+          <p>Email: support@gencare.vn | Hotline: 0907865147</p>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ GenCare</strong></p>
+        </div>
+      </div>
+    `;
+
+    // Gửi email
+    const mailOptions = {
+      from: `"GenCare" <${env.EMAIL_USERNAME}>`,
+      to: user.email,
+      subject: `Xác nhận hủy đơn hàng - Mã đơn: ${order_id}`,
+      html: emailContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      status: 'success',
+      message: 'Email thông báo hủy đơn hàng đã được gửi',
+      sentTo: user.email,
+    };
+  } catch (error) {
+    console.error('Error sending order cancellation email:', error);
+    return {
+      status: 'error',
+      message: `Lỗi khi gửi email: ${error.message}`,
+    };
+  }
+};
+
+const sendAppointmentCancellationEmail = async (
+  appointment_id,
+  reason = 'Theo yêu cầu của khách hàng'
+) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    const appointment = await MODELS.AppointmentModel.findByPk(appointment_id);
+    if (!appointment) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy cuộc hẹn với ID: ${appointment_id}`,
+      };
+    }
+
+    const user = await MODELS.UserModel.findByPk(appointment.user_id);
+    if (!user) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy người dùng với ID: ${appointment.user_id}`,
+      };
+    }
+
+    const doctor = await MODELS.DoctorModel.findByPk(appointment.doctor_id);
+
+    let appointmentDate = 'Không xác định';
+    const availability = await MODELS.AvailabilityModel.findOne({
+      where: { avail_id: appointment_id.replace('AP', 'AV') },
+    });
+
+    if (availability && availability.date) {
+      const dateParts = availability.date.toString().split('-');
+      if (dateParts.length === 3) {
+        appointmentDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+      }
+    }
+
+    const timeslot = await MODELS.TimeslotModel.findByPk(
+      appointment.timeslot_id
+    );
+
+    let appointmentTime = 'Không xác định';
+    if (timeslot && timeslot.time_start && timeslot.time_end) {
+      const startTime = timeslot.time_start.substring(0, 5) || '';
+      const endTime = timeslot.time_end.substring(0, 5) || '';
+      if (startTime && endTime) {
+        appointmentTime = `${startTime} - ${endTime}`;
+      }
+    }
+
+    const cancellationDate = new Date().toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #e74c3c; text-align: center;">Xác nhận hủy cuộc hẹn và hoàn tiền thành công</h2>
+        </div>
+        
+        <p>Xin chào <strong>${user?.first_name || ''} ${
+      user?.last_name || ''
+    }</strong>,</p>
+        
+        <p>Chúng tôi xác nhận rằng cuộc hẹn của bạn đã được hủy thành công và chúng tôi đã hoàn tiền cho bạn (nếu có).</p>
+        
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color: #e74c3c; margin-top: 0;">Chi tiết cuộc hẹn đã hủy</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+            <tr>
+              <td style="padding: 8px 0; color: #666; width: 40%;">Mã cuộc hẹn:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${appointment_id}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Bác sĩ:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${
+                doctor
+                  ? `${doctor.last_name} ${doctor.first_name || ''}`.trim()
+                  : 'Không xác định'
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Loại tư vấn:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${
+                appointment.consultant_type || 'Tư vấn chung'
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Ngày hẹn:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${appointmentDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Thời gian:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${appointmentTime}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Ngày hủy:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${cancellationDate}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Lý do hủy:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${reason}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Chi phí tư vấn:</td>
+              <td style="padding: 8px 0; font-weight: 500;">${new Intl.NumberFormat(
+                'vi-VN',
+                { style: 'currency', currency: 'VND' }
+              ).format(appointment.price_apm || 0)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Trạng thái cuộc hẹn:</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #e74c3c;">Đã hủy</td>
+            </tr>
+          </table>
+        </div>
+        
+        ${
+          appointment.is_paid
+            ? `<div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #2ecc71;">
+      <h3 style="color: #2ecc71; margin-top: 0;">Xác nhận đã hoàn tiền</h3>
+      <p>Chúng tôi đã hoàn tiền thành công cho cuộc hẹn đã hủy của bạn.</p>
+      <p>Số tiền đã hoàn lại: <strong>${new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+      }).format(appointment.price_apm || 0)}</strong></p>
+      <p>Phương thức hoàn tiền: Chuyển khoản về tài khoản gốc</p>
+      <p>Tiền hoàn trả sẽ được ghi có vào tài khoản của bạn trong vòng 24 giờ tới.</p>
+    </div>`
+            : ''
+        }
+        
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #6c757d;">
+          <h3 style="color: #6c757d; margin-top: 0;">Thông tin bổ sung</h3>
+          <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li style="margin-bottom: 5px;">Nếu bạn muốn đặt lại cuộc hẹn mới, vui lòng truy cập trang web của chúng tôi.</li>
+            <li style="margin-bottom: 5px;">Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với đội ngũ hỗ trợ khách hàng.</li>
+          </ul>
+        </div>
+      
+        
+        <div style="text-align: center; margin-top: 20px; color: #555;">
+          <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+          <p>Email: support@gencare.vn | Hotline: 0907865147</p>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ GenCare</strong></p>
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"GenCare" <${env.EMAIL_USERNAME}>`,
+      to: user.email,
+      subject: `Xác nhận đã hủy cuộc hẹn và hoàn tiền thành công - Mã: ${appointment_id}`,
+      html: emailContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      status: 'success',
+      message: 'Email thông báo hủy cuộc hẹn và hoàn tiền đã được gửi',
+      sentTo: user.email,
+    };
+  } catch (error) {
+    console.error('Error sending appointment cancellation email:', error);
+    return {
+      status: 'error',
+      message: `Lỗi khi gửi email: ${error.message}`,
+    };
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
@@ -845,4 +1240,6 @@ export const emailService = {
   sendAppointmentFeedbackEmail,
   sendEmailForgetPassword,
   sendUserServicesSummaryEmail,
+  sendOrderCancellationEmail,
+  sendAppointmentCancellationEmail,
 };
