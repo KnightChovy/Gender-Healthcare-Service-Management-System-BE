@@ -9,6 +9,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger';
 import { connectRedis } from './config/redis';
 import { initAllModels } from '~/models/initModels';
+import { connectMongoDB } from './config/db';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -77,7 +78,7 @@ const startServer = () => {
   try {
     console.log('connecting mysql...');
     await CONNECT_DB();
-
+    await connectMongoDB();
     // console.log('connecting redis...');
     // await connectRedis();
     // Initialize all models and set up associations

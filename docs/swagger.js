@@ -2433,3 +2433,157 @@
  *                 error:
  *                   type: string
  */
+
+/**
+ * @swagger
+ * /v1/cycle:
+ *   post:
+ *     summary: Tạo và tính toán chu kỳ kinh nguyệt mới
+ *     description: |
+ *       Tính toán và lưu trữ chu kỳ kinh nguyệt mới cho người dùng đã xác thực. Yêu cầu xác thực qua header `x-access-token`.
+ *     tags: [Cycle]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - lastPeriodDate
+ *               - cycleLength
+ *               - periodLength
+ *               - pillTime
+ *             properties:
+ *               lastPeriodDate:
+ *                 type: string
+ *                 format: date
+ *                 example: "2024-06-01"
+ *                 description: Ngày bắt đầu kỳ kinh cuối (YYYY-MM-DD)
+ *               cycleLength:
+ *                 type: integer
+ *                 example: 28
+ *                 description: Độ dài chu kỳ (ngày)
+ *               periodLength:
+ *                 type: integer
+ *                 example: 5
+ *                 description: Số ngày hành kinh
+ *               pillTime:
+ *                 type: string
+ *                 example: "07:30"
+ *                 description: Thời gian nhắc uống thuốc (HH:mm)
+ *     responses:
+ *       200:
+ *         description: Tạo và tính toán chu kỳ thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: create cycle successfully
+ *                 cycle:
+ *                   $ref: '#/components/schemas/Cycle'
+ *       400:
+ *         description: Thiếu hoặc sai dữ liệu đầu vào
+ *       401:
+ *         description: Không xác thực hoặc token không hợp lệ
+ *       500:
+ *         description: Lỗi hệ thống
+ *
+ *   get:
+ *     summary: Lấy thông tin chu kỳ của người dùng hiện tại
+ *     description: |
+ *       Lấy thông tin chu kỳ gần nhất của người dùng đã xác thực. Yêu cầu xác thực qua header `x-access-token`.
+ *     tags: [Cycle]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lấy chu kỳ thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: create cycle successfully
+ *                 cycle:
+ *                   $ref: '#/components/schemas/Cycle'
+ *       401:
+ *         description: Không xác thực hoặc token không hợp lệ
+ *       404:
+ *         description: Không tìm thấy chu kỳ
+ *       500:
+ *         description: Lỗi hệ thống
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Cycle:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ID chu kỳ
+ *         user_id:
+ *           type: string
+ *           description: ID người dùng
+ *         lastPeriodDate:
+ *           type: string
+ *           format: date
+ *           description: Ngày bắt đầu kỳ kinh cuối
+ *         cycleLength:
+ *           type: integer
+ *           description: Độ dài chu kỳ (ngày)
+ *         periodLength:
+ *           type: integer
+ *           description: Số ngày hành kinh
+ *         pillTime:
+ *           type: string
+ *           description: Thời gian nhắc uống thuốc (HH:mm)
+ *         periodRange:
+ *           type: object
+ *           properties:
+ *             start:
+ *               type: string
+ *               format: date
+ *             end:
+ *               type: string
+ *               format: date
+ *         ovulationRange:
+ *           type: object
+ *           properties:
+ *             start:
+ *               type: string
+ *               format: date
+ *             end:
+ *               type: string
+ *               format: date
+ *         fertilityWindow:
+ *           type: object
+ *           properties:
+ *             start:
+ *               type: string
+ *               format: date
+ *             end:
+ *               type: string
+ *               format: date
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ */

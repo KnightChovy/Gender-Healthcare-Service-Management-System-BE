@@ -15,7 +15,7 @@ let isAuth = async (req, res, next) => {
         tokenFromClient,
         accessTokenSecret
       );
-      req.jwtDecoded = decoded;
+      req.jwtDecoded = decoded
       next();
     } catch (error) {
       console.log('Error verifying token:', error);
