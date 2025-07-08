@@ -680,7 +680,11 @@ const sendUserServicesSummaryEmail = async (user_id) => {
             service: detail.service,
           });
 
-          totalAmount += detail.service.price || 0;
+          // Chuyển đổi price thành số trước khi cộng
+          const price = detail.service.price
+            ? parseFloat(detail.service.price)
+            : 0;
+          totalAmount += price;
         }
       });
     }
@@ -796,7 +800,7 @@ const sendUserServicesSummaryEmail = async (user_id) => {
         </div>
         
         <div style="text-align: center; margin: 20px 0;">
-          <a href="http://localhost:5173/my-services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+          <a href="http://localhost:5173/services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Xem chi tiết dịch vụ
           </a>
         </div>
@@ -813,7 +817,6 @@ const sendUserServicesSummaryEmail = async (user_id) => {
       </div>
     `;
 
-    // Gửi email
     const mailOptions = {
       from: `"GenCare" <${env.EMAIL_USERNAME}>`,
       to: user.email,
