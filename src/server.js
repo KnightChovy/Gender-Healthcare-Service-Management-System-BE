@@ -25,7 +25,7 @@ const startServer = () => {
       ],
       credentials: true, // Use 'credentials' instead of 'withCredentials'
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token', 'token'],
     })
   );
 
