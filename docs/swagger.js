@@ -2351,8 +2351,8 @@
 /**
  * @swagger
  * /v1/test-appointments/user/{user_id}:
- *   get:
- *     summary: Gửi email tổng hợp dịch vụ đã đặt
+ *   post:
+ *     summary: Gửi email thông báo đặt dịch vụ thành công
  *     description: Gửi email chứa thông tin tất cả dịch vụ y tế mà người dùng đã đặt cùng hướng dẫn chuẩn bị
  *     tags: [Emails]
  *     security:
