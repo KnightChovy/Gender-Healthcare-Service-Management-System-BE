@@ -30,5 +30,5 @@ Router.use('/managers', managerRoute);
 Router.use('/services', serviceRoute);
 Router.use('/emails', emailRoute);
 Router.use('/admins', adminRoute);
-
+Router.use('/test-appointments', emailRoute)
 export const API_V1 = Router;

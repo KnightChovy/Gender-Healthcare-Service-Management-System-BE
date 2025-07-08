@@ -163,7 +163,7 @@ const sendAppointmentFeedbackEmail = async (req, res) => {
 
 const sendEmailForgetPassword = async (req, res) => {
   try {
-    const {username, email} = req.body
+    const { username, email } = req.body;
 
     const response = emailService.sendEmailForgetPassword(username, email);
 
@@ -179,12 +179,57 @@ const sendEmailForgetPassword = async (req, res) => {
         sentTo: response.sentTo,
       },
     });
-
   } catch (error) {
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
     return res.status(statusCode).json({
       status: 'error',
       message: error.message || 'Lỗi server',
+      error: error.message,
+    });
+  }
+};
+
+const sendBookingServiceSuccess = async (req, res) => {
+  try {
+    const { user_id } = req.params;
+
+    if (!user_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'User ID is required',
+      });
+    }
+
+    console.log(`Sending service booking summary email for user: ${user_id}`);
+
+    const response = await emailService.sendUserServicesSummaryEmail(user_id);
+
+    if (response.status === 'error') {
+      const statusCode = response.message.includes('Không tìm thấy')
+        ? StatusCodes.NOT_FOUND
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+
+      return res.status(statusCode).json({
+        status: 'error',
+        message: response.message,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Email thông báo đặt dịch vụ đã được gửi thành công',
+      data: {
+        emailSent: true,
+        user_id,
+        sentTo: response.sentTo,
+      },
+    });
+  } catch (error) {
+    console.error('Error in sendBookingServiceSuccess:', error);
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(statusCode).json({
+      status: 'error',
+      message: error.message || 'Internal server error while sending email',
       error: error.message,
     });
   }
@@ -196,4 +241,5 @@ export const emailController = {
   sendBookingConfirmation,
   sendAppointmentFeedbackEmail,
   sendEmailForgetPassword,
+  sendBookingServiceSuccess,
 };

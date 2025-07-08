@@ -1,5 +1,6 @@
 import express from 'express';
 import { emailController } from '~/controllers/emailController';
+import isAuth from '~/middlewares/isAuthMiddleware';
 
 const Router = express.Router();
 
@@ -12,7 +13,10 @@ Router.route('/booking-confirmation').post(
 Router.route('/appointment-feedback').post(
   emailController.sendAppointmentFeedbackEmail
 );
-Router.route('/forget-password').post(
-  emailController.sendEmailForgetPassword
+Router.route('/forget-password').post(emailController.sendEmailForgetPassword);
+
+Router.route('/user/:user_id').post(
+  // isAuth,
+  emailController.sendBookingServiceSuccess
 );
 export const emailRoute = Router;

@@ -1,12 +1,12 @@
 import Stripe from 'stripe';
-import { env } from '~/config/environment'
+import { env } from '~/config/environment';
 import { appointmentServices } from './appointmentServices';
 import { emailService } from './emailService';
-import { MODELS } from '~/models/initModels'
+import { MODELS } from '~/models/initModels';
 const stripe = Stripe(env.STRIPE_SECRET_KEY);
 
 const paymentSession = async (user_id, price, appointment_id) => {
-  console.log('price', price)
+  console.log('price', price);
   if (!price || typeof price !== 'number') {
     throw new Error('Giá trị price không hợp lệ');
   }
@@ -29,12 +29,41 @@ const paymentSession = async (user_id, price, appointment_id) => {
     cancel_url: 'http://localhost:5173/cancel',
     metadata: {
       user_id: user_id,
-      appointment_id: appointment_id
-    }
+      appointment_id: appointment_id,
+    },
   });
-  return session
+  return session;
+};
 
-}
+// const paymentSessionService = async (user_id, price, appointment_id) => {
+//   console.log('price', price);
+//   if (!price || typeof price !== 'number') {
+//     throw new Error('Giá trị price không hợp lệ');
+//   }
+//   const session = await stripe.checkout.sessions.create({
+//     payment_method_types: ['card'],
+//     mode: 'payment',
+//     line_items: [
+//       {
+//         price_data: {
+//           currency: 'usd',
+//           product_data: {
+//             name: 'Đặt dịch vụ',
+//           },
+//           unit_amount: price,
+//         },
+//         quantity: 1,
+//       },
+//     ],
+//     success_url: 'http://localhost:5173/success',
+//     cancel_url: 'http://localhost:5173/cancel',
+//     metadata: {
+//       user_id: user_id,
+//       appointment_id: appointment_id,
+//     },
+//   });
+//   return session;
+// };
 
 // const stripeWebhookService = (req, res) => {
 //   console.log('da vo day roi ne')
@@ -93,7 +122,6 @@ const stripeWebhookService = (req, res) => {
       const appointment_id = session.metadata?.appointment_id;
       if (appointment_id) {
         appointmentServices.handlePaymentAppoinment(appointment_id);
-       
       } else {
         console.warn('⚠️ Không tìm thấy appointment_id trong metadata.');
       }
@@ -109,5 +137,6 @@ const stripeWebhookService = (req, res) => {
 
 export const paymentService = {
   paymentSession,
-  stripeWebhookService
-}
+  stripeWebhookService,
+  // paymentSessionService,
+};

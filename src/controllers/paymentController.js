@@ -1,9 +1,13 @@
-import { paymentService } from '~/services/paymentService'; 
+import { paymentService } from '~/services/paymentService';
 
 const createCheckoutSession = async (req, res) => {
   try {
-    const { user_id, price, appointment_id } = req.body
-    const session = await paymentService.paymentSession(user_id, price, appointment_id)
+    const { user_id, price, appointment_id } = req.body;
+    const session = await paymentService.paymentSession(
+      user_id,
+      price,
+      appointment_id
+    );
     res.json({ url: session.url });
   } catch (error) {
     console.error(error);
@@ -17,5 +21,5 @@ export const stripeWebhook = (req, res) => {
 
 export const paymentController = {
   createCheckoutSession,
-  stripeWebhook 
-}
+  stripeWebhook,
+};
