@@ -702,9 +702,7 @@ const sendUserServicesSummaryEmail = async (user_id) => {
         );
 
         const paymentStatus =
-          detail.order_status === 'paid'
-            ? '<span style="color: #4CAF50;">Đã thanh toán</span>'
-            : '<span style="color: #FF9800;">Chờ thanh toán</span>';
+          '<span style="color: #4CAF50;">Đã thanh toán</span>';
 
         return `
         <tr>
