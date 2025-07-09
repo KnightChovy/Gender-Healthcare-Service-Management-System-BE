@@ -477,7 +477,6 @@ const getUserTestAppointments = async (userId) => {
 
 const getAllOrders = async () => {
   try {
-    // Lấy tất cả đơn hàng, sắp xếp theo thời gian tạo giảm dần
     const orders = await MODELS.OrderModel.findAll({
       order: [['created_at', 'DESC']],
       include: [
@@ -489,7 +488,6 @@ const getAllOrders = async () => {
       ],
     });
 
-    // Lấy chi tiết đơn hàng cho mỗi đơn hàng
     const ordersWithDetails = [];
     let totalAmount = 0;
 
@@ -505,7 +503,6 @@ const getAllOrders = async () => {
         ],
       });
 
-      // Tính tổng tiền cho đơn hàng này
       let orderTotal = 0;
       orderDetails.forEach((detail) => {
         if (detail.service?.price) {

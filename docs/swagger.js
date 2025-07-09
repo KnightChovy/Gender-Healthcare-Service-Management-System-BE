@@ -2834,11 +2834,11 @@
 
 /**
  * @swagger
- * /v1/users/orders:
+ * /v1//managers/getAllOrder:
  *   get:
- *     summary: Lấy tất cả đơn hàng (Admin only)
- *     description: Lấy danh sách tất cả đơn hàng trong hệ thống, chỉ admin và nhân viên mới có quyền truy cập
- *     tags: [Admin]
+ *     summary: Lấy tất cả đơn hàng (manager only)
+ *     description: Lấy danh sách tất cả đơn hàng trong hệ thống, chỉ manager mới có quyền truy cập
+ *     tags: [Managers]
  *     security:
  *       - bearerAuth: []
  *     responses:
