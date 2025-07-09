@@ -5,6 +5,7 @@ import { doctorModel } from '~/models/doctorModel';
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import { env } from '~/config/environment';
+import { GET_DB } from '~/config/mysql';
 dotenv.config();
 
 const getAllDoctors = async () => {
@@ -130,7 +131,6 @@ const createDoctorSchedule = async (doctorId, date, timeSlots) => {
 
 const generateUniqueTimeSlotId = async (transaction) => {
   try {
-    // Sử dụng MAX trực tiếp để tìm ID lớn nhất
     const result = await MODELS.TimeslotModel.findOne({
       attributes: [
         [Sequelize.fn('MAX', Sequelize.col('timeslot_id')), 'maxId'],
@@ -152,14 +152,12 @@ const generateUniqueTimeSlotId = async (transaction) => {
     maxId++;
     const newId = `TS${String(maxId).padStart(6, '0')}`;
 
-    // Kiểm tra lại xem ID có tồn tại không
     const existing = await MODELS.TimeslotModel.findOne({
       where: { timeslot_id: newId },
       transaction,
     });
 
     if (existing) {
-      // Nếu tồn tại, tăng ID lên và thử lại
       maxId++;
       return `TS${String(maxId).padStart(6, '0')}`;
     }
@@ -464,14 +462,7 @@ const updateDoctorProfile = async (
   userRole
 ) => {
   try {
-    const sequelize = new Sequelize({
-      host: env.DB_HOST || 'localhost',
-      username: env.DB_USER || 'root',
-      password: env.DB_PASSWORD || '123456',
-      database: env.DB_NAME || 'gender_healthcare_service_management_system',
-      dialect: 'mysql',
-      port: env.DB_PORT || 3306,
-    });
+    const sequelize = GET_DB();
 
     const transaction = await sequelize.transaction();
 
@@ -594,14 +585,7 @@ export const createWeeklySchedule = async (
   let transaction;
 
   try {
-    const sequelize = new Sequelize({
-      host: env.DB_HOST || 'localhost',
-      username: env.DB_USER || 'root',
-      password: env.DB_PASSWORD || '123456',
-      database: env.DB_NAME || 'gender_healthcare_service_management_system',
-      dialect: 'mysql',
-      port: env.DB_PORT || 3306,
-    });
+    const sequelize = GET_DB();
 
     transaction = await sequelize.transaction();
 

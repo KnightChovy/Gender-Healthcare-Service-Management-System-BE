@@ -191,7 +191,7 @@ const sendEmailForgetPassword = async (req, res) => {
 
 const sendBookingServiceSuccess = async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const { user_id } = req.body;
 
     if (!user_id) {
       return res.status(StatusCodes.BAD_REQUEST).json({

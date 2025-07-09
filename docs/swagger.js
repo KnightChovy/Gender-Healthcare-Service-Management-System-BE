@@ -1422,8 +1422,6 @@
  *                 message:
  *                   type: string
  *                   example: "Internal server error while sending email"
- *                 error:
- *                   type: string
  */
 
 /**
@@ -2344,13 +2342,11 @@
  *                 message:
  *                   type: string
  *                   example: "Lỗi khi gửi email thông báo hủy cuộc hẹn"
- *                 error:
- *                   type: string
  */
 
 /**
  * @swagger
- * /v1/test-appointments/user/{user_id}:
+ * /v1/emails/booking-service-success:
  *   post:
  *     summary: Gửi email thông báo đặt dịch vụ thành công
  *     description: Gửi email chứa thông tin tất cả dịch vụ y tế mà người dùng đã đặt cùng hướng dẫn chuẩn bị
@@ -2393,45 +2389,10 @@
  *                       example: "user@example.com"
  *       400:
  *         description: Thiếu thông tin cần thiết
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "User ID is required"
  *       404:
  *         description: Không tìm thấy người dùng hoặc đơn hàng
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "Không tìm thấy người dùng với ID: US000005"
  *       500:
  *         description: Lỗi server
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: "error"
- *                 message:
- *                   type: string
- *                   example: "Internal server error while sending email"
- *                 error:
- *                   type: string
  */
 
 /**

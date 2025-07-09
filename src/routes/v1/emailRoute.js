@@ -15,7 +15,9 @@ Router.route('/appointment-feedback').post(
 );
 Router.route('/forget-password').post(emailController.sendEmailForgetPassword);
 
-Router.route('/user/:user_id').post(emailController.sendBookingServiceSuccess);
+Router.route('/booking-service-success').post(
+  emailController.sendBookingServiceSuccess
+);
 
 Router.route('/send-order-cancellation').post(
   emailController.sendOrderCancellationNotification

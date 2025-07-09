@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { env } from '~/config/environment';
 import { MODELS } from '~/models/initModels';
 import ApiError from '~/utils/ApiError';
+import { GET_DB } from '~/config/mysql'; // Thêm import này
 
 const getAllServices = async () => {
   try {
@@ -133,14 +134,7 @@ const bookingService = async (bookingData) => {
   let transaction;
 
   try {
-    const sequelize = new Sequelize({
-      host: env.DB_HOST || 'localhost',
-      username: env.DB_USER || 'root',
-      password: env.DB_PASSWORD || '123456',
-      database: env.DB_NAME || 'gender_healthcare_service_management_system',
-      dialect: 'mysql',
-      port: env.DB_PORT || 3306,
-    });
+    const sequelize = GET_DB();
 
     transaction = await sequelize.transaction();
 
