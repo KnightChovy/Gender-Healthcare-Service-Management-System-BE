@@ -4,7 +4,7 @@ import { appointmentValidation } from '~/validations/appointmentValidation';
 import ApiError from '~/utils/ApiError';
 import { StatusCodes } from 'http-status-codes';
 
-const createAppointment = async (req, res) => {
+const createAppointment = async (req, res, next) => {
   try {
     const validatedData =
       appointmentValidation.validateAndTransformAppointmentData(req.body);
@@ -15,16 +15,11 @@ const createAppointment = async (req, res) => {
       data: result,
     });
   } catch (err) {
-    const status = err instanceof ApiError ? err.statusCode : 500;
-    return res.status(status).json({
-      success: false,
-      message: err.message || 'Failed to create appointment',
-      error: err.message,
-    });
+    next(err)
   }
 };
 
-const getAllAppointments = async (req, res) => {
+const getAllAppointments = async (req, res, next) => {
   try {
     const appointments = await appointmentServices.getAllAppointments();
     console.log('appointments ne', appointments);
@@ -34,16 +29,11 @@ const getAllAppointments = async (req, res) => {
       data: appointments,
     });
   } catch (err) {
-    const status = err instanceof ApiError ? err.statusCode : 500;
-    return res.status(status).json({
-      success: false,
-      message: err.message || 'Failed to fetch appointments',
-      error: err.message,
-    });
+    next(err)
   }
 };
 
-const getUserAppointments = async (req, res) => {
+const getUserAppointments = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded.data.user_id;
 
@@ -60,16 +50,11 @@ const getUserAppointments = async (req, res) => {
       data: appointments,
     });
   } catch (err) {
-    const status = err instanceof ApiError ? err.statusCode : 500;
-    return res.status(status).json({
-      success: false,
-      message: err.message || 'Failed to fetch user appointments',
-      error: err.message,
-    });
+    next(err)
   }
 };
 
-const getUserAppointmentsBySlug = async (req, res) => {
+const getUserAppointmentsBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
 
@@ -86,16 +71,10 @@ const getUserAppointmentsBySlug = async (req, res) => {
       data: appointments,
     });
   } catch (err) {
-    const status = err instanceof ApiError ? err.statusCode : 500;
-    return res.status(status).json({
-      success: false,
-      message: err.message || 'Failed to fetch user appointments',
-      error: err.message,
-    });
+    next(err)
   }
-};
-
-const getDoctorAppointments = async (req, res) => {
+}
+const getDoctorAppointments = async (req, res, next) => {
   try {
     const doctorId =
       req.params.doctorId ||
@@ -115,16 +94,10 @@ const getDoctorAppointments = async (req, res) => {
       data: appointments,
     });
   } catch (err) {
-    const status = err instanceof ApiError ? err.statusCode : 500;
-    return res.status(status).json({
-      success: false,
-      message: err.message || 'Failed to fetch doctor appointments',
-      error: err.message,
-    });
+    next(err)
   }
-};
-
-const approveAppointment = async (req, res) => {
+}
+const approveAppointment = async (req, res, next) => {
   try {
     const { appointmentId } = req.params;
     const { status } = req.body;
@@ -150,16 +123,11 @@ const approveAppointment = async (req, res) => {
       data: result,
     });
   } catch (err) {
-    const status = err instanceof ApiError ? err.statusCode : 500;
-    return res.status(status).json({
-      success: false,
-      message: err.message || 'Failed to update appointment status',
-      error: err.message,
-    });
+    next(err)
   }
 };
 
-const ApproveAppointments = async (req, res) => {
+const ApproveAppointments = async (req, res, next) => {
   try {
     const { appointmentIds, status } = req.body;
     const managerId = req.jwtDecoded.data.user_id;
@@ -204,16 +172,11 @@ const ApproveAppointments = async (req, res) => {
       },
     });
   } catch (err) {
-    const status = err instanceof ApiError ? err.statusCode : 500;
-    return res.status(status).json({
-      success: false,
-      message: err.message || 'Failed to update appointment status',
-      error: err.message,
-    });
+    next(err)
   }
 };
 
-const submitFeedback = async (req, res) => {
+const submitFeedback = async (req, res, next) => {
   try {
     const { appointment_id } = req.params;
     const { rating, feedback } = req.body;
@@ -248,16 +211,10 @@ const submitFeedback = async (req, res) => {
       data: result,
     });
   } catch (error) {
-    console.error('Error in submitFeedback controller:', error);
-    return res
-      .status(error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR)
-      .json({
-        status: 'error',
-        message: error.message || 'Lỗi khi gửi đánh giá',
-      });
+    next(error)
   }
 };
-const doctorCompleteAppointment = async (req, res) => {
+const doctorCompleteAppointment = async (req, res, next) => {
   try {
     const data = req.body
     const { appointment_id } = data
@@ -269,11 +226,7 @@ const doctorCompleteAppointment = async (req, res) => {
       appointment: completedAppointment,
     });
   } catch (error) {
-    console.error('Lỗi cập nhật trạng thái cuộc hẹn:', error);
-    return res.status(500).json({
-      message: 'Có lỗi xảy ra khi cập nhật trạng thái cuộc hẹn',
-      error: error.message,
-    });
+    next(error)
   }
 }
 export const appointmentController = {

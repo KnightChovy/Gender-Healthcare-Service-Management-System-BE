@@ -19,7 +19,7 @@ const createAppointment = async (data) => {
         console.error(
           'Error creating appointment: appointment_time already exists for this timeslot. Conflicting appointment:'
         );
-        throw new Error(
+        throw new ApiError(400,
           'Failed to create appointment: The selected timeslot and time are already booked. Please choose a different time.'
         );
       }
@@ -50,7 +50,7 @@ const createAppointment = async (data) => {
     return result;
   } catch (error) {
     console.error('Error creating appointment:', error);
-    throw new Error('Failed to create appointment: ' + error.message);
+    throw new ApiError(500, 'Failed to create appointment');
   }
 };
 
@@ -88,7 +88,7 @@ export const getAllAppointments = async () => {
     return result;
   } catch (error) {
     console.error('Error fetching all appointments:', error);
-    throw new Error('Failed to fetch all appointments: ' + error.message);
+    throw new ApiError(500, 'Failed to fetch all appointments');
   }
 };
 
@@ -144,8 +144,8 @@ export const getAppointmentsByUserId = async (userId) => {
     return result;
   } catch (error) {
     console.error('Error fetching appointments by user ID:', error);
-    throw new Error(
-      'Failed to fetch appointments by user ID: ' + error.message
+    throw new ApiError(500,
+      'Failed to fetch appointments by user ID'
     );
   }
 };
@@ -242,8 +242,8 @@ export const getAppointmentsByDoctorId = async (doctorId) => {
     return result;
   } catch (error) {
     console.error('Error fetching appointments by doctor ID:', error);
-    throw new Error(
-      'Failed to fetch appointments by doctor ID: ' + error.message
+    throw new ApiError(500,
+      'Failed to fetch appointments by doctor ID'
     );
   }
 };
@@ -254,7 +254,6 @@ export const updateAppointmentStatus = async (
   managerId
 ) => {
   try {
-    // Find the appointment first
     const appointment = await MODELS.AppointmentModel.findOne({
       where: { appointment_id: appointmentId },
     });
@@ -309,7 +308,7 @@ export const updateAppointmentStatus = async (
     };
   } catch (error) {
     console.error('Error updating appointment status:', error);
-    throw new Error('Failed to update appointment status: ' + error.message);
+    throw new ApiError(500, 'Failed to update appointment status');
   }
 };
 
@@ -329,7 +328,7 @@ const handlePaymentAppoinment = async (appointmentID) => {
     return isSuccess;
   } catch (error) {
     console.error('Error updating appointment booking:', error);
-    throw new Error('Failed to update booking: ' + error.message);
+    throw new ApiError(500, 'Failed to update booking');
   }
 };
 
@@ -379,7 +378,7 @@ const doctorCompleteAppointment = async (appointment_id, doctor_id) => {
       throw new ApiError(500, 'không tìm thấy appointment');
     }
     const completedAppointment = await MODELS.AppointmentModel.update(
-      { status: 'completed'},
+      { status: 'completed' },
       {
         where: { appointment_id: appointment_id }
       }

@@ -2587,3 +2587,144 @@
  *           type: string
  *           format: date-time
  */
+
+/**
+ * @swagger
+ * /v1/test-results:
+ *   get:
+ *     summary: Lấy tất cả kết quả xét nghiệm
+ *     tags: [TestResults]
+ *     responses:
+ *       200:
+ *         description: Danh sách kết quả xét nghiệm
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/TestResult'
+ *
+ * /v1/test-results/{id}:
+ *   get:
+ *     summary: Lấy kết quả xét nghiệm theo ID
+ *     tags: [TestResults]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của kết quả xét nghiệm
+ *     responses:
+ *       200:
+ *         description: Kết quả xét nghiệm
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestResult'
+ *       404:
+ *         description: Không tìm thấy
+ *
+ *   put:
+ *     summary: Cập nhật kết quả xét nghiệm
+ *     tags: [TestResults]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của kết quả xét nghiệm
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TestResultInput'
+ *     responses:
+ *       200:
+ *         description: Cập nhật thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestResult'
+ *       404:
+ *         description: Không tìm thấy
+ *
+ *   delete:
+ *     summary: Xóa kết quả xét nghiệm
+ *     tags: [TestResults]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của kết quả xét nghiệm
+ *     responses:
+ *       204:
+ *         description: Xóa thành công
+ *       404:
+ *         description: Không tìm thấy
+ *
+ * /v1/test-results/create:
+ *   post:
+ *     summary: Tạo kết quả xét nghiệm mới
+ *     tags: [TestResults]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TestResultInput'
+ *     responses:
+ *       201:
+ *         description: Tạo thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestResult'
+ *
+ * components:
+ *   schemas:
+ *     TestResult:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         good_title:
+ *           type: string
+ *         good_result:
+ *           type: string
+ *         bad_title:
+ *           type: string
+ *         bad_result:
+ *           type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *     TestResultInput:
+ *       type: object
+ *       required:
+ *         - name
+ *         - good_title
+ *         - good_result
+ *         - bad_title
+ *         - bad_result
+ *       properties:
+ *         name:
+ *           type: string
+ *         good_title:
+ *           type: string
+ *         good_result:
+ *           type: string
+ *         bad_title:
+ *           type: string
+ *         bad_result:
+ *           type: string
+ */
