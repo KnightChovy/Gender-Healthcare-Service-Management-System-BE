@@ -21,6 +21,11 @@ Router.route('/profile/me').get(
   userController.getMyProfile
 );
 
+Router.route('/test-appointments/user/:user_id').get(
+  isAuth,
+  userController.getUserTestAppointments
+);
+
 Router.route('/:id')
   //   .get(userController.getUserById)
   .put(isAuth, validateUpdateUser, userController.updateUser)
@@ -37,6 +42,8 @@ Router.route('/cancel-appointment').post(
   isAuth,
   userController.cancelAppointment
 );
+
+
 // // User profile routes
 // Router.get('/profile/me', userController.getMyProfile)
 // Router.put('/profile/me', userController.updateMyProfile)

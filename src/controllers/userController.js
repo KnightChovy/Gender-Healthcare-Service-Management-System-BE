@@ -200,6 +200,32 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+const getUserTestAppointments = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const result = await userService.getUserTestAppointments(userId);
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      data: {
+        user: result.user,
+        orders: result.orders,
+        total_amount: result.totalAmount,
+      },
+    });
+  } catch (error) {
+    console.error('Error in getUserTestAppointments controller:', error);
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    return res.status(status).json({
+      status: 'error',
+      message:
+        error.message ||
+        'Không thể lấy thông tin đơn hàng và dịch vụ của người dùng',
+    });
+  }
+};
+
 export const userController = {
   getAllUsers,
   createUser,
@@ -209,4 +235,5 @@ export const userController = {
   createStaff,
   getServicesByUserId,
   cancelAppointment,
+  getUserTestAppointments,
 };

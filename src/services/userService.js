@@ -397,6 +397,86 @@ const cancelAppointment = async (appointmentId, userId) => {
   }
 };
 
+const getUserTestAppointments = async (userId) => {
+  try {
+    if (!userId) {
+      throw new ApiError(400, 'User ID is required');
+    }
+
+    const user = await MODELS.UserModel.findOne({
+      where: { user_id: userId },
+      attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+    });
+
+    if (!user) {
+      throw new ApiError(404, `Không tìm thấy người dùng với ID: ${userId}`);
+    }
+
+    // Lấy tất cả đơn hàng của user
+    const orders = await MODELS.OrderModel.findAll({
+      where: { user_id: userId },
+      order: [['created_at', 'DESC']],
+    });
+
+    if (!orders || orders.length === 0) {
+      return {
+        user,
+        orders: [],
+        totalAmount: 0,
+      };
+    }
+
+    // Lấy chi tiết các dịch vụ trong mỗi đơn hàng
+    const ordersWithDetails = [];
+    let totalAmount = 0;
+
+    for (const order of orders) {
+      const orderDetails = await MODELS.OrderDetailModel.findAll({
+        where: { order_id: order.order_id },
+        include: [
+          {
+            model: MODELS.ServiceTestModel,
+            as: 'service',
+            attributes: [
+              'service_id',
+              'name',
+              'price',
+              'description',
+              'preparation_guidelines',
+            ],
+          },
+        ],
+      });
+
+      let orderTotal = 0;
+      orderDetails.forEach((detail) => {
+        if (detail.service?.price) {
+          const price = parseFloat(detail.service.price) || 0;
+          orderTotal += price;
+          totalAmount += price;
+        }
+      });
+
+      ordersWithDetails.push({
+        order: {
+          ...order.toJSON(),
+          total_amount: orderTotal,
+        },
+        services: orderDetails.map((detail) => detail.service),
+      });
+    }
+
+    return {
+      user,
+      orders: ordersWithDetails,
+      totalAmount,
+    };
+  } catch (error) {
+    console.error('Error in getUserTestAppointments service:', error);
+    throw error;
+  }
+};
+
 export const userService = {
   getAllUsers,
   createUser,
@@ -406,4 +486,5 @@ export const userService = {
   createStaff,
   getServicesByUserId,
   cancelAppointment,
+  getUserTestAppointments,
 };
