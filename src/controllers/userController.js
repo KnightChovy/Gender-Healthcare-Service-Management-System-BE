@@ -202,10 +202,8 @@ const cancelAppointment = async (req, res) => {
 
 const getUserTestAppointments = async (req, res) => {
   try {
-    // Thay đổi từ userId thành user_id để khớp với tên tham số trong route
     const { user_id } = req.params;
 
-    // Gọi service với tham số đúng
     const result = await userService.getUserTestAppointments(user_id);
 
     return res.status(StatusCodes.OK).json({

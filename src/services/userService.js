@@ -412,7 +412,6 @@ const getUserTestAppointments = async (userId) => {
       throw new ApiError(404, `Không tìm thấy người dùng với ID: ${userId}`);
     }
 
-    // Lấy tất cả đơn hàng của user
     const orders = await MODELS.OrderModel.findAll({
       where: { user_id: userId },
       order: [['created_at', 'DESC']],
@@ -426,7 +425,6 @@ const getUserTestAppointments = async (userId) => {
       };
     }
 
-    // Lấy chi tiết các dịch vụ trong mỗi đơn hàng
     const ordersWithDetails = [];
     let totalAmount = 0;
 

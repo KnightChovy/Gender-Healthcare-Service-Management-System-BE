@@ -2689,3 +2689,145 @@
  *         bad_result:
  *           type: string
  */
+
+/**
+ * @swagger
+ * /v1/test-appointments/user/{user_id}:
+ *   get:
+ *     summary: Lấy danh sách dịch vụ đã đặt của người dùng
+ *     description: Lấy tất cả orders và chi tiết các dịch vụ mà người dùng đã đặt
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: user_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của người dùng cần lấy thông tin dịch vụ
+ *         example: "US000005"
+ *     responses:
+ *       200:
+ *         description: Lấy thông tin thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         user_id:
+ *                           type: string
+ *                           example: "US000005"
+ *                         first_name:
+ *                           type: string
+ *                           example: "Nguyễn"
+ *                         last_name:
+ *                           type: string
+ *                           example: "Văn A"
+ *                         email:
+ *                           type: string
+ *                           example: "nguyenvana@example.com"
+ *                         phone:
+ *                           type: string
+ *                           example: "0901234567"
+ *                     orders:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           order:
+ *                             type: object
+ *                             properties:
+ *                               order_id:
+ *                                 type: string
+ *                                 example: "OD000123"
+ *                               user_id:
+ *                                 type: string
+ *                                 example: "US000005"
+ *                               order_type:
+ *                                 type: string
+ *                                 example: "directly"
+ *                               payment_method:
+ *                                 type: string
+ *                                 example: "VNPAY"
+ *                               order_status:
+ *                                 type: string
+ *                                 example: "pending"
+ *                               created_at:
+ *                                 type: string
+ *                                 format: date-time
+ *                               total_amount:
+ *                                 type: number
+ *                                 example: 1250000
+ *                           services:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 service_id:
+ *                                   type: string
+ *                                   example: "SV000001"
+ *                                 name:
+ *                                   type: string
+ *                                   example: "Xét nghiệm máu tổng quát"
+ *                                 price:
+ *                                   type: number
+ *                                   example: 650000
+ *                                 description:
+ *                                   type: string
+ *                                   example: "Xét nghiệm máu toàn diện đánh giá sức khỏe tổng quát"
+ *                                 preparation_guidelines:
+ *                                   type: string
+ *                                   example: "Nhịn ăn 8 giờ trước khi xét nghiệm"
+ *                     total_amount:
+ *                       type: number
+ *                       example: 1950000
+ *       400:
+ *         description: Thiếu thông tin cần thiết
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "User ID is required"
+ *       404:
+ *         description: Không tìm thấy người dùng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy người dùng với ID: US000005"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Không thể lấy thông tin đơn hàng và dịch vụ của người dùng"
+ */
