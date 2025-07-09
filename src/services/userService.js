@@ -475,6 +475,66 @@ const getUserTestAppointments = async (userId) => {
   }
 };
 
+const getAllOrders = async () => {
+  try {
+    // Lấy tất cả đơn hàng, sắp xếp theo thời gian tạo giảm dần
+    const orders = await MODELS.OrderModel.findAll({
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: MODELS.UserModel,
+          as: 'user',
+          attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+        },
+      ],
+    });
+
+    // Lấy chi tiết đơn hàng cho mỗi đơn hàng
+    const ordersWithDetails = [];
+    let totalAmount = 0;
+
+    for (const order of orders) {
+      const orderDetails = await MODELS.OrderDetailModel.findAll({
+        where: { order_id: order.order_id },
+        include: [
+          {
+            model: MODELS.ServiceTestModel,
+            as: 'service',
+            attributes: ['service_id', 'name', 'price', 'description'],
+          },
+        ],
+      });
+
+      // Tính tổng tiền cho đơn hàng này
+      let orderTotal = 0;
+      orderDetails.forEach((detail) => {
+        if (detail.service?.price) {
+          const price = parseFloat(detail.service.price) || 0;
+          orderTotal += price;
+          totalAmount += price;
+        }
+      });
+
+      ordersWithDetails.push({
+        order: {
+          ...order.toJSON(),
+          total_amount: orderTotal,
+        },
+        services: orderDetails.map((detail) => detail.service),
+      });
+    }
+
+    return {
+      orders: ordersWithDetails,
+      total_orders: orders.length,
+      total_amount: totalAmount,
+    };
+  } catch (error) {
+    console.error('Error in getAllOrders service:', error);
+    throw error;
+  }
+};
+
 export const userService = {
   getAllUsers,
   createUser,
@@ -485,4 +545,5 @@ export const userService = {
   getServicesByUserId,
   cancelAppointment,
   getUserTestAppointments,
+  getAllOrders,
 };

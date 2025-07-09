@@ -6,7 +6,12 @@ import { validateCreateStaff } from '~/validations/userValidation';
 const Router = express.Router();
 
 //admin route
-Router.route('/createStaff')
-  .post(isAuth, isAdmin, validateCreateStaff, userController.createStaff);
+Router.route('/createStaff').post(
+  isAuth,
+  isAdmin,
+  validateCreateStaff,
+  userController.createStaff
+);
 
-export const adminRoute = Router; 
+
+export const adminRoute = Router;

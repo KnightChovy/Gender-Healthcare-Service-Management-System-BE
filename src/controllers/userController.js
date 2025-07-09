@@ -226,6 +226,37 @@ const getUserTestAppointments = async (req, res) => {
   }
 };
 
+const getAllOrders = async (req, res) => {
+  try {
+    const manager = req.jwtDecoded;
+
+    if (manager.data.role !== 'manager') {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        status: 'error',
+        message:
+          'Không có quyền truy cập. Chỉ admin mới được phép xem tất cả đơn hàng.',
+      });
+    }
+
+    const result = await userService.getAllOrders();
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error in getAllOrders controller:', error);
+    const status =
+      error instanceof ApiError
+        ? error.statusCode
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(status).json({
+      status: 'error',
+      message: error.message || 'Không thể lấy thông tin đơn hàng',
+    });
+  }
+};
+
 export const userController = {
   getAllUsers,
   createUser,
@@ -236,4 +267,5 @@ export const userController = {
   getServicesByUserId,
   cancelAppointment,
   getUserTestAppointments,
+  getAllOrders,
 };

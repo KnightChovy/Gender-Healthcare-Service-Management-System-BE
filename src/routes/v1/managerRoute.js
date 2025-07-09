@@ -1,7 +1,8 @@
 import express from 'express';
 import isAuth from '~/middlewares/isAuthMiddleware';
 import isManager from '~/middlewares/isManagerMiddleware';
-import { appointmentController } from '~/controllers/appointmentController'
+import { appointmentController } from '~/controllers/appointmentController';
+import { userController } from '~/controllers/userController';
 const Router = express.Router();
 
 // Placeholder route - you can add more manager-specific routes here
@@ -11,10 +12,30 @@ Router.get('/dashboard', isAuth, isManager, (req, res) => {
     message: 'Welcome to the manager dashboard!',
   });
 });
-Router.get('/appointments', isAuth, isManager, appointmentController.getAllAppointments)
+Router.get(
+  '/appointments',
+  isAuth,
+  isManager,
+  appointmentController.getAllAppointments
+);
 
 // Manager appointment approval routes
-Router.patch('/appointments/:appointmentId/approve', isAuth, isManager, appointmentController.approveAppointment);
-Router.patch('/appointments/approve', isAuth, isManager, appointmentController.ApproveAppointments);
+Router.patch(
+  '/appointments/:appointmentId/approve',
+  isAuth,
+  isManager,
+  appointmentController.approveAppointment
+);
+Router.patch(
+  '/appointments/approve',
+  isAuth,
+  isManager,
+  appointmentController.ApproveAppointments
+);
 
-export const managerRoute = Router; 
+Router.route('/getAllOrder').get(
+  isAuth,
+  isManager,
+  userController.getAllOrders
+);
+export const managerRoute = Router;

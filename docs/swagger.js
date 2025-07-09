@@ -2831,3 +2831,95 @@
  *                   type: string
  *                   example: "Không thể lấy thông tin đơn hàng và dịch vụ của người dùng"
  */
+
+/**
+ * @swagger
+ * /v1/users/orders:
+ *   get:
+ *     summary: Lấy tất cả đơn hàng (Admin only)
+ *     description: Lấy danh sách tất cả đơn hàng trong hệ thống, chỉ admin và nhân viên mới có quyền truy cập
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách đơn hàng thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     orders:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           order:
+ *                             type: object
+ *                             properties:
+ *                               order_id:
+ *                                 type: string
+ *                                 example: "OD000123"
+ *                               user_id:
+ *                                 type: string
+ *                                 example: "US000005"
+ *                               order_type:
+ *                                 type: string
+ *                                 example: "directly"
+ *                               payment_method:
+ *                                 type: string
+ *                                 example: "VNPAY"
+ *                               order_status:
+ *                                 type: string
+ *                                 example: "pending"
+ *                               created_at:
+ *                                 type: string
+ *                                 format: date-time
+ *                               total_amount:
+ *                                 type: number
+ *                                 example: 1250000
+ *                               user:
+ *                                 type: object
+ *                                 properties:
+ *                                   user_id:
+ *                                     type: string
+ *                                   first_name:
+ *                                     type: string
+ *                                   last_name:
+ *                                     type: string
+ *                                   email:
+ *                                     type: string
+ *                                   phone:
+ *                                     type: string
+ *                           services:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                               properties:
+ *                                 service_id:
+ *                                   type: string
+ *                                 name:
+ *                                   type: string
+ *                                 price:
+ *                                   type: number
+ *                                 description:
+ *                                   type: string
+ *                     total_orders:
+ *                       type: integer
+ *                       example: 35
+ *                     total_amount:
+ *                       type: number
+ *                       example: 45250000
+ *       401:
+ *         description: Không được xác thực
+ *       403:
+ *         description: Không có quyền truy cập
+ *       500:
+ *         description: Lỗi server
+ */
