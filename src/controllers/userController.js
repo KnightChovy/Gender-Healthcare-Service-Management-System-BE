@@ -230,11 +230,11 @@ const getAllOrders = async (req, res) => {
   try {
     const manager = req.jwtDecoded;
 
-    if (manager.data.role !== 'manager') {
+    if (manager.data.role !== 'manager' && manager.data.role !== 'staff') {
       return res.status(StatusCodes.FORBIDDEN).json({
         status: 'error',
         message:
-          'Không có quyền truy cập. Chỉ admin mới được phép xem tất cả đơn hàng.',
+          'Không có quyền truy cập. Chỉ manager và staff mới được phép xem tất cả đơn hàng.',
       });
     }
 

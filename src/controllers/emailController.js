@@ -191,18 +191,23 @@ const sendEmailForgetPassword = async (req, res) => {
 
 const sendBookingServiceSuccess = async (req, res) => {
   try {
-    const { user_id } = req.body;
+    const { user_id, order_id } = req.body;
 
-    if (!user_id) {
+    if (!user_id || !order_id) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'User ID is required',
+        message: 'User ID và Order ID là bắt buộc',
       });
     }
 
-    console.log(`Sending service booking summary email for user: ${user_id}`);
+    console.log(
+      `Sending booking service success email for order: ${order_id}, user: ${user_id}`
+    );
 
-    const response = await emailService.sendUserServicesSummaryEmail(user_id);
+    const response = await emailService.sendBookingServiceSuccessEmail(
+      user_id,
+      order_id
+    );
 
     if (response.status === 'error') {
       const statusCode = response.message.includes('Không tìm thấy')
@@ -217,19 +222,20 @@ const sendBookingServiceSuccess = async (req, res) => {
 
     return res.status(StatusCodes.OK).json({
       status: 'success',
-      message: 'Email thông báo đặt dịch vụ đã được gửi thành công',
+      message: 'Email thông báo đặt dịch vụ thành công đã được gửi',
       data: {
         emailSent: true,
         user_id,
+        order_id,
         sentTo: response.sentTo,
       },
     });
   } catch (error) {
-    console.error('Error in sendBookingServiceSuccess:', error);
+    console.error('Error in sendBookingServiceSuccess controller:', error);
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
     return res.status(statusCode).json({
       status: 'error',
-      message: error.message || 'Internal server error while sending email',
+      message: error.message || 'Lỗi server khi gửi email',
       error: error.message,
     });
   }
@@ -349,5 +355,5 @@ export const emailController = {
   sendEmailForgetPassword,
   sendBookingServiceSuccess,
   sendOrderCancellationNotification,
-  sendAppointmentCancellationNotification, 
+  sendAppointmentCancellationNotification,
 };

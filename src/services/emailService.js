@@ -1233,13 +1233,234 @@ const sendAppointmentCancellationEmail = async (
   }
 };
 
+const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    const user = await MODELS.UserModel.findOne({
+      where: { user_id },
+      attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+    });
+
+    if (!user) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy người dùng với ID: ${user_id}`,
+      };
+    }
+
+    // Chỉ lấy đơn hàng cụ thể dựa trên order_id
+    const order = await MODELS.OrderModel.findOne({
+      where: { order_id, user_id },
+    });
+
+    if (!order) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy đơn hàng với ID: ${order_id} cho người dùng: ${user_id}`,
+      };
+    }
+
+    // Lấy chi tiết đơn hàng
+    const orderDetails = await MODELS.OrderDetailModel.findAll({
+      where: { order_id },
+      include: [
+        {
+          model: MODELS.ServiceTestModel,
+          as: 'service',
+          attributes: [
+            'service_id',
+            'name',
+            'price',
+            'description',
+            'preparation_guidelines',
+          ],
+        },
+      ],
+    });
+
+    if (!orderDetails || orderDetails.length === 0) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy chi tiết đơn hàng cho đơn hàng: ${order_id}`,
+      };
+    }
+
+    let totalAmount = 0;
+    const servicesList = orderDetails
+      .map((detail) => {
+        if (detail.service?.price) {
+          const price = parseFloat(detail.service.price) || 0;
+          totalAmount += price;
+        }
+
+        const orderDate = new Date(order.created_at).toLocaleDateString(
+          'vi-VN',
+          {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          }
+        );
+
+        const paymentStatus =
+          order.order_status === 'paid'
+            ? '<span style="color: #4CAF50;">Đã thanh toán</span>'
+            : '<span style="color: #FFC107;">Chờ thanh toán</span>';
+
+        return `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${
+            detail.service?.name || 'Dịch vụ'
+          }</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${order_id}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${orderDate}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${paymentStatus}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${new Intl.NumberFormat(
+            'vi-VN',
+            { style: 'currency', currency: 'VND' }
+          ).format(detail.service?.price || 0)}</td>
+        </tr>
+      `;
+      })
+      .join('');
+
+    // Lấy hướng dẫn chuẩn bị từ các dịch vụ
+    const uniqueGuidelines = [
+      ...new Set(
+        orderDetails
+          .filter((detail) => detail.service?.preparation_guidelines)
+          .map((detail) => detail.service.preparation_guidelines)
+      ),
+    ];
+
+    const preparationGuidelines = uniqueGuidelines
+      .map((guideline) => `<li style="margin-bottom: 8px;">${guideline}</li>`)
+      .join('');
+
+    // Tạo template email
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #4a90e2; text-align: center;">Xác nhận đặt dịch vụ thành công</h2>
+        </div>
+        
+        <p>Xin chào <strong>${user?.first_name || ''} ${
+      user?.last_name || ''
+    }</strong>,</p>
+        
+        <p>Cảm ơn bạn đã đặt dịch vụ tại GenCare! Đơn hàng của bạn đã được xác nhận thành công.</p>
+        
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color: #4a90e2; margin-top: 0;">Chi tiết đơn hàng #${order_id}</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Tên dịch vụ</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Mã đơn hàng</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Ngày đặt</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Trạng thái</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Giá</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                servicesList ||
+                '<tr><td colspan="5" style="padding: 10px; text-align: center;">Không có dữ liệu</td></tr>'
+              }
+            </tbody>
+            <tfoot>
+              <tr style="background-color: #f9f9f9;">
+                <td colspan="4" style="padding: 10px; font-weight: bold; border-top: 2px solid #ddd;">Tổng cộng</td>
+                <td style="padding: 10px; font-weight: bold; border-top: 2px solid #ddd;">${new Intl.NumberFormat(
+                  'vi-VN',
+                  { style: 'currency', currency: 'VND' }
+                ).format(totalAmount)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        
+        ${
+          preparationGuidelines
+            ? `<div style="background-color: #f0f7ff; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #4a90e2;">
+            <h3 style="color: #4a90e2; margin-top: 0;">Hướng dẫn chuẩn bị</h3>
+            <p>Để đảm bảo kết quả xét nghiệm chính xác nhất, vui lòng làm theo các hướng dẫn sau:</p>
+            <ul style="padding-left: 20px; margin-bottom: 0;">
+              ${preparationGuidelines}
+            </ul>
+          </div>`
+            : ''
+        }
+        
+        <div style="background-color: #fff8e1; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #FFC107;">
+          <h3 style="color: #FFC107; margin-top: 0;">Lưu ý quan trọng</h3>
+          <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li style="margin-bottom: 5px;">Vui lòng đến đúng giờ hẹn để được phục vụ tốt nhất</li>
+            <li style="margin-bottom: 5px;">Mang theo CMND/CCCD và thẻ BHYT (nếu có)</li>
+            <li style="margin-bottom: 5px;">Đối với các dịch vụ xét nghiệm, vui lòng tuân thủ nghiêm ngặt các hướng dẫn chuẩn bị</li>
+            <li style="margin-bottom: 5px;">Nếu bạn cần thay đổi lịch hẹn, vui lòng liên hệ với chúng tôi trước ít nhất 24 giờ</li>
+          </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="http://localhost:5173/my-services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            Xem đơn hàng của tôi
+          </a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #555;">
+          <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+          <p>Email: support@gencare.vn | Hotline: 0907865147</p>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ GenCare</strong></p>
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"GenCare" <${env.EMAIL_USERNAME}>`,
+      to: user.email,
+      subject: `Xác nhận đặt dịch vụ thành công - Mã đơn: ${order_id}`,
+      html: emailContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      status: 'success',
+      message: 'Email thông báo đặt dịch vụ thành công đã được gửi',
+      sentTo: user.email,
+    };
+  } catch (error) {
+    console.error('Error sending booking service success email:', error);
+    return {
+      status: 'error',
+      message: `Lỗi khi gửi email: ${error.message}`,
+    };
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
   sendBookingConfirmationEmail,
   sendAppointmentFeedbackEmail,
   sendEmailForgetPassword,
-  sendUserServicesSummaryEmail,
+  // sendUserServicesSummaryEmail,
+  sendBookingServiceSuccessEmail,
   sendOrderCancellationEmail,
   sendAppointmentCancellationEmail,
 };

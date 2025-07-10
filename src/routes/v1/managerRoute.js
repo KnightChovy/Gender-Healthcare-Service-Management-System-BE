@@ -35,7 +35,6 @@ Router.patch(
 
 Router.route('/getAllOrder').get(
   isAuth,
-  isManager,
   userController.getAllOrders
 );
 export const managerRoute = Router;

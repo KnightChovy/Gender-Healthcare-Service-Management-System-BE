@@ -61,7 +61,7 @@ export const chooseSchedule = async (req, res) => {
     }
 
     const result = await doctorService.createWeeklySchedule(
-      doctor.doctor_id, 
+      doctor.doctor_id,
       weekStartDate,
       schedule
     );
