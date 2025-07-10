@@ -1312,8 +1312,8 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
 
         const paymentStatus =
           order.order_status === 'pending'
-            ? '<span style="color: #4CAF50;">Đã thanh toán</span>'
-            : '<span style="color: #4CAF50;">Đã thanh toán</span>';
+            ? '<span style="color: #4CAF50;">Đặt lịch thành công</span>'
+            : '<span style="color: #4CAF50;">Đặt lịch thành công</span>';
         // #FFC107
         return `
         <tr>
