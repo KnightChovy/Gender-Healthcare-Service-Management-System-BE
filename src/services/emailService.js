@@ -1258,7 +1258,6 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
       };
     }
 
-    // Chỉ lấy đơn hàng cụ thể dựa trên order_id
     const order = await MODELS.OrderModel.findOne({
       where: { order_id, user_id },
     });
@@ -1270,7 +1269,6 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
       };
     }
 
-    // Lấy chi tiết đơn hàng
     const orderDetails = await MODELS.OrderDetailModel.findAll({
       where: { order_id },
       include: [
@@ -1313,10 +1311,10 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
         );
 
         const paymentStatus =
-          order.order_status === 'paid'
+          order.order_status === 'pending'
             ? '<span style="color: #4CAF50;">Đã thanh toán</span>'
-            : '<span style="color: #FFC107;">Chờ thanh toán</span>';
-
+            : '<span style="color: #4CAF50;">Đã thanh toán</span>';
+        // #FFC107
         return `
         <tr>
           <td style="padding: 10px; border-bottom: 1px solid #eee;">${
@@ -1334,7 +1332,6 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
       })
       .join('');
 
-    // Lấy hướng dẫn chuẩn bị từ các dịch vụ
     const uniqueGuidelines = [
       ...new Set(
         orderDetails
@@ -1347,7 +1344,6 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
       .map((guideline) => `<li style="margin-bottom: 8px;">${guideline}</li>`)
       .join('');
 
-    // Tạo template email
     const emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -1413,7 +1409,7 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
         </div>
         
         <div style="text-align: center; margin: 20px 0;">
-          <a href="http://localhost:5173/my-services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+          <a href="http://localhost:5173/services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Xem đơn hàng của tôi
           </a>
         </div>

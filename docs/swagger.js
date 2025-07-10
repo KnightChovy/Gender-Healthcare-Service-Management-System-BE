@@ -2349,18 +2349,28 @@
  * /v1/emails/booking-service-success:
  *   post:
  *     summary: Gửi email thông báo đặt dịch vụ thành công
- *     description: Gửi email chứa thông tin tất cả dịch vụ y tế mà người dùng đã đặt cùng hướng dẫn chuẩn bị
+ *     description: Gửi email xác nhận đặt dịch vụ thành công cho một đơn hàng cụ thể
  *     tags: [Emails]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: user_id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID của người dùng cần gửi thông tin dịch vụ
- *         example: "US000005"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - order_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 description: ID của người dùng
+ *                 example: "US000005"
+ *               order_id:
+ *                 type: string
+ *                 description: ID của đơn hàng
+ *                 example: "OD000123"
  *     responses:
  *       200:
  *         description: Email đã được gửi thành công
@@ -2374,7 +2384,7 @@
  *                   example: "success"
  *                 message:
  *                   type: string
- *                   example: "Email thông báo đặt dịch vụ đã được gửi thành công"
+ *                   example: "Email thông báo đặt dịch vụ thành công đã được gửi"
  *                 data:
  *                   type: object
  *                   properties:
@@ -2384,6 +2394,9 @@
  *                     user_id:
  *                       type: string
  *                       example: "US000005"
+ *                     order_id:
+ *                       type: string
+ *                       example: "OD000123"
  *                     sentTo:
  *                       type: string
  *                       example: "user@example.com"
