@@ -30,6 +30,14 @@ const initOrderDetailModel = () => {
           type: DataTypes.STRING(20),
           allowNull: true,
         },
+        exam_date: {
+          type: DataTypes.DATEONLY, // chỉ lưu ngày
+          allowNull: true,
+        },
+        exam_time: {
+          type: DataTypes.TIME, // chỉ lưu giờ phút giây
+          allowNull: true,
+        },
       },
       {
         tableName: 'order_detail',
@@ -42,4 +50,4 @@ const initOrderDetailModel = () => {
 
 export const orderDetailModel = {
   initOrderDetailModel,
-}; 
+};

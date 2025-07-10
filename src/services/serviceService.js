@@ -188,7 +188,6 @@ const bookingService = async (bookingData) => {
       }
     }
 
-    // Xử lý loại đơn hàng
     let order_type = 'directly';
     if (appointment_id) {
       const appointment = await MODELS.AppointmentModel.findOne({
@@ -209,7 +208,6 @@ const bookingService = async (bookingData) => {
       }
     }
 
-    // Tạo
     const latestOrder = await MODELS.OrderModel.findOne({
       attributes: ['order_id'],
       order: [['order_id', 'DESC']],
@@ -237,7 +235,6 @@ const bookingService = async (bookingData) => {
       { transaction }
     );
 
-    // Tạo od detail
     const latestOrderDetail = await MODELS.OrderDetailModel.findOne({
       attributes: ['order_detail_id'],
       order: [['order_detail_id', 'DESC']],
@@ -253,7 +250,6 @@ const bookingService = async (bookingData) => {
       baseOrderDetailId = lastDetailIdNum + 1;
     }
 
-    // Tạo od detail với transaction
     const orderDetails = [];
     for (let i = 0; i < nonDuplicateServices.length; i++) {
       const service_id = nonDuplicateServices[i];
@@ -264,17 +260,19 @@ const bookingService = async (bookingData) => {
         {
           order_detail_id,
           order_id,
-          service_id: service_id,
+          service_id,
           appointment_id: appointment_id || null,
           testresult_id: null,
+          exam_date: null,
+          exam_time: null,
         },
         { transaction }
       );
 
+
       orderDetails.push(orderDetail);
     }
 
-    // Commit
     await transaction.commit();
 
     return {
