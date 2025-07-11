@@ -33,5 +33,6 @@ Router.use('/emails', emailRoute);
 Router.use('/admins', adminRoute);
 Router.use('/test-results', testResultRoute);
 Router.use('/cycle', cycleRoute);
+Router.use('/staff', cycleRoute);
 
 export const API_V1 = Router;

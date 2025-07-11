@@ -937,71 +937,18 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - appointmentIds
- *               - status
  *             properties:
  *               appointmentIds:
- *                 oneOf:
- *                   - type: string
- *                     example: "AP000001"
- *                     description: Single appointment ID
- *                   - type: array
- *                     items:
- *                       type: string
- *                     example: ["AP000001", "AP000002", "AP000003"]
- *                     description: Multiple appointment IDs
- *               status:
- *                 type: string
- *                 enum: [pending, confirmed, completed, cancelled, rejected]
- *                 example: "confirmed"
- *                 description: New appointment status
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
- *         description: Appointment status updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: confirmed completed
- *                 data:
- *                   type: object
- *                   properties:
- *                     successful:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           appointment:
- *                             $ref: '#/components/schemas/Appointment'
- *                           action:
- *                             type: string
- *                           approvedBy:
- *                             type: string
- *                           timestamp:
- *                             type: string
- *                             format: date-time
- *                     failed:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           appointmentId:
- *                             type: string
- *                           error:
- *                             type: string
+ *         description: Appointments approved successfully
  *       400:
  *         description: Invalid request data
- *       401:
- *         description: Unauthorized
  *       403:
- *         description: Forbidden - Manager access only
+ *         description: Forbidden
  */
 
 /**
@@ -2935,4 +2882,113 @@
  *         description: Không có quyền truy cập
  *       500:
  *         description: Lỗi server
+ */
+
+/**
+ * @swagger
+ * /v1/staff/update-order:
+ *   patch:
+ *     summary: Cập nhật trạng thái đơn hàng thành đã thanh toán
+ *     description: Cho phép nhân viên và quản lý cập nhật trạng thái đơn hàng từ 'pending' thành 'paid'
+ *     tags: [Staff]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - order_id
+ *             properties:
+ *               order_id:
+ *                 type: string
+ *                 description: Mã đơn hàng cần cập nhật
+ *                 example: "OD000123"
+ *     responses:
+ *       200:
+ *         description: Cập nhật đơn hàng thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Cập nhật đơn hàng thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     order_id:
+ *                       type: string
+ *                       example: "OD000123"
+ *                     order_status:
+ *                       type: string
+ *                       example: "paid"
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Dữ liệu không hợp lệ"
+ *                 errors:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       401:
+ *         description: Không có quyền truy cập
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Bạn không có quyền này"
+ *       404:
+ *         description: Không tìm thấy đơn hàng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy đơn hàng"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi khi cập nhật đơn hàng"
  */
