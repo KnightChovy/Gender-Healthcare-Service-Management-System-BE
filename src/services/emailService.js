@@ -935,19 +935,19 @@ const sendOrderCancellationEmail = async (
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <tr>
               <td style="padding: 8px 0; color: #666; width: 40%;">Mã đơn hàng:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${order_id}</td>
+              <td style="padding: 8px 0; color: #666; width: 60%;">${order_id}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Ngày đặt hàng:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${orderDate}</td>
+              <td style="padding: 8px 0; color: #666;">${orderDate}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Ngày hủy:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${cancellationDate}</td>
+              <td style="padding: 8px 0; color: #666;">${cancellationDate}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Lý do hủy:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${reason}</td>
+              <td style="padding: 8px 0; color: #666;">${reason}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Trạng thái đơn hàng:</td>
@@ -1128,11 +1128,11 @@ const sendAppointmentCancellationEmail = async (
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <tr>
               <td style="padding: 8px 0; color: #666; width: 40%;">Mã cuộc hẹn:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${appointment_id}</td>
+              <td style="padding: 8px 0; color: #666; width: 60%;">${appointment_id}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Bác sĩ:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${
+              <td style="padding: 8px 0; color: #666;">${
                 doctor
                   ? `${doctor.last_name} ${doctor.first_name || ''}`.trim()
                   : 'Không xác định'
@@ -1140,29 +1140,29 @@ const sendAppointmentCancellationEmail = async (
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Loại tư vấn:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${
+              <td style="padding: 8px 0; color: #666;">${
                 appointment.consultant_type || 'Tư vấn chung'
               }</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Ngày hẹn:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${appointmentDate}</td>
+              <td style="padding: 8px 0; color: #666;">${appointmentDate}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Thời gian:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${appointmentTime}</td>
+              <td style="padding: 8px 0; color: #666;">${appointmentTime}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Ngày hủy:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${cancellationDate}</td>
+              <td style="padding: 8px 0; color: #666;">${cancellationDate}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Lý do hủy:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${reason}</td>
+              <td style="padding: 8px 0; color: #666;">${reason}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Chi phí tư vấn:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${new Intl.NumberFormat(
+              <td style="padding: 8px 0; color: #666;">${new Intl.NumberFormat(
                 'vi-VN',
                 { style: 'currency', currency: 'VND' }
               ).format(appointment.price_apm || 0)}</td>
@@ -1547,6 +1547,7 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       const expectedResultDate = new Date(
         testCompletionDate.getTime() + waitTimeHours * 60 * 60 * 1000
       );
+
       const expectedDateFormatted = new Intl.DateTimeFormat('vi-VN', {
         timeZone: 'Asia/Ho_Chi_Minh',
         day: '2-digit',
