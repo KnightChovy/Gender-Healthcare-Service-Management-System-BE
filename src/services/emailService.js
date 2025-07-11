@@ -1574,14 +1574,15 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       testCompletionDate.getTime() + maxWaitHours * 60 * 60 * 1000
     );
 
-    const latestExpectedDateFormatted =
-      latestExpectedResultDate.toLocaleDateString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+    const latestExpectedDateFormatted = new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(latestExpectedResultDate);
 
     // Tạo template email
     const emailContent = `
