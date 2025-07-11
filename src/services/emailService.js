@@ -1462,7 +1462,6 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       },
     });
 
-    // Lấy thông tin người dùng
     const user = await MODELS.UserModel.findOne({
       where: { user_id },
       attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
@@ -1475,7 +1474,6 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       };
     }
 
-    // Lấy thông tin đơn hàng
     const order = await MODELS.OrderModel.findOne({
       where: { order_id, user_id },
     });
@@ -1487,21 +1485,22 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       };
     }
 
-    // Lấy chi tiết đơn hàng
     const orderDetails = await MODELS.OrderDetailModel.findAll({
       where: { order_id },
-      include: [{
-        model: MODELS.ServiceTestModel,
-        as: 'service',
-        attributes: [
-          'service_id',
-          'name',
-          'price',
-          'description',
-          'preparation_guidelines',
-          'result_wait_time',
-        ],
-      }],
+      include: [
+        {
+          model: MODELS.ServiceTestModel,
+          as: 'service',
+          attributes: [
+            'service_id',
+            'name',
+            'price',
+            'description',
+            'preparation_guidelines',
+            'result_wait_time',
+          ],
+        },
+      ],
     });
 
     if (!orderDetails || orderDetails.length === 0) {
@@ -1513,77 +1512,75 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
 
     // Tính toán thời gian hoàn thành và thời gian dự kiến có kết quả
     const testCompletionDate = new Date();
-    
+
     // Format ngày giờ hoàn thành
-    const completionDateFormatted = testCompletionDate.toLocaleDateString(
-      'vi-VN',
-      {
+    const completionDateFormatted = new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(testCompletionDate);
+
+    // Tạo danh sách dịch vụ và thời gian dự kiến
+    let servicesTableRows = '';
+    let maxWaitHours = 0;
+
+    for (const detail of orderDetails) {
+      const service = detail.service;
+      if (!service) continue;
+
+      // Đảm bảo result_wait_time là số hợp lệ
+      const waitTimeHours =
+        service.result_wait_time && !isNaN(parseInt(service.result_wait_time))
+          ? parseInt(service.result_wait_time)
+          : 24; // Mặc định 24 giờ nếu không có giá trị
+
+      // Cập nhật thời gian chờ tối đa
+      if (waitTimeHours > maxWaitHours) {
+        maxWaitHours = waitTimeHours;
+      }
+
+      // Tính ngày dự kiến cho từng dịch vụ
+      const expectedResultDate = new Date(
+        testCompletionDate.getTime() + waitTimeHours * 60 * 60 * 1000
+      );
+      const expectedDateFormatted = new Intl.DateTimeFormat('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-      }
-    );
+        hour12: false,
+      }).format(expectedResultDate);
 
-    // Tạo danh sách dịch vụ và thời gian dự kiến
-    let servicesTableRows = '';
-    let maxWaitHours = 0;
-    
-    for (const detail of orderDetails) {
-      const service = detail.service;
-      if (!service) continue;
-      
-      // Đảm bảo result_wait_time là số hợp lệ
-      const waitTimeHours = (service.result_wait_time && !isNaN(parseInt(service.result_wait_time))) 
-        ? parseInt(service.result_wait_time) 
-        : 24; // Mặc định 24 giờ nếu không có giá trị
-      
-      // Cập nhật thời gian chờ tối đa
-      if (waitTimeHours > maxWaitHours) {
-        maxWaitHours = waitTimeHours;
-      }
-      
-      // Tính ngày dự kiến cho từng dịch vụ
-      const expectedResultDate = new Date(
-        testCompletionDate.getTime() + waitTimeHours * 60 * 60 * 1000
-      );
-      
-      const expectedDateFormatted = expectedResultDate.toLocaleDateString(
-        'vi-VN',
-        {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        }
-      );
-      
       servicesTableRows += `
         <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eee;">${service.name || 'Không có tên'}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${
+            service.name || 'Không có tên'
+          }</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee;">${waitTimeHours} giờ</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; color: #4CAF50;"><strong>${expectedDateFormatted}</strong></td>
         </tr>
       `;
     }
-    
+
     // Tính ngày dự kiến có kết quả muộn nhất
     const latestExpectedResultDate = new Date(
       testCompletionDate.getTime() + maxWaitHours * 60 * 60 * 1000
     );
-    
-    const latestExpectedDateFormatted = latestExpectedResultDate.toLocaleDateString(
-      'vi-VN',
-      {
+
+    const latestExpectedDateFormatted =
+      latestExpectedResultDate.toLocaleDateString('vi-VN', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-      }
-    );
+      });
 
     // Tạo template email
     const emailContent = `
@@ -1592,7 +1589,9 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
           <h2 style="color: #4a90e2;">Xét nghiệm đã hoàn thành</h2>
         </div>
         
-        <p>Xin chào <strong>${user?.first_name || ''} ${user?.last_name || ''}</strong>,</p>
+        <p>Xin chào <strong>${user?.first_name || ''} ${
+      user?.last_name || ''
+    }</strong>,</p>
         
         <p>Chúng tôi xin thông báo rằng các xét nghiệm trong đơn hàng của bạn đã được hoàn thành thành công.</p>
         
@@ -1619,7 +1618,10 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
               </tr>
             </thead>
             <tbody>
-              ${servicesTableRows || '<tr><td colspan="3" style="padding: 10px; text-align: center;">Không có dữ liệu</td></tr>'}
+              ${
+                servicesTableRows ||
+                '<tr><td colspan="3" style="padding: 10px; text-align: center;">Không có dữ liệu</td></tr>'
+              }
             </tbody>
           </table>
         </div>
@@ -1632,7 +1634,7 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
         </div>
         
         <div style="text-align: center; margin: 20px 0;">
-          <a href="http://localhost:5173/my-services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+          <a href="http://localhost:5173/services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Xem chi tiết đơn hàng
           </a>
         </div>
