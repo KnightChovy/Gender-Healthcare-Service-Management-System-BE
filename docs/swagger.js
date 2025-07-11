@@ -2995,10 +2995,10 @@
 
 /**
  * @swagger
- * /v1/emails/test-completion-notification:
+ * /v1/emails/order-test-completion:
  *   post:
- *     summary: Gửi email thông báo hoàn thành xét nghiệm
- *     description: Gửi email thông báo hoàn thành xét nghiệm và thời gian chờ kết quả
+ *     summary: Gửi email thông báo hoàn thành xét nghiệm cho cả đơn hàng
+ *     description: Gửi email thông báo hoàn thành xét nghiệm và thời gian chờ kết quả cho tất cả dịch vụ trong một đơn hàng
  *     tags: [Emails]
  *     security:
  *       - bearerAuth: []
@@ -3010,16 +3010,16 @@
  *             type: object
  *             required:
  *               - user_id
- *               - order_detail_id
+ *               - order_id
  *             properties:
  *               user_id:
  *                 type: string
  *                 description: ID của người dùng
  *                 example: "US000005"
- *               order_detail_id:
+ *               order_id:
  *                 type: string
- *                 description: ID chi tiết đơn hàng của xét nghiệm
- *                 example: "ODT000123"
+ *                 description: ID của đơn hàng
+ *                 example: "OD000123"
  *     responses:
  *       200:
  *         description: Email đã được gửi thành công
@@ -3043,9 +3043,9 @@
  *                     user_id:
  *                       type: string
  *                       example: "US000005"
- *                     order_detail_id:
+ *                     order_id:
  *                       type: string
- *                       example: "ODT000123"
+ *                       example: "OD000123"
  *                     sentTo:
  *                       type: string
  *                       example: "user@example.com"
@@ -3055,7 +3055,7 @@
  *       400:
  *         description: Thiếu thông tin cần thiết
  *       404:
- *         description: Không tìm thấy người dùng hoặc chi tiết đơn hàng
+ *         description: Không tìm thấy người dùng hoặc đơn hàng
  *       500:
  *         description: Lỗi server
  */

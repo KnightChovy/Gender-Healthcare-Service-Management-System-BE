@@ -347,27 +347,24 @@ const sendAppointmentCancellationNotification = async (req, res) => {
   }
 };
 
-/**
- * Gửi email thông báo hoàn thành xét nghiệm và thời gian chờ kết quả
- */
-const sendTestCompletionNotification = async (req, res) => {
+const sendOrderTestCompletionNotification = async (req, res) => {
   try {
-    const { user_id, order_detail_id } = req.body;
+    const { user_id, order_id } = req.body;
 
-    if (!user_id || !order_detail_id) {
+    if (!user_id || !order_id) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: 'error',
-        message: 'User ID và Order Detail ID là bắt buộc',
+        message: 'User ID và Order ID là bắt buộc',
       });
     }
 
     console.log(
-      `Sending test completion notification for order detail: ${order_detail_id}, user: ${user_id}`
+      `Sending order test completion notification for order: ${order_id}, user: ${user_id}`
     );
 
-    const response = await emailService.sendTestCompletionEmail(
+    const response = await emailService.sendOrderTestCompletionEmail(
       user_id,
-      order_detail_id
+      order_id
     );
 
     if (response.status === 'error') {
@@ -387,13 +384,13 @@ const sendTestCompletionNotification = async (req, res) => {
       data: {
         emailSent: true,
         user_id,
-        order_detail_id,
+        order_id,
         sentTo: response.sentTo,
         expectedResultDate: response.expectedResultDate,
       },
     });
   } catch (error) {
-    console.error('Error in sendTestCompletionNotification controller:', error);
+    console.error('Error in sendOrderTestCompletionNotification controller:', error);
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
     return res.status(statusCode).json({
       status: 'error',
@@ -412,5 +409,5 @@ export const emailController = {
   sendBookingServiceSuccess,
   sendOrderCancellationNotification,
   sendAppointmentCancellationNotification,
-  sendTestCompletionNotification,
+  sendOrderTestCompletionNotification,
 };
