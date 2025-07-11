@@ -9,6 +9,7 @@ import { emailRoute } from './emailRoute';
 import { adminRoute } from './adminRoute';
 import { cycleRoute } from './cycleRoute';
 import { testResultRoute } from './testResultRoute';
+import { staffRoute } from './staffRoute';
 const Router = express.Router();
 
 // Health check route
@@ -33,6 +34,6 @@ Router.use('/emails', emailRoute);
 Router.use('/admins', adminRoute);
 Router.use('/test-results', testResultRoute);
 Router.use('/cycle', cycleRoute);
-Router.use('/staff', cycleRoute);
+Router.use('/staff', staffRoute);
 
 export const API_V1 = Router;

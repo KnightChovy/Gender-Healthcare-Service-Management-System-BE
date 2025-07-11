@@ -2794,10 +2794,10 @@
 
 /**
  * @swagger
- * /v1//managers/getAllOrder:
+ * /v1/staff/getAllOrder:
  *   get:
- *     summary: Lấy tất cả đơn hàng (manager only)
- *     description: Lấy danh sách tất cả đơn hàng trong hệ thống, chỉ manager mới có quyền truy cập
+ *     summary: Lấy tất cả đơn hàng (manager and staff)
+ *     description: Lấy danh sách tất cả đơn hàng trong hệ thống, manager và staff mới có quyền truy cập
  *     tags: [Managers]
  *     security:
  *       - bearerAuth: []
