@@ -347,6 +347,62 @@ const sendAppointmentCancellationNotification = async (req, res) => {
   }
 };
 
+/**
+ * Gửi email thông báo hoàn thành xét nghiệm và thời gian chờ kết quả
+ */
+const sendTestCompletionNotification = async (req, res) => {
+  try {
+    const { user_id, order_detail_id } = req.body;
+
+    if (!user_id || !order_detail_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'User ID và Order Detail ID là bắt buộc',
+      });
+    }
+
+    console.log(
+      `Sending test completion notification for order detail: ${order_detail_id}, user: ${user_id}`
+    );
+
+    const response = await emailService.sendTestCompletionEmail(
+      user_id,
+      order_detail_id
+    );
+
+    if (response.status === 'error') {
+      const statusCode = response.message.includes('Không tìm thấy')
+        ? StatusCodes.NOT_FOUND
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+
+      return res.status(statusCode).json({
+        status: 'error',
+        message: response.message,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Email thông báo hoàn thành xét nghiệm đã được gửi',
+      data: {
+        emailSent: true,
+        user_id,
+        order_detail_id,
+        sentTo: response.sentTo,
+        expectedResultDate: response.expectedResultDate,
+      },
+    });
+  } catch (error) {
+    console.error('Error in sendTestCompletionNotification controller:', error);
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(statusCode).json({
+      status: 'error',
+      message: error.message || 'Lỗi server khi gửi email',
+      error: error.message,
+    });
+  }
+};
+
 export const emailController = {
   sendEmail,
   sendPaymentReminder,
@@ -356,4 +412,5 @@ export const emailController = {
   sendBookingServiceSuccess,
   sendOrderCancellationNotification,
   sendAppointmentCancellationNotification,
+  sendTestCompletionNotification,
 };

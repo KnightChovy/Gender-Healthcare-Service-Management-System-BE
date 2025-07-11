@@ -21,7 +21,6 @@ Router.route('/orders/:order_id/status').patch(
   staffController.updateOrderStatus
 );
 
-// Staff profile routes
 Router.route('/profile').get(isAuth, staffController.getStaffProfile);
 Router.route('/profile').patch(
   isAuth,

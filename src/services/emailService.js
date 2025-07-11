@@ -1449,6 +1449,200 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
   }
 };
 
+/**
+ * Gửi email thông báo hoàn thành xét nghiệm và thời gian chờ kết quả
+ * @param {string} user_id - ID của người dùng
+ * @param {string} order_detail_id - ID chi tiết đơn hàng của xét nghiệm
+ * @returns {Object} - Kết quả gửi email
+ */
+const sendTestCompletionEmail = async (user_id, order_detail_id) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    // Lấy thông tin người dùng
+    const user = await MODELS.UserModel.findOne({
+      where: { user_id },
+      attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+    });
+
+    if (!user) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy người dùng với ID: ${user_id}`,
+      };
+    }
+
+    // Lấy thông tin chi tiết đơn hàng và dịch vụ xét nghiệm
+    const orderDetail = await MODELS.OrderDetailModel.findOne({
+      where: { order_detail_id },
+      include: [
+        {
+          model: MODELS.ServiceTestModel,
+          as: 'service',
+          attributes: [
+            'service_id',
+            'name',
+            'price',
+            'description',
+            'preparation_guidelines',
+            'result_wait_time',
+          ],
+        },
+        {
+          model: MODELS.OrderModel,
+          as: 'order',
+          attributes: ['order_id', 'created_at', 'order_status'],
+        },
+      ],
+    });
+
+    if (!orderDetail) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy chi tiết đơn hàng với ID: ${order_detail_id}`,
+      };
+    }
+
+    const service = orderDetail.service;
+    const order = orderDetail.order;
+
+    if (!service) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy thông tin dịch vụ cho chi tiết đơn hàng: ${order_detail_id}`,
+      };
+    }
+
+    // Tính toán thời gian dự kiến nhận kết quả
+    const waitTimeHours = service.result_wait_time || 24; // Giờ
+    const testCompletionDate = new Date();
+    const expectedResultDate = new Date(
+      testCompletionDate.getTime() + waitTimeHours * 60 * 60 * 1000
+    );
+
+    // Format các ngày giờ
+    const completionDateFormatted = testCompletionDate.toLocaleDateString(
+      'vi-VN',
+      {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }
+    );
+
+    const expectedResultDateFormatted = expectedResultDate.toLocaleDateString(
+      'vi-VN',
+      {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }
+    );
+
+    // Tạo template email
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #4a90e2;">Xét nghiệm đã hoàn thành</h2>
+        </div>
+        
+        <p>Xin chào <strong>${user?.first_name || ''} ${
+      user?.last_name || ''
+    }</strong>,</p>
+        
+        <p>Chúng tôi xin thông báo rằng xét nghiệm của bạn đã được hoàn thành thành công.</p>
+        
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color: #4a90e2; margin-top: 0;">Chi tiết xét nghiệm</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%;"><strong>Tên xét nghiệm:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${
+                service.name
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Mã đơn hàng:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${
+                order.order_id
+              }</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Thời gian hoàn thành:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${completionDateFormatted}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Thời gian chờ kết quả:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${waitTimeHours} giờ</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Dự kiến có kết quả:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #4CAF50;"><strong>${expectedResultDateFormatted}</strong></td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="background-color: #f0f7ff; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #4a90e2;">
+          <h3 style="color: #4a90e2; margin-top: 0;">Thông tin quan trọng</h3>
+          <p>Kết quả xét nghiệm của bạn đang được xử lý bởi đội ngũ chuyên gia của chúng tôi. Bạn sẽ nhận được thông báo qua email khi kết quả sẵn sàng.</p>
+          <p>Thời gian dự kiến có kết quả có thể thay đổi tùy thuộc vào tình trạng xét nghiệm và các yếu tố khác.</p>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="http://localhost:5173/my-services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            Xem chi tiết đơn hàng
+          </a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #555;">
+          <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+          <p>Email: support@gencare.vn | Hotline: 0907865147</p>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ GenCare</strong></p>
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"GenCare" <${env.EMAIL_USERNAME}>`,
+      to: user.email,
+      subject: `Xét nghiệm đã hoàn thành - Kết quả dự kiến: ${expectedResultDateFormatted}`,
+      html: emailContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      status: 'success',
+      message: 'Email thông báo hoàn thành xét nghiệm đã được gửi',
+      sentTo: user.email,
+      expectedResultDate: expectedResultDateFormatted,
+    };
+  } catch (error) {
+    console.error('Error sending test completion email:', error);
+    return {
+      status: 'error',
+      message: `Lỗi khi gửi email: ${error.message}`,
+    };
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
@@ -1459,4 +1653,5 @@ export const emailService = {
   sendBookingServiceSuccessEmail,
   sendOrderCancellationEmail,
   sendAppointmentCancellationEmail,
+  sendTestCompletionEmail,
 };
