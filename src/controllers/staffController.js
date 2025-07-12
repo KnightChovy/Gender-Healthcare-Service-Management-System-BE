@@ -9,7 +9,7 @@ const staffUpdateOrder = async (req, res, next) => {
     console.log('req body', req.body)
     const { order_id } = req.body
     console.log('decoded', decoded)
-    if (decoded.role === 'manager' || decoded.role === 'staff') {
+    if (decoded.data.role === 'manager' || decoded.data.role === 'staff') {
       const result = await staffService.staffUpdateOrder(order_id)
       
       return res.status(StatusCodes.OK).json({
