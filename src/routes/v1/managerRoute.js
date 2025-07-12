@@ -33,8 +33,4 @@ Router.patch(
   appointmentController.ApproveAppointments
 );
 
-Router.route('/getAllOrder').get(
-  isAuth,
-  userController.getAllOrders
-);
 export const managerRoute = Router;

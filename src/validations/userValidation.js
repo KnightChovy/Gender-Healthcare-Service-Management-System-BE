@@ -122,7 +122,7 @@ const updateUserSchema = Joi.object({
 });
 
 export const validateCreateUser = (req, res, next) => {
-  console.log('validation', req.body);  
+  console.log('validation', req.body);
   const { error } = userSchema.validate(req.body, { abortEarly: false });
 
   if (error) {

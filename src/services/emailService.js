@@ -935,19 +935,19 @@ const sendOrderCancellationEmail = async (
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <tr>
               <td style="padding: 8px 0; color: #666; width: 40%;">Mã đơn hàng:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${order_id}</td>
+              <td style="padding: 8px 0; color: #666; width: 60%;">${order_id}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Ngày đặt hàng:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${orderDate}</td>
+              <td style="padding: 8px 0; color: #666;">${orderDate}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Ngày hủy:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${cancellationDate}</td>
+              <td style="padding: 8px 0; color: #666;">${cancellationDate}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Lý do hủy:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${reason}</td>
+              <td style="padding: 8px 0; color: #666;">${reason}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Trạng thái đơn hàng:</td>
@@ -1128,11 +1128,11 @@ const sendAppointmentCancellationEmail = async (
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
             <tr>
               <td style="padding: 8px 0; color: #666; width: 40%;">Mã cuộc hẹn:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${appointment_id}</td>
+              <td style="padding: 8px 0; color: #666; width: 60%;">${appointment_id}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Bác sĩ:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${
+              <td style="padding: 8px 0; color: #666;">${
                 doctor
                   ? `${doctor.last_name} ${doctor.first_name || ''}`.trim()
                   : 'Không xác định'
@@ -1140,29 +1140,29 @@ const sendAppointmentCancellationEmail = async (
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Loại tư vấn:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${
+              <td style="padding: 8px 0; color: #666;">${
                 appointment.consultant_type || 'Tư vấn chung'
               }</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Ngày hẹn:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${appointmentDate}</td>
+              <td style="padding: 8px 0; color: #666;">${appointmentDate}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Thời gian:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${appointmentTime}</td>
+              <td style="padding: 8px 0; color: #666;">${appointmentTime}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Ngày hủy:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${cancellationDate}</td>
+              <td style="padding: 8px 0; color: #666;">${cancellationDate}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Lý do hủy:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${reason}</td>
+              <td style="padding: 8px 0; color: #666;">${reason}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #666;">Chi phí tư vấn:</td>
-              <td style="padding: 8px 0; font-weight: 500;">${new Intl.NumberFormat(
+              <td style="padding: 8px 0; color: #666;">${new Intl.NumberFormat(
                 'vi-VN',
                 { style: 'currency', currency: 'VND' }
               ).format(appointment.price_apm || 0)}</td>
@@ -1449,6 +1449,226 @@ const sendBookingServiceSuccessEmail = async (user_id, order_id) => {
   }
 };
 
+const sendOrderTestCompletionEmail = async (user_id, order_id) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    const user = await MODELS.UserModel.findOne({
+      where: { user_id },
+      attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+    });
+
+    if (!user) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy người dùng với ID: ${user_id}`,
+      };
+    }
+
+    const order = await MODELS.OrderModel.findOne({
+      where: { order_id, user_id },
+    });
+
+    if (!order) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy đơn hàng với ID: ${order_id} cho người dùng: ${user_id}`,
+      };
+    }
+
+    const orderDetails = await MODELS.OrderDetailModel.findAll({
+      where: { order_id },
+      include: [
+        {
+          model: MODELS.ServiceTestModel,
+          as: 'service',
+          attributes: [
+            'service_id',
+            'name',
+            'price',
+            'description',
+            'preparation_guidelines',
+            'result_wait_time',
+          ],
+        },
+      ],
+    });
+
+    if (!orderDetails || orderDetails.length === 0) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy chi tiết đơn hàng cho đơn hàng: ${order_id}`,
+      };
+    }
+
+    const testCompletionDate = new Date();
+
+    const completionDateFormatted = new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(testCompletionDate);
+
+    let servicesTableRows = '';
+    let maxWaitHours = 0;
+
+    for (const detail of orderDetails) {
+      const service = detail.service;
+      if (!service) continue;
+
+      const waitTimeHours =
+        service.result_wait_time && !isNaN(parseInt(service.result_wait_time))
+          ? parseInt(service.result_wait_time)
+          : 24; 
+
+      if (waitTimeHours > maxWaitHours) {
+        maxWaitHours = waitTimeHours;
+      }
+
+      const expectedResultDate = new Date(
+        testCompletionDate.getTime() + waitTimeHours * 60 * 60 * 1000
+      );
+
+      const expectedDateFormatted = new Intl.DateTimeFormat('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      }).format(expectedResultDate);
+
+      servicesTableRows += `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${
+            service.name || 'Không có tên'
+          }</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${waitTimeHours} giờ</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; color: #4CAF50;"><strong>${expectedDateFormatted}</strong></td>
+        </tr>
+      `;
+    }
+
+    const latestExpectedResultDate = new Date(
+      testCompletionDate.getTime() + maxWaitHours * 60 * 60 * 1000
+    );
+
+    const latestExpectedDateFormatted = new Intl.DateTimeFormat('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(latestExpectedResultDate);
+
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #4a90e2;">Xét nghiệm đã hoàn thành</h2>
+        </div>
+        
+        <p>Xin chào <strong>${user?.first_name || ''} ${
+      user?.last_name || ''
+    }</strong>,</p>
+        
+        <p>Chúng tôi xin thông báo rằng các xét nghiệm trong đơn hàng của bạn đã được hoàn thành thành công.</p>
+        
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color: #4a90e2; margin-top: 0;">Chi tiết đơn hàng</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%;"><strong>Mã đơn hàng:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${order_id}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Thời gian hoàn thành:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${completionDateFormatted}</td>
+            </tr>
+          </table>
+          
+          <h3 style="color: #4a90e2; margin-top: 20px;">Danh sách xét nghiệm và thời gian dự kiến có kết quả</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Tên xét nghiệm</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Thời gian chờ</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Dự kiến có kết quả</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                servicesTableRows ||
+                '<tr><td colspan="3" style="padding: 10px; text-align: center;">Không có dữ liệu</td></tr>'
+              }
+            </tbody>
+          </table>
+        </div>
+        
+        <div style="background-color: #f0f7ff; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #4a90e2;">
+          <h3 style="color: #4a90e2; margin-top: 0;">Thông tin quan trọng</h3>
+          <p>Kết quả xét nghiệm của bạn đang được xử lý bởi đội ngũ chuyên gia của chúng tôi. Bạn sẽ nhận được thông báo qua email khi kết quả sẵn sàng.</p>
+          <p>Dự kiến có kết quả muộn nhất: <strong style="color: #4CAF50;">${latestExpectedDateFormatted}</strong></p>
+          <p>Thời gian dự kiến có thể thay đổi tùy thuộc vào tình trạng xét nghiệm và các yếu tố khác.</p>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="http://localhost:5173/services" style="background-color: #4a90e2; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            Xem chi tiết đơn hàng
+          </a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #555;">
+          <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi:</p>
+          <p>Email: support@gencare.vn | Hotline: 0907865147</p>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ GenCare</strong></p>
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"GenCare" <${env.EMAIL_USERNAME}>`,
+      to: user.email,
+      subject: `Xét nghiệm đơn hàng #${order_id} đã hoàn thành - Kết quả dự kiến: ${latestExpectedDateFormatted}`,
+      html: emailContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      status: 'success',
+      message: 'Email thông báo hoàn thành xét nghiệm đã được gửi',
+      sentTo: user.email,
+      expectedResultDate: latestExpectedDateFormatted,
+    };
+  } catch (error) {
+    console.error('Error sending order test completion email:', error);
+    return {
+      status: 'error',
+      message: `Lỗi khi gửi email: ${error.message}`,
+    };
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
@@ -1459,4 +1679,5 @@ export const emailService = {
   sendBookingServiceSuccessEmail,
   sendOrderCancellationEmail,
   sendAppointmentCancellationEmail,
+  sendOrderTestCompletionEmail,
 };

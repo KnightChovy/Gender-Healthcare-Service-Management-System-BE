@@ -25,5 +25,8 @@ Router.route('/send-order-cancellation').post(
 Router.route('/send-appointment-cancellation').post(
   emailController.sendAppointmentCancellationNotification
 );
+Router.route('/order-test-completion').post(
+  emailController.sendOrderTestCompletionNotification
+);
 
 export const emailRoute = Router;

@@ -2794,11 +2794,11 @@
 
 /**
  * @swagger
- * /v1//managers/getAllOrder:
+ * /v1/staff/getAllOrder:
  *   get:
- *     summary: Lấy tất cả đơn hàng (manager only)
- *     description: Lấy danh sách tất cả đơn hàng trong hệ thống, chỉ manager mới có quyền truy cập
- *     tags: [Managers]
+ *     summary: Lấy tất cả đơn hàng (manager and staff)
+ *     description: Lấy danh sách tất cả đơn hàng trong hệ thống, manager và staff mới có quyền truy cập
+ *     tags: [Staff]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -2991,4 +2991,71 @@
  *                 message:
  *                   type: string
  *                   example: "Lỗi khi cập nhật đơn hàng"
+ */
+
+/**
+ * @swagger
+ * /v1/emails/order-test-completion:
+ *   post:
+ *     summary: Gửi email thông báo hoàn thành xét nghiệm cho cả đơn hàng
+ *     description: Gửi email thông báo hoàn thành xét nghiệm và thời gian chờ kết quả cho tất cả dịch vụ trong một đơn hàng
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *               - order_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 description: ID của người dùng
+ *                 example: "US000005"
+ *               order_id:
+ *                 type: string
+ *                 description: ID của đơn hàng
+ *                 example: "OD000123"
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Email thông báo hoàn thành xét nghiệm đã được gửi"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emailSent:
+ *                       type: boolean
+ *                       example: true
+ *                     user_id:
+ *                       type: string
+ *                       example: "US000005"
+ *                     order_id:
+ *                       type: string
+ *                       example: "OD000123"
+ *                     sentTo:
+ *                       type: string
+ *                       example: "user@example.com"
+ *                     expectedResultDate:
+ *                       type: string
+ *                       example: "15/07/2023, 14:30"
+ *       400:
+ *         description: Thiếu thông tin cần thiết
+ *       404:
+ *         description: Không tìm thấy người dùng hoặc đơn hàng
+ *       500:
+ *         description: Lỗi server
  */
