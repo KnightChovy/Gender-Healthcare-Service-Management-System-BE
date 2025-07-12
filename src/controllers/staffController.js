@@ -7,7 +7,7 @@ const staffUpdateOrder = async (req, res, next) => {
     const decoded = req.jwtDecoded
     console.log('req.body.data', req.body.data)
     console.log('req body', req.body)
-    const { order_id } = req.body.data
+    const { order_id } = req.body
     if (decoded.role === 'manager' || decoded.role === 'staff') {
       const result = await staffService.staffUpdateOrder(order_id)
       
