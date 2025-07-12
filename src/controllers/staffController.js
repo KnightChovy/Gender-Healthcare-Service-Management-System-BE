@@ -5,8 +5,7 @@ import ApiError from '~/utils/ApiError'
 const staffUpdateOrder = async (req, res, next) => {
   try {
     const decoded = req.jwtDecoded
-    const { order_id } = req.data
-    
+    const { order_id } = req.body.data
     if (decoded.role === 'manager' || decoded.role === 'staff') {
       const result = await staffService.staffUpdateOrder(order_id)
       
