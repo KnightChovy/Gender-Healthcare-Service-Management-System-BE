@@ -1510,10 +1510,8 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       };
     }
 
-    // Tính toán thời gian hoàn thành và thời gian dự kiến có kết quả
     const testCompletionDate = new Date();
 
-    // Format ngày giờ hoàn thành
     const completionDateFormatted = new Intl.DateTimeFormat('vi-VN', {
       timeZone: 'Asia/Ho_Chi_Minh',
       day: '2-digit',
@@ -1524,7 +1522,6 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       hour12: false,
     }).format(testCompletionDate);
 
-    // Tạo danh sách dịch vụ và thời gian dự kiến
     let servicesTableRows = '';
     let maxWaitHours = 0;
 
@@ -1532,18 +1529,15 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       const service = detail.service;
       if (!service) continue;
 
-      // Đảm bảo result_wait_time là số hợp lệ
       const waitTimeHours =
         service.result_wait_time && !isNaN(parseInt(service.result_wait_time))
           ? parseInt(service.result_wait_time)
-          : 24; // Mặc định 24 giờ nếu không có giá trị
+          : 24; 
 
-      // Cập nhật thời gian chờ tối đa
       if (waitTimeHours > maxWaitHours) {
         maxWaitHours = waitTimeHours;
       }
 
-      // Tính ngày dự kiến cho từng dịch vụ
       const expectedResultDate = new Date(
         testCompletionDate.getTime() + waitTimeHours * 60 * 60 * 1000
       );
@@ -1569,7 +1563,6 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       `;
     }
 
-    // Tính ngày dự kiến có kết quả muộn nhất
     const latestExpectedResultDate = new Date(
       testCompletionDate.getTime() + maxWaitHours * 60 * 60 * 1000
     );
@@ -1584,7 +1577,6 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       hour12: false,
     }).format(latestExpectedResultDate);
 
-    // Tạo template email
     const emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
         <div style="text-align: center; margin-bottom: 20px;">
