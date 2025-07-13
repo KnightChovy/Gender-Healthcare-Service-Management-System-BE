@@ -217,33 +217,33 @@ const completePaidOrder = async (orderId) => {
       throw ApiError(400, 'Chỉ có thể hoàn thành đơn hàng đã thanh toán')
     }
 
-    await MODELS.OrderModel.update(
+    const result = await MODELS.OrderModel.update(
       { order_status: 'completed' },
       { where: { order_id: orderId, order_status: 'paid' } }
     )
 
-    const updatedOrder = await MODELS.OrderModel.findOne({
-      where: { order_id: orderId },
-      include: [
-        {
-          model: MODELS.UserModel,
-          as: 'user',
-          attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone']
-        },
-        {
-          model: MODELS.OrderDetailModel,
-          as: 'orderDetails',
-          include: [
-            {
-              model: MODELS.ServiceTestModel,
-              as: 'serviceTest'
-            }
-          ]
-        }
-      ]
-    })
+    // const updatedOrder = await MODELS.OrderModel.findOne({
+    //   where: { order_id: orderId },
+    //   include: [
+    //     {
+    //       model: MODELS.UserModel,
+    //       as: 'user',
+    //       attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone']
+    //     },
+    //     {
+    //       model: MODELS.OrderDetailModel,
+    //       as: 'orderDetails',
+    //       include: [
+    //         {
+    //           model: MODELS.ServiceTestModel,
+    //           as: 'serviceTest'
+    //         }
+    //       ]
+    //     }
+    //   ]
+    // })
 
-    return updatedOrder
+    return result
   } catch (error) {
     if (error instanceof ApiError) {
       throw error
@@ -270,33 +270,33 @@ const cancelPendingOrder = async (orderId) => {
       throw ApiError(400, 'Chỉ có thể hủy đơn hàng đang chờ xử lý')
     }
 
-    await MODELS.OrderModel.update(
+    const result = await MODELS.OrderModel.update(
       { order_status: 'cancelled' },
       { where: { order_id: orderId, order_status: 'pending' } }
     )
 
-    const updatedOrder = await MODELS.OrderModel.findOne({
-      where: { order_id: orderId },
-      include: [
-        {
-          model: MODELS.UserModel,
-          as: 'user',
-          attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone']
-        },
-        {
-          model: MODELS.OrderDetailModel,
-          as: 'orderDetails',
-          include: [
-            {
-              model: MODELS.ServiceTestModel,
-              as: 'serviceTest'
-            }
-          ]
-        }
-      ]
-    })
+    // const updatedOrder = await MODELS.OrderModel.findOne({
+    //   where: { order_id: orderId },
+    //   include: [
+    //     {
+    //       model: MODELS.UserModel,
+    //       as: 'user',
+    //       attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone']
+    //     },
+    //     {
+    //       model: MODELS.OrderDetailModel,
+    //       as: 'orderDetails',
+    //       include: [
+    //         {
+    //           model: MODELS.ServiceTestModel,
+    //           as: 'serviceTest'
+    //         }
+    //       ]
+    //     }
+    //   ]
+    // })
 
-    return updatedOrder
+    return result
   } catch (error) {
     if (error instanceof ApiError) {
       throw error
