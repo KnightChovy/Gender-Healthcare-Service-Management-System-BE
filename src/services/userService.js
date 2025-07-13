@@ -494,12 +494,12 @@ const getAllOrders = async () => {
     for (const order of orders) {
       const orderDetails = await MODELS.OrderDetailModel.findAll({
         where: { order_id: order.order_id },
-        attributes: ['order_detail_id', 'exam_date', 'exam_time'], // Thêm exam_date và exam_time
+        attributes: ['order_detail_id', 'exam_date', 'exam_time'], 
         include: [
           {
             model: MODELS.ServiceTestModel,
             as: 'service',
-            attributes: ['service_id', 'name', 'price', 'description'],
+            attributes: ['service_id', 'name', 'price', 'description', 'result_wait_time'],
           },
         ],
       });
