@@ -494,6 +494,7 @@ const getAllOrders = async () => {
     for (const order of orders) {
       const orderDetails = await MODELS.OrderDetailModel.findAll({
         where: { order_id: order.order_id },
+        attributes: ['order_detail_id', 'exam_date', 'exam_time'], // Thêm exam_date và exam_time
         include: [
           {
             model: MODELS.ServiceTestModel,
@@ -517,6 +518,12 @@ const getAllOrders = async () => {
           ...order.toJSON(),
           total_amount: orderTotal,
         },
+        details: orderDetails.map((detail) => ({
+          order_detail_id: detail.order_detail_id,
+          exam_date: detail.exam_date,
+          exam_time: detail.exam_time,
+          service: detail.service,
+        })),
         services: orderDetails.map((detail) => detail.service),
       });
     }
