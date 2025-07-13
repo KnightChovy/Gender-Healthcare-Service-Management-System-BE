@@ -3059,3 +3059,285 @@
  *       500:
  *         description: Lỗi server
  */
+
+/**
+ * @swagger
+ * /v1/staff/orders/{order_id}/complete:
+ *   patch:
+ *     summary: Hoàn thành đơn hàng đã thanh toán
+ *     description: Cho phép nhân viên và quản lý hoàn thành đơn hàng đã thanh toán (chuyển từ 'paid' thành 'completed')
+ *     tags: [Staff]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: order_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Mã đơn hàng cần hoàn thành
+ *         example: "OD000123"
+ *     responses:
+ *       200:
+ *         description: Hoàn thành đơn hàng thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Hoàn thành đơn hàng thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     order_id:
+ *                       type: string
+ *                       example: "OD000123"
+ *                     order_status:
+ *                       type: string
+ *                       example: "completed"
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         user_id:
+ *                           type: string
+ *                           example: "US000005"
+ *                         first_name:
+ *                           type: string
+ *                           example: "Nguyễn"
+ *                         last_name:
+ *                           type: string
+ *                           example: "Văn A"
+ *                         email:
+ *                           type: string
+ *                           example: "nguyenvana@example.com"
+ *                         phone:
+ *                           type: string
+ *                           example: "0901234567"
+ *                     orderDetails:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           order_detail_id:
+ *                             type: string
+ *                             example: "ODD000001"
+ *                           serviceTest:
+ *                             type: object
+ *                             properties:
+ *                               service_id:
+ *                                 type: string
+ *                                 example: "SV000001"
+ *                               name:
+ *                                 type: string
+ *                                 example: "Xét nghiệm máu tổng quát"
+ *                               price:
+ *                                 type: number
+ *                                 example: 650000
+ *                               description:
+ *                                 type: string
+ *                                 example: "Xét nghiệm máu toàn diện đánh giá sức khỏe tổng quát"
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Chỉ có thể hoàn thành đơn hàng đã thanh toán
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Chỉ có thể hoàn thành đơn hàng đã thanh toán"
+ *       401:
+ *         description: Không có quyền truy cập
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Bạn không có quyền này"
+ *       404:
+ *         description: Không tìm thấy đơn hàng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy đơn hàng"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi khi hoàn thành đơn hàng"
+ */
+
+/**
+ * @swagger
+ * /v1/staff/orders/{order_id}/cancel:
+ *   patch:
+ *     summary: Hủy đơn hàng đang chờ xử lý
+ *     description: Cho phép nhân viên và quản lý hủy đơn hàng đang chờ xử lý (chuyển từ 'pending' thành 'cancelled')
+ *     tags: [Staff]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: order_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Mã đơn hàng cần hủy
+ *         example: "OD000123"
+ *     responses:
+ *       200:
+ *         description: Hủy đơn hàng thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Hủy đơn hàng thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     order_id:
+ *                       type: string
+ *                       example: "OD000123"
+ *                     order_status:
+ *                       type: string
+ *                       example: "cancelled"
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         user_id:
+ *                           type: string
+ *                           example: "US000005"
+ *                         first_name:
+ *                           type: string
+ *                           example: "Nguyễn"
+ *                         last_name:
+ *                           type: string
+ *                           example: "Văn A"
+ *                         email:
+ *                           type: string
+ *                           example: "nguyenvana@example.com"
+ *                         phone:
+ *                           type: string
+ *                           example: "0901234567"
+ *                     orderDetails:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           order_detail_id:
+ *                             type: string
+ *                             example: "ODD000001"
+ *                           serviceTest:
+ *                             type: object
+ *                             properties:
+ *                               service_id:
+ *                                 type: string
+ *                                 example: "SV000001"
+ *                               name:
+ *                                 type: string
+ *                                 example: "Xét nghiệm máu tổng quát"
+ *                               price:
+ *                                 type: number
+ *                                 example: 650000
+ *                               description:
+ *                                 type: string
+ *                                 example: "Xét nghiệm máu toàn diện đánh giá sức khỏe tổng quát"
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Chỉ có thể hủy đơn hàng đang chờ xử lý
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Chỉ có thể hủy đơn hàng đang chờ xử lý"
+ *       401:
+ *         description: Không có quyền truy cập
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Bạn không có quyền này"
+ *       404:
+ *         description: Không tìm thấy đơn hàng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy đơn hàng"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi khi hủy đơn hàng"
+ */

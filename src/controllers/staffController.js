@@ -170,11 +170,69 @@ const updateOrderStatus = async (req, res, next) => {
   }
 }
 
+const completePaidOrder = async (req, res, next) => {
+  try {
+    const decoded = req.jwtDecoded
+    const { order_id } = req.params
+
+    if (decoded.data.role !== 'manager' && decoded.data.role !== 'staff') {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Bạn không có quyền này'
+      })
+    }
+
+    const updatedOrder = await staffService.completePaidOrder(order_id)
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Hoàn thành đơn hàng thành công',
+      data: updatedOrder
+    })
+  } catch (error) {
+    const status = error instanceof ApiError ? error.statusCode : 500
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Lỗi khi hoàn thành đơn hàng'
+    })
+  }
+}
+
+const cancelPendingOrder = async (req, res, next) => {
+  try {
+    const decoded = req.jwtDecoded
+    const { order_id } = req.params
+
+    if (decoded.data.role !== 'manager' && decoded.data.role !== 'staff') {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Bạn không có quyền này'
+      })
+    }
+
+    const updatedOrder = await staffService.cancelPendingOrder(order_id)
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Hủy đơn hàng thành công',
+      data: updatedOrder
+    })
+  } catch (error) {
+    const status = error instanceof ApiError ? error.statusCode : 500
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Lỗi khi hủy đơn hàng'
+    })
+  }
+}
+
 export const staffController = {
   staffUpdateOrder,
   getStaffProfile,
   updateStaffProfile,
   getPendingOrders,
   getOrderDetails,
-  updateOrderStatus
+  updateOrderStatus,
+  completePaidOrder,
+  cancelPendingOrder
 }

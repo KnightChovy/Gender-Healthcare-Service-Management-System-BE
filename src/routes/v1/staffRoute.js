@@ -20,6 +20,8 @@ Router.route('/orders/:order_id/status').patch(
   validateUpdateOrderStatus,
   staffController.updateOrderStatus
 );
+Router.route('/orders/:order_id/complete').patch(isAuth, staffController.completePaidOrder);
+Router.route('/orders/:order_id/cancel').patch(isAuth, staffController.cancelPendingOrder);
 
 Router.route('/profile').get(isAuth, staffController.getStaffProfile);
 Router.route('/profile').patch(

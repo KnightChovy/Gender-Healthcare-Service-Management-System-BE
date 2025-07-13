@@ -199,11 +199,119 @@ const updateOrderStatus = async (orderId, status) => {
   }
 }
 
+const completePaidOrder = async (orderId) => {
+  try {
+    if (!orderId) {
+      throw ApiError(400, 'Thiếu mã đơn hàng')
+    }
+
+    const order = await MODELS.OrderModel.findOne({
+      where: { order_id: orderId }
+    })
+
+    if (!order) {
+      throw ApiError(404, 'Không tìm thấy đơn hàng')
+    }
+
+    if (order.order_status !== 'paid') {
+      throw ApiError(400, 'Chỉ có thể hoàn thành đơn hàng đã thanh toán')
+    }
+
+    await MODELS.OrderModel.update(
+      { order_status: 'completed' },
+      { where: { order_id: orderId, order_status: 'paid' } }
+    )
+
+    const updatedOrder = await MODELS.OrderModel.findOne({
+      where: { order_id: orderId },
+      include: [
+        {
+          model: MODELS.UserModel,
+          as: 'user',
+          attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone']
+        },
+        {
+          model: MODELS.OrderDetailModel,
+          as: 'orderDetails',
+          include: [
+            {
+              model: MODELS.ServiceTestModel,
+              as: 'serviceTest'
+            }
+          ]
+        }
+      ]
+    })
+
+    return updatedOrder
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error
+    }
+    throw ApiError(500, 'Lỗi khi hoàn thành đơn hàng')
+  }
+}
+
+const cancelPendingOrder = async (orderId) => {
+  try {
+    if (!orderId) {
+      throw ApiError(400, 'Thiếu mã đơn hàng')
+    }
+
+    const order = await MODELS.OrderModel.findOne({
+      where: { order_id: orderId }
+    })
+
+    if (!order) {
+      throw ApiError(404, 'Không tìm thấy đơn hàng')
+    }
+
+    if (order.order_status !== 'pending') {
+      throw ApiError(400, 'Chỉ có thể hủy đơn hàng đang chờ xử lý')
+    }
+
+    await MODELS.OrderModel.update(
+      { order_status: 'cancelled' },
+      { where: { order_id: orderId, order_status: 'pending' } }
+    )
+
+    const updatedOrder = await MODELS.OrderModel.findOne({
+      where: { order_id: orderId },
+      include: [
+        {
+          model: MODELS.UserModel,
+          as: 'user',
+          attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone']
+        },
+        {
+          model: MODELS.OrderDetailModel,
+          as: 'orderDetails',
+          include: [
+            {
+              model: MODELS.ServiceTestModel,
+              as: 'serviceTest'
+            }
+          ]
+        }
+      ]
+    })
+
+    return updatedOrder
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error
+    }
+    throw ApiError(500, 'Lỗi khi hủy đơn hàng')
+  }
+}
+
 export const staffService = {
   staffUpdateOrder,
   getStaffProfile,
   updateStaffProfile,
   getPendingOrders,
   getOrderDetails,
-  updateOrderStatus
+  updateOrderStatus,
+  completePaidOrder,
+  cancelPendingOrder
 }
