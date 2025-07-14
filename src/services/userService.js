@@ -608,24 +608,16 @@ const getTestResults = async (userId, orderId = null) => {
             where: { testresult_id: detail.testresult_id },
             attributes: [
               'testresult_id',
+              'medrecord_id',
               'result',
               'conclusion',
-              'reference_range',
-              'doctor_note',
+              'normal_range',
+              'recommendations',
               'created_at',
             ],
           });
 
           if (testResult) {
-            // Lấy thông tin về bác sĩ phụ trách (nếu có)
-            let doctor = null;
-            if (testResult.doctor_id) {
-              doctor = await MODELS.DoctorModel.findOne({
-                where: { doctor_id: testResult.doctor_id },
-                attributes: ['doctor_id', 'first_name', 'last_name'],
-              });
-            }
-
             testResults.push({
               order_id: order.order_id,
               order_detail_id: detail.order_detail_id,
@@ -635,7 +627,6 @@ const getTestResults = async (userId, orderId = null) => {
               exam_time: detail.exam_time,
               result: {
                 ...testResult.toJSON(),
-                doctor: doctor,
               },
               created_at: order.created_at,
             });
