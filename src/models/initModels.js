@@ -10,6 +10,7 @@ import { setupDoctorAssociations } from './associations';
 import { orderModel } from './orderModel';
 import { orderDetailModel } from './orderDetailModel';
 import { serviceCategoryModel } from './serviceCategoryModel';
+import { testResultMySqlModel } from './testResultsMySqlModel';
 let MODELS = {};
 
 const initAllModels = () => {
@@ -27,6 +28,7 @@ const initAllModels = () => {
   MODELS.OrderModel = orderModel.initOrderModel();
   MODELS.OrderDetailModel = orderDetailModel.initOrderDetailModel();
   MODELS.ServiceCategoryModel = serviceCategoryModel.initServiceCategoryModel();
+  MODELS.TestResultMySqlModel = testResultMySqlModel.initTestResultModel();
   console.log('Setting up model associations...');
   setupDoctorAssociations(
     MODELS.UserModel,
@@ -39,7 +41,8 @@ const initAllModels = () => {
     MODELS.AvailabilityModel,
     MODELS.OrderModel,
     MODELS.OrderDetailModel,
-    MODELS.ServiceCategoryModel
+    MODELS.ServiceCategoryModel,
+    MODELS.TestResultMySqlModel
   );
 };
 

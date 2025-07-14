@@ -547,7 +547,6 @@ const getAllOrders = async () => {
 
 const getTestResults = async (userId, orderId = null) => {
   try {
-    // Kiểm tra người dùng tồn tại
     const user = await MODELS.UserModel.findOne({
       where: { user_id: userId },
       attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
@@ -557,7 +556,6 @@ const getTestResults = async (userId, orderId = null) => {
       throw new ApiError(404, `Không tìm thấy người dùng với ID: ${userId}`);
     }
 
-    // Xây dựng điều kiện truy vấn
     const whereClause = { user_id: userId };
     if (orderId) {
       whereClause.order_id = orderId;
@@ -606,7 +604,7 @@ const getTestResults = async (userId, orderId = null) => {
         // Chỉ xử lý các chi tiết đơn hàng đã có kết quả xét nghiệm
         if (detail.testresult_id) {
           // Lấy kết quả xét nghiệm
-          const testResult = await MODELS.TestResultModel.findOne({
+          const testResult = await MODELS.TestResultMySqlModel.findOne({
             where: { testresult_id: detail.testresult_id },
             attributes: [
               'testresult_id',
@@ -615,7 +613,6 @@ const getTestResults = async (userId, orderId = null) => {
               'reference_range',
               'doctor_note',
               'created_at',
-              'updated_at',
             ],
           });
 
