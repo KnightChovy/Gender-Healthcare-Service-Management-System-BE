@@ -1623,81 +1623,6 @@
 
 /**
  * @swagger
- * /v1/appointments/{appointment_id}/feedback:
- *   post:
- *     summary: Đánh giá cuộc hẹn
- *     tags: [Appointments]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: appointment_id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - rating
- *             properties:
- *               rating:
- *                 type: number
- *                 example: 4.5
- *               feedback:
- *                 type: string
- *                 example: "Dịch vụ rất tốt"
- *     responses:
- *       200:
- *         description: Thành công
- *       400:
- *         description: Dữ liệu không hợp lệ
- *       401:
- *         description: Chưa đăng nhập
- *       403:
- *         description: Không có quyền
- *       404:
- *         description: Không tìm thấy
- */
-
-/**
- * @swagger
- * /v1/emails/forget-password:
- *   post:
- *     summary: Gửi email OTP để đặt lại mật khẩu
- *     tags: [Emails]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - username
- *               - email
- *             properties:
- *               username:
- *                 type: string
- *                 example: "dinhhoangphuc"
- *               email:
- *                 type: string
- *                 example: "phuc@example.com"
- *     responses:
- *       200:
- *         description: OTP đã được gửi đến email
- *       400:
- *         description: Dữ liệu không hợp lệ
- *       404:
- *         description: Không tìm thấy người dùng
- *       500:
- *         description: Lỗi server
- */
-
-/**
- * @swagger
  * /v1/auth/forget-password:
  *   patch:
  *     summary: Đặt lại mật khẩu
@@ -1740,8 +1665,6 @@
  *         description: Dữ liệu không hợp lệ
  *       404:
  *         description: Không tìm thấy người dùng
- *       500:
- *         description: Lỗi server
  */
 
 /**
@@ -2747,7 +2670,7 @@
  *                                   example: "Xét nghiệm máu toàn diện đánh giá sức khỏe tổng quát"
  *                                 preparation_guidelines:
  *                                   type: string
- *                                   example: "Nhịn ăn 8 giờ trước khi xét nghiệm"
+ *                                                                     example: "Nhịn ăn 8 giờ trước khi xét nghiệm"
  *                     total_amount:
  *                       type: number
  *                       example: 1950000
@@ -3340,4 +3263,135 @@
  *                 message:
  *                   type: string
  *                   example: "Lỗi khi hủy đơn hàng"
+ */
+
+/**
+ * @swagger
+ * /v1/users/test-results:
+ *   get:
+ *     summary: Lấy kết quả xét nghiệm của người dùng
+ *     description: API cho phép người dùng xem kết quả các xét nghiệm đã thực hiện
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: order_id
+ *         schema:
+ *           type: string
+ *         description: ID của đơn hàng cần lấy kết quả (không bắt buộc)
+ *         example: "OD000123"
+ *     responses:
+ *       200:
+ *         description: Lấy kết quả thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         user_id:
+ *                           type: string
+ *                           example: "US000005"
+ *                         first_name:
+ *                           type: string
+ *                           example: "Nguyễn"
+ *                         last_name:
+ *                           type: string
+ *                           example: "Văn A"
+ *                         email:
+ *                           type: string
+ *                           example: "nguyenvana@example.com"
+ *                         phone:
+ *                           type: string
+ *                           example: "0901234567"
+ *                     results:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           order_id:
+ *                             type: string
+ *                             example: "OD000123"
+ *                           order_detail_id:
+ *                             type: string
+ *                             example: "ODT000123"
+ *                           testresult_id:
+ *                             type: string
+ *                             example: "TR000123"
+ *                           service:
+ *                             type: object
+ *                             properties:
+ *                               service_id:
+ *                                 type: string
+ *                                 example: "SV000001"
+ *                               name:
+ *                                 type: string
+ *                                 example: "Xét nghiệm máu tổng quát"
+ *                               description:
+ *                                 type: string
+ *                                 example: "Xét nghiệm máu toàn diện kiểm tra sức khỏe"
+ *                               result_wait_time:
+ *                                 type: integer
+ *                                 example: 24
+ *                           exam_date:
+ *                             type: string
+ *                             format: date
+ *                             example: "2023-07-15"
+ *                           exam_time:
+ *                             type: string
+ *                             example: "09:00:00"
+ *                           result:
+ *                             type: object
+ *                             properties:
+ *                               testresult_id:
+ *                                 type: string
+ *                                 example: "TR000123"
+ *                               result:
+ *                                 type: string
+ *                                 example: "12.5 g/dL"
+ *                               conclusion:
+ *                                 type: string
+ *                                 example: "Trong ngưỡng bình thường"
+ *                               reference_range:
+ *                                 type: string
+ *                                 example: "12-16 g/dL"
+ *                               doctor_note:
+ *                                 type: string
+ *                                 example: "Chỉ số huyết học bình thường"
+ *                               created_at:
+ *                                 type: string
+ *                                 format: date-time
+ *                               updated_at:
+ *                                 type: string
+ *                                 format: date-time
+ *                               doctor:
+ *                                 type: object
+ *                                 properties:
+ *                                   doctor_id:
+ *                                     type: string
+ *                                     example: "DR000001"
+ *                                   first_name:
+ *                                     type: string
+ *                                     example: "Trần"
+ *                                   last_name:
+ *                                     type: string
+ *                                     example: "Văn B"
+ *                           created_at:
+ *                             type: string
+ *                             format: date-time
+ *       401:
+ *         description: Không có quyền truy cập hoặc token không hợp lệ
+ *       404:
+ *         description: Không tìm thấy người dùng
+ *       500:
+ *         description: Lỗi server
  */

@@ -43,6 +43,7 @@ Router.route('/cancel-appointment').post(
   userController.cancelAppointment
 );
 
+Router.route('/test-results').get(isAuth, userController.getTestResults);
 
 // // User profile routes
 // Router.get('/profile/me', userController.getMyProfile)

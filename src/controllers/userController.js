@@ -257,6 +257,38 @@ const getAllOrders = async (req, res) => {
   }
 };
 
+const getTestResults = async (req, res) => {
+  try {
+    const userId = req.jwtDecoded.data.user_id;
+    const { order_id } = req.query;
+
+    if (!userId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'User ID không hợp lệ',
+      });
+    }
+
+    // Gọi service để lấy kết quả xét nghiệm
+    const results = await userService.getTestResults(userId, order_id);
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      data: results,
+    });
+  } catch (error) {
+    console.error('Error in getTestResults controller:', error);
+    const status =
+      error instanceof ApiError
+        ? error.statusCode
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(status).json({
+      status: 'error',
+      message: error.message || 'Không thể lấy kết quả xét nghiệm',
+    });
+  }
+};
+
 export const userController = {
   getAllUsers,
   createUser,
@@ -268,4 +300,5 @@ export const userController = {
   cancelAppointment,
   getUserTestAppointments,
   getAllOrders,
+  getTestResults,
 };

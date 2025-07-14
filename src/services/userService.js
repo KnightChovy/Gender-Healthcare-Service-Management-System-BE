@@ -494,12 +494,18 @@ const getAllOrders = async () => {
     for (const order of orders) {
       const orderDetails = await MODELS.OrderDetailModel.findAll({
         where: { order_id: order.order_id },
-        attributes: ['order_detail_id', 'exam_date', 'exam_time'], 
+        attributes: ['order_detail_id', 'exam_date', 'exam_time'],
         include: [
           {
             model: MODELS.ServiceTestModel,
             as: 'service',
-            attributes: ['service_id', 'name', 'price', 'description', 'result_wait_time'],
+            attributes: [
+              'service_id',
+              'name',
+              'price',
+              'description',
+              'result_wait_time',
+            ],
           },
         ],
       });
@@ -539,6 +545,120 @@ const getAllOrders = async () => {
   }
 };
 
+const getTestResults = async (userId, orderId = null) => {
+  try {
+    // Kiểm tra người dùng tồn tại
+    const user = await MODELS.UserModel.findOne({
+      where: { user_id: userId },
+      attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+    });
+
+    if (!user) {
+      throw new ApiError(404, `Không tìm thấy người dùng với ID: ${userId}`);
+    }
+
+    // Xây dựng điều kiện truy vấn
+    const whereClause = { user_id: userId };
+    if (orderId) {
+      whereClause.order_id = orderId;
+    }
+
+    // Lấy các đơn hàng của người dùng
+    const orders = await MODELS.OrderModel.findAll({
+      where: whereClause,
+      order: [['created_at', 'DESC']],
+    });
+
+    if (!orders || orders.length === 0) {
+      return {
+        user,
+        results: [],
+      };
+    }
+
+    const testResults = [];
+
+    // Lấy chi tiết và kết quả xét nghiệm cho mỗi đơn hàng
+    for (const order of orders) {
+      const orderDetails = await MODELS.OrderDetailModel.findAll({
+        where: { order_id: order.order_id },
+        attributes: [
+          'order_detail_id',
+          'exam_date',
+          'exam_time',
+          'testresult_id',
+        ],
+        include: [
+          {
+            model: MODELS.ServiceTestModel,
+            as: 'service',
+            attributes: [
+              'service_id',
+              'name',
+              'description',
+              'result_wait_time',
+            ],
+          },
+        ],
+      });
+
+      for (const detail of orderDetails) {
+        // Chỉ xử lý các chi tiết đơn hàng đã có kết quả xét nghiệm
+        if (detail.testresult_id) {
+          // Lấy kết quả xét nghiệm
+          const testResult = await MODELS.TestResultModel.findOne({
+            where: { testresult_id: detail.testresult_id },
+            attributes: [
+              'testresult_id',
+              'result',
+              'conclusion',
+              'reference_range',
+              'doctor_note',
+              'created_at',
+              'updated_at',
+            ],
+          });
+
+          if (testResult) {
+            // Lấy thông tin về bác sĩ phụ trách (nếu có)
+            let doctor = null;
+            if (testResult.doctor_id) {
+              doctor = await MODELS.DoctorModel.findOne({
+                where: { doctor_id: testResult.doctor_id },
+                attributes: ['doctor_id', 'first_name', 'last_name'],
+              });
+            }
+
+            testResults.push({
+              order_id: order.order_id,
+              order_detail_id: detail.order_detail_id,
+              testresult_id: detail.testresult_id,
+              service: detail.service,
+              exam_date: detail.exam_date,
+              exam_time: detail.exam_time,
+              result: {
+                ...testResult.toJSON(),
+                doctor: doctor,
+              },
+              created_at: order.created_at,
+            });
+          }
+        }
+      }
+    }
+
+    return {
+      user,
+      results: testResults,
+    };
+  } catch (error) {
+    console.error('Error in getTestResults service:', error);
+    throw error instanceof ApiError
+      ? error
+      : new ApiError(500, 'Lỗi khi lấy kết quả xét nghiệm');
+  }
+};
+
 export const userService = {
   getAllUsers,
   createUser,
@@ -550,4 +670,5 @@ export const userService = {
   cancelAppointment,
   getUserTestAppointments,
   getAllOrders,
+  getTestResults,
 };
