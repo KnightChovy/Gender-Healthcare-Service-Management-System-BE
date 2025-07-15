@@ -1,3 +1,4 @@
+import ApiError from '~/utils/ApiError';
 import { testResultService } from '../services/testResultService';
 
 
@@ -28,8 +29,28 @@ const create = async (req, res, next) => {
     next(err);
   }
 };
+
+const createTestResults = async (req, res, next) => {
+  try {
+    const decoded = req.jwtDecoded
+    if (decoded.data.role !== 'staff' && decoded.data.role !== 'manager') {
+      throw ApiError(404, 'Bạn không có quyền này')
+    }
+    const { order_id, test_results } = req.body
+    const created = await testResultService.createTestResults(order_id, test_results);
+    res.status(201).json({
+      success: true,
+      message: 'create successfully',
+      result: created
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const testResultController = {
   getAll,
   getById,
   create,
+  createTestResults,
 }
