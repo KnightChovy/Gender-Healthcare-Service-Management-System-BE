@@ -3,6 +3,7 @@ import { env } from '~/config/environment';
 import { MODELS } from '~/models/initModels';
 import ApiError from '~/utils/ApiError';
 import { hashPassword } from '~/utils/crypto';
+// import { CycleModel } from '~/models/cycleModel';
 
 const sendEmail = async (email) => {
   try {
@@ -1944,9 +1945,20 @@ const sendPillReminders = async () => {
       .toString()
       .padStart(2, '0')}:${vietnamMinutes.toString().padStart(2, '0')}`;
 
-    // Lấy các chu kỳ có thời gian uống thuốc (pillTime) trùng với giờ hiện tại
-    // Cho phép sai lệch 5 phút
-    const cycles = await MODELS.CycleModel.find();
+    // Import chu kỳ model từ mongodb
+    const CycleModel = require('../models/cycleModel');
+
+    // Lấy các chu kỳ từ MongoDB
+    const cycles = await CycleModel.find();
+
+    if (!cycles || cycles.length === 0) {
+      return {
+        sentCount: 0,
+        message: 'Không có dữ liệu chu kỳ nào',
+        results: [],
+      };
+    }
+
     const matchingCycles = cycles.filter((cycle) => {
       if (!cycle.pillTime) return false;
 
@@ -1975,7 +1987,7 @@ const sendPillReminders = async () => {
     const results = [];
 
     for (const cycle of matchingCycles) {
-      // Lấy thông tin người dùng
+      // Lấy thông tin người dùng từ MySQL
       const user = await MODELS.UserModel.findOne({
         where: { user_id: cycle.user_id },
         attributes: ['user_id', 'first_name', 'last_name', 'email'],
@@ -2017,5 +2029,5 @@ export const emailService = {
   sendOrderTestCompletionEmail,
   sendCycleNotificationEmail,
   sendPillReminderEmail,
-  sendPillReminders
+  sendPillReminders,
 };
