@@ -10,6 +10,7 @@ import swaggerSpec from './config/swagger';
 import { connectRedis } from './config/redis';
 import { initAllModels } from '~/models/initModels';
 import { connectMongoDB } from './config/db';
+import { schedulePillReminders } from './cron/pillReminders.js';
 
 const app = express();
 //const PORT = process.env.PORT || 3000;
@@ -26,7 +27,12 @@ const startServer = () => {
       ],
       credentials: true, // Use 'credentials' instead of 'withCredentials'
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'x-access-token', 'token'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'x-access-token',
+        'token',
+      ],
     })
   );
 
@@ -58,12 +64,10 @@ const startServer = () => {
     );
   });
 
-
   app.use('/v2', API_V2);
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use('/v1', API_V1);
-
 
   app.listen(env.PORT, env.HOST_NAME, () => {
     // console.log(`Server is running at http://52.4.72.106:${env.PORT}`);
@@ -71,6 +75,7 @@ const startServer = () => {
     console.log(
       `Swagger Documentation available at http://52.4.72.106:${env.PORT}/api-docs`
     );
+    schedulePillReminders();
   });
 };
 

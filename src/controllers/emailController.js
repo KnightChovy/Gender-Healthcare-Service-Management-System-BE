@@ -468,6 +468,67 @@ const sendCycleNotification = async (req, res, next) => {
   }
 };
 
+const sendPillReminder = async (req, res, next) => {
+  try {
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'Thiếu thông tin người dùng',
+      });
+    }
+
+    // Lấy thông tin người dùng
+    const user = await userService.getUserById(user_id);
+
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        status: 'error',
+        message: 'Không tìm thấy người dùng',
+      });
+    }
+
+    // Lấy dữ liệu chu kỳ của người dùng
+    const cycleData = await cycleService.getCycleByUserID(user_id);
+
+    if (!cycleData) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        status: 'error',
+        message: 'Không tìm thấy dữ liệu chu kỳ kinh nguyệt của người dùng',
+      });
+    }
+
+    // Gửi email nhắc nhở
+    const result = await emailService.sendPillReminderEmail(user, cycleData);
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Đã gửi email nhắc nhở uống thuốc tránh thai',
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error sending pill reminder email:', error);
+    next(error);
+  }
+};
+
+const sendAllPillReminders = async (req, res, next) => {
+  try {
+
+    const result = await emailService.sendPillReminders();
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: `Đã gửi ${result.sentCount} email nhắc nhở uống thuốc tránh thai`,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error sending all pill reminders:', error);
+    next(error);
+  }
+};
+
 export const emailController = {
   sendEmail,
   sendPaymentReminder,
@@ -479,4 +540,6 @@ export const emailController = {
   sendAppointmentCancellationNotification,
   sendOrderTestCompletionNotification,
   sendCycleNotification,
+  sendPillReminder,
+  sendAllPillReminders,
 };

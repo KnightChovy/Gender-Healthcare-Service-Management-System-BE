@@ -1794,7 +1794,7 @@ const sendCycleNotificationEmail = async (user, cycleData) => {
           <h3 style="color: #E9407A; margin-top: 0;">Nhật ký chu kỳ</h3>
           <p>Ghi lại các triệu chứng và cảm giác của bạn giúp theo dõi sức khỏe và phát hiện sớm các vấn đề.</p>
           <div style="text-align: center; margin-top: 15px;">
-            <a href="http://localhost:5173/period-tracker" style="background-color: #E9407A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            <a href="http://localhost:5173//menstrual-cycle" style="background-color: #E9407A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
               Cập nhật nhật ký chu kỳ
             </a>
           </div>
@@ -1835,6 +1835,175 @@ const sendCycleNotificationEmail = async (user, cycleData) => {
   }
 };
 
+const sendPillReminderEmail = async (user, cycleData) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    // Lấy thời gian uống thuốc từ cycleData
+    const pillTime = cycleData.pillTime || '08:00'; // Mặc định 8:00 sáng nếu không có
+
+    // Format ngày hôm nay theo định dạng Việt Nam
+    const today = new Date();
+    const formattedDate = new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      weekday: 'long',
+    }).format(today);
+
+    // Tạo template email
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #E9407A;">Nhắc nhở uống thuốc tránh thai</h2>
+        </div>
+        
+        <p>Xin chào <strong>${user?.first_name || ''} ${
+      user?.last_name || ''
+    }</strong>,</p>
+        
+        <p>GenCare xin gửi đến bạn lời nhắc nhở uống thuốc tránh thai hôm nay.</p>
+        
+        <div style="background-color: #FFF0F5; border-left: 4px solid #E9407A; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h3 style="color: #E9407A; margin-top: 0;">Nhắc nhở uống thuốc</h3>
+          <p>Đã đến giờ uống thuốc tránh thai của bạn: <strong>${pillTime}</strong></p>
+          <p>Ngày: <strong>${formattedDate}</strong></p>
+          <p>Để đảm bảo hiệu quả tránh thai tốt nhất, hãy:</p>
+          <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li>Uống thuốc đúng giờ mỗi ngày</li>
+            <li>Không bỏ liều hoặc trì hoãn</li>
+            <li>Uống thuốc ngay cả khi không có quan hệ tình dục</li>
+            <li>Liên hệ với bác sĩ nếu có vấn đề hoặc tác dụng phụ</li>
+          </ul>
+        </div>
+        
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color: #E9407A; margin-top: 0;">Lời khuyên</h3>
+          <p>Việc uống thuốc đều đặn hàng ngày rất quan trọng để đảm bảo hiệu quả tránh thai. Bạn có thể thiết lập báo thức hàng ngày trên điện thoại để nhắc nhở thời gian uống thuốc.</p>
+          <p>Nếu bạn quên uống thuốc:</p>
+          <ul style="padding-left: 20px;">
+            <li>Dưới 12 giờ: Uống ngay khi nhớ ra và uống viên tiếp theo vào giờ thông thường</li>
+            <li>Trên 12 giờ: Hiệu quả tránh thai có thể giảm, cân nhắc biện pháp bổ sung</li>
+            <li>Nếu quên 2 viên trở lên: Liên hệ với bác sĩ để được tư vấn</li>
+          </ul>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #777;">
+          <p>Nếu bạn có bất kỳ câu hỏi nào về thuốc tránh thai hoặc sức khỏe sinh sản, vui lòng liên hệ với đội ngũ GenCare:</p>
+          <p>Email: support@gencare.vn | Hotline: 0907865147</p>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ GenCare</strong></p>
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"GenCare" <${env.EMAIL_USERNAME}>`,
+      to: user.email,
+      subject: `Nhắc nhở: Đã đến giờ uống thuốc tránh thai (${pillTime})`,
+      html: emailContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      status: 'success',
+      message: 'Email nhắc nhở uống thuốc tránh thai đã được gửi',
+      sentTo: user.email,
+    };
+  } catch (error) {
+    console.error('Error sending pill reminder email:', error);
+    return {
+      status: 'error',
+      message: `Lỗi khi gửi email: ${error.message}`,
+    };
+  }
+};
+
+const sendPillReminders = async () => {
+  try {
+    // Lấy giờ hiện tại trong múi giờ Việt Nam (UTC+7)
+    const now = new Date();
+    const vietnamHours = (now.getUTCHours() + 7) % 24; // Chuyển đổi sang múi giờ Việt Nam
+    const vietnamMinutes = now.getUTCMinutes();
+
+    // Format giờ hiện tại thành định dạng "HH:MM"
+    const currentTimeString = `${vietnamHours
+      .toString()
+      .padStart(2, '0')}:${vietnamMinutes.toString().padStart(2, '0')}`;
+
+    // Lấy các chu kỳ có thời gian uống thuốc (pillTime) trùng với giờ hiện tại
+    // Cho phép sai lệch 5 phút
+    const cycles = await MODELS.CycleModel.find();
+    const matchingCycles = cycles.filter((cycle) => {
+      if (!cycle.pillTime) return false;
+
+      const cyclePillTime = cycle.pillTime;
+      const [cycleHours, cycleMinutes] = cyclePillTime.split(':').map(Number);
+      const [currentHours, currentMinutes] = currentTimeString
+        .split(':')
+        .map(Number);
+
+      // Tính tổng số phút
+      const cycleTimeInMinutes = cycleHours * 60 + cycleMinutes;
+      const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+
+      // Cho phép sai lệch 5 phút
+      return Math.abs(cycleTimeInMinutes - currentTimeInMinutes) <= 5;
+    });
+
+    if (matchingCycles.length === 0) {
+      return {
+        sentCount: 0,
+        message: 'Không có người dùng nào cần nhắc nhở uống thuốc vào lúc này',
+        results: [],
+      };
+    }
+
+    const results = [];
+
+    for (const cycle of matchingCycles) {
+      // Lấy thông tin người dùng
+      const user = await MODELS.UserModel.findOne({
+        where: { user_id: cycle.user_id },
+        attributes: ['user_id', 'first_name', 'last_name', 'email'],
+      });
+
+      if (user && user.email) {
+        // Gửi email nhắc nhở
+        const emailResult = await sendPillReminderEmail(user, cycle);
+
+        results.push({
+          user_id: user.user_id,
+          pillTime: cycle.pillTime,
+          result: emailResult,
+        });
+      }
+    }
+
+    return {
+      sentCount: results.length,
+      message: `Đã gửi ${results.length} email nhắc nhở uống thuốc tránh thai`,
+      results,
+    };
+  } catch (error) {
+    console.error('Error in sendPillReminders:', error);
+    throw error;
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
@@ -1847,4 +2016,6 @@ export const emailService = {
   sendAppointmentCancellationEmail,
   sendOrderTestCompletionEmail,
   sendCycleNotificationEmail,
+  sendPillReminderEmail,
+  sendPillReminders
 };
