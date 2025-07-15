@@ -33,6 +33,7 @@ const create = async (req, res, next) => {
 const createTestResults = async (req, res, next) => {
   try {
     const decoded = req.jwtDecoded
+    console.log('decoded', decoded)
     if (decoded.data.role !== 'staff' && decoded.data.role !== 'manager') {
       throw ApiError(404, 'Bạn không có quyền này')
     }

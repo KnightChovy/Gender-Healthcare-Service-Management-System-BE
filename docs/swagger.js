@@ -3395,14 +3395,14 @@
  *       500:
  *         description: Lỗi server
  */
-
 /**
  * @swagger
  * /v1/test-results/create-testResult:
  *   post:
  *     summary: Create test results for an order (MySQL)
  *     description: Input test results for a specific order. Only staff or manager roles are allowed.
- *     tags: [TestResults]
+ *     tags:
+ *       - TestResults
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -3442,20 +3442,107 @@
  *                       example: OD000007
  *                     result:
  *                       type: string
- *                       example: "Không phát hiện kháng nguyên p24 hay kháng thể HIV trong máu."
+ *                       example: Không phát hiện kháng nguyên p24 hay kháng thể HIV trong máu.
  *                     conclusion:
  *                       type: string
- *                       example: "Không phát hiện virus HIV"
+ *                       example: Không phát hiện virus HIV
  *                     normal_range:
  *                       type: string
  *                       example: good
  *                     recommendations:
  *                       type: string
- *                       example: ""
+ *                       example: ''
  *                     created_at:
  *                       type: string
  *                       format: date-time
- *                       example: "2025-07-13T19:43:21.586Z"
+ *                       example: '2025-07-13T19:43:21.586Z'
+ *     responses:
+ *       201:
+ *         description: Test results created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: create successfully
+ *                 result:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       403:
+ *         description: Forbidden - Insufficient permissions
+ *       400:
+ *         description: Invalid input data
+ */ 
+
+/**
+ * @swagger
+ * /v1/test-results/create-testResult:
+ *   post:
+ *     summary: Create test results for an order (MySQL)
+ *     description: Input test results for a specific order. Only staff or manager roles are allowed.
+ *     tags:
+ *       - TestResults
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: x-access-token
+ *         required: true
+ *         description: Access token (JWT)
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - order_id
+ *               - test_results
+ *             properties:
+ *               order_id:
+ *                 type: string
+ *                 example: OD000007
+ *               test_results:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - service_id
+ *                     - order_id
+ *                     - conclusion
+ *                   properties:
+ *                     service_id:
+ *                       type: string
+ *                       example: SV000001
+ *                     order_id:
+ *                       type: string
+ *                       example: OD000007
+ *                     result:
+ *                       type: string
+ *                       example: Không phát hiện kháng nguyên p24 hay kháng thể HIV trong máu.
+ *                     conclusion:
+ *                       type: string
+ *                       example: Không phát hiện virus HIV
+ *                     normal_range:
+ *                       type: string
+ *                       example: good
+ *                     recommendations:
+ *                       type: string
+ *                       example: ''
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       example: '2025-07-13T19:43:21.586Z'
  *     responses:
  *       201:
  *         description: Test results created successfully
