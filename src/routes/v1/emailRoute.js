@@ -1,6 +1,5 @@
 import express from 'express';
 import { emailController } from '~/controllers/emailController';
-// import isAuth from '~/middlewares/isAuthMiddleware';
 
 const Router = express.Router();
 
@@ -33,10 +32,8 @@ Router.route('/send-cycle-notification').post(
   emailController.sendCycleNotification
 );
 
-// Route để gửi nhắc nhở uống thuốc tránh thai
 Router.route('/send-pill-reminder').post(emailController.sendPillReminder);
 
-// Route để admin gửi nhắc nhở cho tất cả người dùng
 Router.route('/send-all-pill-reminders').post(
   emailController.sendAllPillReminders
 );

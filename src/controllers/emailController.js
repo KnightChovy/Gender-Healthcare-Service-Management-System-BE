@@ -405,14 +405,6 @@ const sendOrderTestCompletionNotification = async (req, res) => {
   }
 };
 
-/**
- * Gửi email thông báo thông tin chu kỳ kinh nguyệt cho người dùng
- * @route POST /api/v1/emails/send-cycle-notification
- * @param {object} req - Request object
- * @param {object} req.body - Body của request
- * @param {string} req.body.user_id - ID của người dùng cần gửi thông báo
- * @returns {object} Kết quả gửi email
- */
 const sendCycleNotification = async (req, res, next) => {
   try {
     const { user_id } = req.body;
@@ -424,7 +416,6 @@ const sendCycleNotification = async (req, res, next) => {
       });
     }
 
-    // Lấy thông tin người dùng từ database
     const user = await userService.getUserById(user_id);
 
     if (!user) {
@@ -434,7 +425,6 @@ const sendCycleNotification = async (req, res, next) => {
       });
     }
 
-    // Lấy dữ liệu chu kỳ kinh nguyệt từ service thay vì từ request body
     const cycleData = await cycleService.getCycleByUserID(user_id);
 
     if (!cycleData) {
@@ -444,7 +434,6 @@ const sendCycleNotification = async (req, res, next) => {
       });
     }
 
-    // Gọi service để gửi email
     const result = await emailService.sendCycleNotificationEmail(
       user,
       cycleData
@@ -479,7 +468,6 @@ const sendPillReminder = async (req, res, next) => {
       });
     }
 
-    // Lấy thông tin người dùng
     const user = await userService.getUserById(user_id);
 
     if (!user) {
@@ -489,7 +477,6 @@ const sendPillReminder = async (req, res, next) => {
       });
     }
 
-    // Lấy dữ liệu chu kỳ của người dùng
     const cycleData = await cycleService.getCycleByUserID(user_id);
 
     if (!cycleData) {
@@ -499,7 +486,6 @@ const sendPillReminder = async (req, res, next) => {
       });
     }
 
-    // Gửi email nhắc nhở
     const result = await emailService.sendPillReminderEmail(user, cycleData);
 
     return res.status(StatusCodes.OK).json({
@@ -515,7 +501,6 @@ const sendPillReminder = async (req, res, next) => {
 
 const sendAllPillReminders = async (req, res, next) => {
   try {
-
     const result = await emailService.sendPillReminders();
 
     return res.status(StatusCodes.OK).json({

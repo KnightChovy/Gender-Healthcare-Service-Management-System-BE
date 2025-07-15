@@ -2,8 +2,6 @@ import nodemailer from 'nodemailer';
 import { env } from '~/config/environment';
 import { MODELS } from '~/models/initModels';
 import ApiError from '~/utils/ApiError';
-import { hashPassword } from '~/utils/crypto';
-import { CycleModel } from '~/models/cycleModel';
 
 const sendEmail = async (email) => {
   try {
@@ -1683,15 +1681,12 @@ const sendCycleNotificationEmail = async (user, cycleData) => {
       },
     });
 
-    // Tính ngày hiện tại
     const today = new Date();
 
-    // Tính toán các ngày quan trọng dựa trên dữ liệu chu kỳ
     const lastPeriodDate = new Date(cycleData.lastPeriodDate);
     const cycleLength = cycleData.cycleLength || 28;
     const periodLength = cycleData.periodLength || 5;
 
-    // Tính ngày chu kỳ tiếp theo
     const addDays = (date, days) => {
       const result = new Date(date);
       result.setDate(result.getDate() + days);
@@ -1725,7 +1720,6 @@ const sendCycleNotificationEmail = async (user, cycleData) => {
         ? 'ngày mai'
         : `trong ${daysUntilPeriod} ngày nữa`;
 
-    // Format ngày theo định dạng Việt Nam
     const formatVietnameseDate = (date) => {
       return new Intl.DateTimeFormat('vi-VN', {
         day: '2-digit',
@@ -1741,7 +1735,6 @@ const sendCycleNotificationEmail = async (user, cycleData) => {
       formatVietnameseDate(fertilityStartDate);
     const formattedFertilityEndDate = formatVietnameseDate(fertilityEndDate);
 
-    // Tạo template email
     const emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -1849,10 +1842,8 @@ const sendPillReminderEmail = async (user, cycleData) => {
       },
     });
 
-    // Lấy thời gian uống thuốc từ cycleData
-    const pillTime = cycleData.pillTime || '08:00'; // Mặc định 8:00 sáng nếu không có
+    const pillTime = cycleData.pillTime || '08:00';
 
-    // Format ngày hôm nay theo định dạng Việt Nam
     const today = new Date();
     const formattedDate = new Intl.DateTimeFormat('vi-VN', {
       day: '2-digit',
@@ -1861,7 +1852,6 @@ const sendPillReminderEmail = async (user, cycleData) => {
       weekday: 'long',
     }).format(today);
 
-    // Tạo template email
     const emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -1935,17 +1925,14 @@ const sendPillReminderEmail = async (user, cycleData) => {
 
 const sendPillReminders = async () => {
   try {
-    // Lấy giờ hiện tại trong múi giờ Việt Nam (UTC+7)
     const now = new Date();
-    const vietnamHours = (now.getUTCHours() + 7) % 24; // Chuyển đổi sang múi giờ Việt Nam
+    const vietnamHours = (now.getUTCHours() + 7) % 24; 
     const vietnamMinutes = now.getUTCMinutes();
 
-    // Format giờ hiện tại thành định dạng "HH:MM"
     const currentTimeString = `${vietnamHours
       .toString()
       .padStart(2, '0')}:${vietnamMinutes.toString().padStart(2, '0')}`;
 
-    // Lấy dữ liệu chu kỳ từ cycleService
     const { cycleService } = require('../services/cycleService');
     const cycles = await cycleService.getAllCycles();
 
@@ -1985,14 +1972,12 @@ const sendPillReminders = async () => {
     const results = [];
 
     for (const cycle of matchingCycles) {
-      // Lấy thông tin người dùng từ MySQL
       const user = await MODELS.UserModel.findOne({
         where: { user_id: cycle.user_id },
         attributes: ['user_id', 'first_name', 'last_name', 'email'],
       });
 
       if (user && user.email) {
-        // Gửi email nhắc nhở
         const emailResult = await sendPillReminderEmail(user, cycle);
 
         results.push({

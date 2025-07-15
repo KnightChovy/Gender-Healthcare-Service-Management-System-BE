@@ -1,7 +1,6 @@
 import ApiError from '~/utils/ApiError';
 import { testResultService } from '../services/testResultService';
 
-
 const getAll = async (req, res, next) => {
   try {
     const results = await testResultService.getAll();
@@ -9,7 +8,7 @@ const getAll = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-}
+};
 
 const getById = async (req, res, next) => {
   try {
@@ -19,7 +18,7 @@ const getById = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-}
+};
 
 const create = async (req, res, next) => {
   try {
@@ -32,17 +31,20 @@ const create = async (req, res, next) => {
 
 const createTestResults = async (req, res, next) => {
   try {
-    const decoded = req.jwtDecoded
-    console.log('decoded', decoded)
+    const decoded = req.jwtDecoded;
+    console.log('decoded', decoded);
     if (decoded.data.role !== 'staff' && decoded.data.role !== 'manager') {
-      throw ApiError(404, 'Bạn không có quyền này')
+      throw new ApiError(404, 'Bạn không có quyền này');
     }
-    const { order_id, test_results } = req.body
-    const created = await testResultService.createTestResults(order_id, test_results);
+    const { order_id, test_results } = req.body;
+    const created = await testResultService.createTestResults(
+      order_id,
+      test_results
+    );
     res.status(201).json({
       success: true,
       message: 'create successfully',
-      result: created
+      result: created,
     });
   } catch (err) {
     next(err);
@@ -54,4 +56,4 @@ export const testResultController = {
   getById,
   create,
   createTestResults,
-}
+};
