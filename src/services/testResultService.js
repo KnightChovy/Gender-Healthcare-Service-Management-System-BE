@@ -115,6 +115,40 @@ const createTestResults = async (order_id, test_results) => {
           created_at: created_at ? new Date(created_at) : new Date(),
         });
 
+        if (MODELS.OrderDetailModel) {
+          try {
+            const orderDetail = await MODELS.OrderDetailModel.findOne({
+              where: {
+                order_id: order_id,
+                service_id: service_id,
+              },
+            });
+
+            if (orderDetail) {
+              await MODELS.OrderDetailModel.update(
+                { testresult_id: testresult_id },
+                {
+                  where: {
+                    order_detail_id: orderDetail.order_detail_id,
+                  },
+                }
+              );
+              console.log(
+                `Updated testresult_id ${testresult_id} for order_detail_id ${orderDetail.order_detail_id}`
+              );
+            } else {
+              console.warn(
+                `No order_detail found for order_id ${order_id} and service_id ${service_id}`
+              );
+            }
+          } catch (updateError) {
+            console.error(
+              'Error updating testresult_id in order_detail:',
+              updateError
+            );
+          }
+        }
+
         createdResults.push(created);
       } catch (error) {
         console.error('Error creating test result:', error);

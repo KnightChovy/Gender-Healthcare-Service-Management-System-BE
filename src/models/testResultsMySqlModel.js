@@ -15,7 +15,7 @@ const initTestResultModel = () => {
           allowNull: false,
         },
         result: {
-          type: DataTypes.STRING(50),
+          type: DataTypes.STRING(500),
           allowNull: true,
         },
         conclusion: {
