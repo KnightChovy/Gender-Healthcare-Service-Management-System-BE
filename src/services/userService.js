@@ -647,6 +647,29 @@ const getTestResults = async (userId, orderId = null) => {
   }
 };
 
+const getUserById = async (userId) => {
+  try {
+    console.log('Finding user with ID:', userId);
+    const user = await MODELS.UserModel.findOne({ where: { user_id: userId } });
+    console.log('User found:', user ? 'Yes' : 'No');
+    if (!user) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Không tìm thấy thông tin người dùng với ID: ${userId}`
+      );
+    }
+    return user;
+  } catch (error) {
+    console.error('Error in getUserById:', error);
+    throw error instanceof ApiError
+      ? error
+      : new ApiError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          'Lỗi khi lấy thông tin người dùng: ' + (error.message || '')
+        );
+  }
+};
+
 export const userService = {
   getAllUsers,
   createUser,
@@ -659,4 +682,5 @@ export const userService = {
   getUserTestAppointments,
   getAllOrders,
   getTestResults,
+  getUserById,
 };
