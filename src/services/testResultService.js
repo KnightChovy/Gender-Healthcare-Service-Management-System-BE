@@ -33,7 +33,6 @@ const create = async (data) => {
   return created;
 };
 
-// Add MySQL test result creation
 const createTestResults = async (order_id, test_results) => {
   const results = test_results
   if (!Array.isArray(results) || results.length === 0) {
@@ -54,9 +53,8 @@ const createTestResults = async (order_id, test_results) => {
     if (!service_id || !order_id || !conclusion) {
       throw new ApiError(400, 'Missing required fields: service_id, order_id, or conclusion');
     }
-    // Generate a unique testresult_id (e.g., using timestamp + random)
     const testresult_id = `TR${Date.now()}${Math.floor(Math.random() * 10000)}`;
-    const medrecord_id = order_id; // Assuming medrecord_id maps to order_id
+    const medrecord_id = order_id;
     const created = await TestResultMySqlModel.create({
       testresult_id,
       medrecord_id,
