@@ -1945,7 +1945,75 @@ const sendPillReminders = async () => {
       .toString()
       .padStart(2, '0')}:${vietnamMinutes.toString().padStart(2, '0')}`;
 
-    // Lấy các chu kỳ từ MongoDB
+    // Kiểm tra xem CycleModel đã được import đúng cách chưa
+    if (!CycleModel || typeof CycleModel.find !== 'function') {
+      console.error('CycleModel không khả dụng hoặc không có phương thức find');
+      
+      // Lấy dữ liệu chu kỳ từ cách khác - sử dụng cycleService
+      const { cycleService } = require('../services/cycleService');
+      const cycles = await cycleService.getAllCycles();
+      
+      if (!cycles || cycles.length === 0) {
+        return {
+          sentCount: 0,
+          message: 'Không có dữ liệu chu kỳ nào',
+          results: [],
+        };
+      }
+      
+      const matchingCycles = cycles.filter((cycle) => {
+        if (!cycle.pillTime) return false;
+
+        const cyclePillTime = cycle.pillTime;
+        const [cycleHours, cycleMinutes] = cyclePillTime.split(':').map(Number);
+        const [currentHours, currentMinutes] = currentTimeString
+          .split(':')
+          .map(Number);
+
+        // Tính tổng số phút
+        const cycleTimeInMinutes = cycleHours * 60 + cycleMinutes;
+        const currentTimeInMinutes = currentHours * 60 + currentMinutes;
+
+        // Cho phép sai lệch 5 phút
+        return Math.abs(cycleTimeInMinutes - currentTimeInMinutes) <= 5;
+      });
+
+      if (matchingCycles.length === 0) {
+        return {
+          sentCount: 0,
+          message: 'Không có người dùng nào cần nhắc nhở uống thuốc vào lúc này',
+          results: [],
+        };
+      }
+
+      const results = [];
+
+      for (const cycle of matchingCycles) {
+        // Lấy thông tin người dùng từ MySQL
+        const user = await MODELS.UserModel.findOne({
+          where: { user_id: cycle.user_id },
+          attributes: ['user_id', 'first_name', 'last_name', 'email'],
+        });
+
+        if (user && user.email) {
+          // Gửi email nhắc nhở
+          const emailResult = await sendPillReminderEmail(user, cycle);
+
+          results.push({
+            user_id: user.user_id,
+            pillTime: cycle.pillTime,
+            result: emailResult,
+          });
+        }
+      }
+
+      return {
+        sentCount: results.length,
+        message: `Đã gửi ${results.length} email nhắc nhở uống thuốc tránh thai`,
+        results,
+      };
+    }
+    
     const cycles = await CycleModel.find();
 
     if (!cycles || cycles.length === 0) {

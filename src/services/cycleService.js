@@ -6,10 +6,15 @@ const cycleCulate = async (data, userId) => {
   try {
     const { lastPeriodDate, cycleLength, periodLength, pillTime } = data;
 
-    if (!lastPeriodDate || !cycleLength || !periodLength || !pillTime || !userId) {
+    if (
+      !lastPeriodDate ||
+      !cycleLength ||
+      !periodLength ||
+      !pillTime ||
+      !userId
+    ) {
       throw new ApiError(400, 'Thiếu thông tin đầu vào bắt buộc.');
     }
-
 
     const periodStart = new Date(lastPeriodDate);
     const periodEnd = addDays(periodStart, periodLength - 1);
@@ -29,16 +34,16 @@ const cycleCulate = async (data, userId) => {
       pillTime,
       periodRange: {
         start: periodStart,
-        end: periodEnd
+        end: periodEnd,
       },
       ovulationRange: {
         start: ovulationStart,
-        end: ovulationEnd
+        end: ovulationEnd,
       },
       fertilityWindow: {
         start: fertileStart,
-        end: fertileEnd
-      }
+        end: fertileEnd,
+      },
     });
 
     return cycle;
@@ -54,11 +59,11 @@ const cycleCulate = async (data, userId) => {
 const getCycleByUserID = async (user_id) => {
   try {
     if (!user_id) {
-      throw ApiError(400, 'Thiếu thông tin đầu vào')
+      throw ApiError(400, 'Thiếu thông tin đầu vào');
     }
 
-    const cycle = await CycleModel.findOne({ user_id: user_id })
-    return cycle
+    const cycle = await CycleModel.findOne({ user_id: user_id });
+    return cycle;
   } catch (error) {
     console.error('Lỗi khi lấy chu kỳ:', error);
 
@@ -66,8 +71,26 @@ const getCycleByUserID = async (user_id) => {
 
     throw new ApiError(500, 'Đã có lỗi xảy ra trong hệ thống khi lấy chu kỳ.');
   }
-}
+};
+
+const getAllCycles = async () => {
+  try {
+    const cycles = await CycleModel.find({});
+    return cycles;
+  } catch (error) {
+    console.error('Lỗi khi lấy tất cả chu kỳ:', error);
+
+    if (error instanceof ApiError) throw error;
+
+    throw new ApiError(
+      500,
+      'Đã có lỗi xảy ra trong hệ thống khi lấy tất cả chu kỳ.'
+    );
+  }
+};
+
 export const cycleService = {
   cycleCulate,
-  getCycleByUserID
+  getCycleByUserID,
+  getAllCycles,
 };
