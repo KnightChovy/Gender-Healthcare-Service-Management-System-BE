@@ -1,5 +1,7 @@
 import { emailService } from '~/services/emailService';
 import { StatusCodes } from 'http-status-codes';
+import { userService } from '~/services/userService';
+import { cycleService } from '~/services/cycleService';
 
 const sendEmail = async (req, res) => {
   try {
@@ -390,11 +392,77 @@ const sendOrderTestCompletionNotification = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Error in sendOrderTestCompletionNotification controller:', error);
+    console.error(
+      'Error in sendOrderTestCompletionNotification controller:',
+      error
+    );
     const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
     return res.status(statusCode).json({
       status: 'error',
       message: error.message || 'Lỗi server khi gửi email',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Gửi email thông báo thông tin chu kỳ kinh nguyệt cho người dùng
+ * @route POST /api/v1/emails/send-cycle-notification
+ * @param {object} req - Request object
+ * @param {object} req.body - Body của request
+ * @param {string} req.body.user_id - ID của người dùng cần gửi thông báo
+ * @returns {object} Kết quả gửi email
+ */
+const sendCycleNotification = async (req, res, next) => {
+  try {
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'Thiếu thông tin người dùng',
+      });
+    }
+
+    // Lấy thông tin người dùng từ database
+    const user = await userService.getUserById(user_id);
+
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        status: 'error',
+        message: 'Không tìm thấy người dùng',
+      });
+    }
+
+    // Lấy dữ liệu chu kỳ kinh nguyệt từ service thay vì từ request body
+    const cycleData = await cycleService.getCycleByUserID(user_id);
+
+    if (!cycleData) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        status: 'error',
+        message: 'Không tìm thấy dữ liệu chu kỳ kinh nguyệt của người dùng',
+      });
+    }
+
+    // Gọi service để gửi email
+    const result = await emailService.sendCycleNotificationEmail(
+      user,
+      cycleData
+    );
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Đã gửi email thông báo chu kỳ kinh nguyệt',
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error sending cycle notification email:', error);
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(statusCode).json({
+      status: 'error',
+      message:
+        error.message ||
+        'Lỗi server khi gửi email thông báo chu kỳ kinh nguyệt',
       error: error.message,
     });
   }
@@ -410,4 +478,5 @@ export const emailController = {
   sendOrderCancellationNotification,
   sendAppointmentCancellationNotification,
   sendOrderTestCompletionNotification,
+  sendCycleNotification,
 };

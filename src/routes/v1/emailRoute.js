@@ -29,4 +29,7 @@ Router.route('/order-test-completion').post(
   emailController.sendOrderTestCompletionNotification
 );
 
+Router.route('/send-cycle-notification').post(
+  emailController.sendCycleNotification
+);
 export const emailRoute = Router;

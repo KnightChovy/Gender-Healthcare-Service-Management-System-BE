@@ -3480,7 +3480,7 @@
  *         description: Forbidden - Insufficient permissions
  *       400:
  *         description: Invalid input data
- */ 
+ */
 
 /**
  * @swagger

@@ -1532,7 +1532,7 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
       const waitTimeHours =
         service.result_wait_time && !isNaN(parseInt(service.result_wait_time))
           ? parseInt(service.result_wait_time)
-          : 24; 
+          : 24;
 
       if (waitTimeHours > maxWaitHours) {
         maxWaitHours = waitTimeHours;
@@ -1669,6 +1669,172 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
   }
 };
 
+const sendCycleNotificationEmail = async (user, cycleData) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    // Tính ngày hiện tại
+    const today = new Date();
+
+    // Tính toán các ngày quan trọng dựa trên dữ liệu chu kỳ
+    const lastPeriodDate = new Date(cycleData.lastPeriodDate);
+    const cycleLength = cycleData.cycleLength || 28;
+    const periodLength = cycleData.periodLength || 5;
+
+    // Tính ngày chu kỳ tiếp theo
+    const addDays = (date, days) => {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result;
+    };
+
+    let nextPeriodDate;
+    let cycleCount = 1;
+
+    do {
+      nextPeriodDate = addDays(lastPeriodDate, cycleLength * cycleCount);
+      cycleCount++;
+    } while (nextPeriodDate < today);
+
+    // Tính ngày rụng trứng (thường là giữa chu kỳ)
+    const ovulationDate = addDays(nextPeriodDate, -Math.floor(cycleLength / 2));
+
+    // Tính thời kỳ màu mỡ (5 ngày trước rụng trứng đến 1 ngày sau)
+    const fertilityStartDate = addDays(ovulationDate, -5);
+    const fertilityEndDate = addDays(ovulationDate, 1);
+
+    // Tính số ngày còn lại đến chu kỳ tiếp theo
+    const daysUntilPeriod = Math.floor(
+      (nextPeriodDate - today) / (1000 * 60 * 60 * 24)
+    );
+
+    const periodDaysText =
+      daysUntilPeriod === 0
+        ? 'hôm nay'
+        : daysUntilPeriod === 1
+        ? 'ngày mai'
+        : `trong ${daysUntilPeriod} ngày nữa`;
+
+    // Format ngày theo định dạng Việt Nam
+    const formatVietnameseDate = (date) => {
+      return new Intl.DateTimeFormat('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        weekday: 'long',
+      }).format(date);
+    };
+
+    const formattedNextPeriodDate = formatVietnameseDate(nextPeriodDate);
+    const formattedOvulationDate = formatVietnameseDate(ovulationDate);
+    const formattedFertilityStartDate =
+      formatVietnameseDate(fertilityStartDate);
+    const formattedFertilityEndDate = formatVietnameseDate(fertilityEndDate);
+
+    // Tạo template email
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #E9407A;">Thông tin chu kỳ kinh nguyệt của bạn</h2>
+        </div>
+        
+        <p>Xin chào <strong>${user?.first_name || ''} ${
+      user?.last_name || ''
+    }</strong>,</p>
+        
+        <p>GenCare xin gửi đến bạn thông tin cập nhật về chu kỳ kinh nguyệt sắp tới:</p>
+        
+        <!-- Phần chu kỳ kinh nguyệt -->
+        <div style="background-color: #FFF0F5; border-left: 4px solid #E9407A; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h3 style="color: #E9407A; margin-top: 0;">Chu kỳ kinh nguyệt sắp đến</h3>
+          <p>Chu kỳ kinh nguyệt tiếp theo của bạn dự kiến sẽ bắt đầu <strong>${periodDaysText}</strong> - <strong>${formattedNextPeriodDate}</strong>.</p>
+          <p>Thời gian dự kiến của chu kỳ này: <strong>${periodLength} ngày</strong></p>
+          <p>Một số gợi ý để chuẩn bị cho chu kỳ:</p>
+          <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li>Chuẩn bị sẵn băng vệ sinh hoặc cốc nguyệt san</li>
+            <li>Đảm bảo bạn có thuốc giảm đau nếu thường bị đau bụng kinh</li>
+            <li>Uống nhiều nước và duy trì chế độ ăn uống cân bằng</li>
+          </ul>
+        </div>
+        
+        <!-- Phần rụng trứng -->
+        <div style="background-color: #F0F7FF; border-left: 4px solid #4A90E2; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h3 style="color: #4A90E2; margin-top: 0;">Ngày rụng trứng</h3>
+          <p>Ngày rụng trứng của bạn dự kiến sẽ là <strong>${formattedOvulationDate}</strong>.</p>
+          <p>Đây là thời điểm:</p>
+          <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li>Khả năng thụ thai cao nhất nếu bạn đang cố gắng có thai</li>
+            <li>Cần đặc biệt chú ý nếu bạn đang tránh thai tự nhiên</li>
+            <li>Có thể gặp một số triệu chứng như đau bụng nhẹ, tiết dịch âm đạo trong hơn</li>
+          </ul>
+        </div>
+        
+        <!-- Phần thời kỳ màu mỡ -->
+        <div style="background-color: #F3E5F5; border-left: 4px solid #7E57C2; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h3 style="color: #7E57C2; margin-top: 0;">Thời kỳ màu mỡ</h3>
+          <p>Thời kỳ màu mỡ của bạn sẽ bắt đầu từ <strong>${formattedFertilityStartDate}</strong> đến <strong>${formattedFertilityEndDate}</strong>.</p>
+          <p>Thời kỳ này là khoảng thời gian khi khả năng thụ thai của bạn cao nhất:</p>
+          <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li>Bao gồm 5 ngày trước ngày rụng trứng và 1 ngày sau đó</li>
+            <li>Thời gian tốt nhất để thụ thai nếu bạn đang cố gắng có em bé</li>
+            <li>Cần đặc biệt cẩn thận nếu bạn không muốn có thai</li>
+          </ul>
+        </div>
+        
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color: #E9407A; margin-top: 0;">Nhật ký chu kỳ</h3>
+          <p>Ghi lại các triệu chứng và cảm giác của bạn giúp theo dõi sức khỏe và phát hiện sớm các vấn đề.</p>
+          <div style="text-align: center; margin-top: 15px;">
+            <a href="http://localhost:5173/period-tracker" style="background-color: #E9407A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+              Cập nhật nhật ký chu kỳ
+            </a>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #777;">
+          <p>Nếu bạn có bất kỳ câu hỏi nào về sức khỏe phụ khoa, vui lòng liên hệ với đội ngũ GenCare:</p>
+          <p>Email: support@gencare.vn | Hotline: 0907865147</p>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ GenCare</strong></p>
+        </div>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: `"GenCare" <${env.EMAIL_USERNAME}>`,
+      to: user.email,
+      subject: 'Thông tin chu kỳ kinh nguyệt sắp tới của bạn',
+      html: emailContent,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return {
+      status: 'success',
+      message: 'Email thông báo chu kỳ kinh nguyệt đã được gửi',
+      sentTo: user.email,
+    };
+  } catch (error) {
+    console.error('Error sending cycle notification email:', error);
+    return {
+      status: 'error',
+      message: `Lỗi khi gửi email: ${error.message}`,
+    };
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
@@ -1680,4 +1846,5 @@ export const emailService = {
   sendOrderCancellationEmail,
   sendAppointmentCancellationEmail,
   sendOrderTestCompletionEmail,
+  sendCycleNotificationEmail,
 };
