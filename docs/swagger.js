@@ -3568,3 +3568,264 @@
  *       400:
  *         description: Invalid input data
  */
+
+/**
+ * @swagger
+ * /v1/emails/send-cycle-notification:
+ *   post:
+ *     summary: Gửi email thông báo chu kỳ kinh nguyệt
+ *     description: Gửi email chứa thông tin về chu kỳ kinh nguyệt sắp tới, ngày rụng trứng và thời kỳ màu mỡ
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 example: "US000023"
+ *                 description: ID của người dùng cần gửi thông báo
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Đã gửi email thông báo chu kỳ kinh nguyệt"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "success"
+ *                     message:
+ *                       type: string
+ *                       example: "Email thông báo chu kỳ kinh nguyệt đã được gửi"
+ *                     sentTo:
+ *                       type: string
+ *                       example: "user@example.com"
+ *       400:
+ *         description: Thiếu thông tin người dùng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Thiếu thông tin người dùng"
+ *       404:
+ *         description: Không tìm thấy người dùng hoặc dữ liệu chu kỳ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy người dùng hoặc dữ liệu chu kỳ kinh nguyệt"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi server khi gửi email thông báo chu kỳ kinh nguyệt"
+ */
+
+/**
+ * @swagger
+ * /v1/emails/send-pill-reminder:
+ *   post:
+ *     summary: Gửi email nhắc nhở uống thuốc tránh thai
+ *     description: Gửi email nhắc nhở người dùng uống thuốc tránh thai theo thời gian đã cài đặt
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - user_id
+ *             properties:
+ *               user_id:
+ *                 type: string
+ *                 example: "US000023"
+ *                 description: ID của người dùng cần gửi nhắc nhở
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Đã gửi email nhắc nhở uống thuốc tránh thai"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     status:
+ *                       type: string
+ *                       example: "success"
+ *                     message:
+ *                       type: string
+ *                       example: "Email nhắc nhở uống thuốc tránh thai đã được gửi"
+ *                     sentTo:
+ *                       type: string
+ *                       example: "user@example.com"
+ *       400:
+ *         description: Thiếu thông tin người dùng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Thiếu thông tin người dùng"
+ *       404:
+ *         description: Không tìm thấy người dùng hoặc dữ liệu chu kỳ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy người dùng hoặc dữ liệu chu kỳ kinh nguyệt"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi server khi gửi email nhắc nhở uống thuốc"
+ */
+
+/**
+ * @swagger
+ * /v1/emails/send-all-pill-reminders:
+ *   post:
+ *     summary: Gửi email nhắc nhở uống thuốc tránh thai cho tất cả người dùng có lịch vào thời điểm hiện tại
+ *     description: Gửi email nhắc nhở uống thuốc tránh thai cho tất cả người dùng có thời gian uống thuốc trùng với thời điểm hiện tại (±5 phút). Chỉ admin mới có quyền sử dụng API này.
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Đã gửi email nhắc nhở uống thuốc tránh thai cho tất cả người dùng cần nhắc nhở"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     sentCount:
+ *                       type: integer
+ *                       example: 3
+ *                     message:
+ *                       type: string
+ *                       example: "Đã gửi 3 email nhắc nhở uống thuốc tránh thai"
+ *                     results:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           user_id:
+ *                             type: string
+ *                             example: "US000023"
+ *                           pillTime:
+ *                             type: string
+ *                             example: "11:30"
+ *                           result:
+ *                             type: object
+ *                             properties:
+ *                               status:
+ *                                 type: string
+ *                                 example: "success"
+ *                               message:
+ *                                 type: string
+ *                                 example: "Email nhắc nhở uống thuốc tránh thai đã được gửi"
+ *                               sentTo:
+ *                                 type: string
+ *                                 example: "user@example.com"
+ *       403:
+ *         description: Không có quyền thực hiện hành động này
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Bạn không có quyền thực hiện hành động này"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi server khi gửi email nhắc nhở uống thuốc"
+ */
