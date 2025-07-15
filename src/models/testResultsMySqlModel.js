@@ -14,10 +14,6 @@ const initTestResultModel = () => {
           primaryKey: true,
           allowNull: false,
         },
-        medrecord_id: {
-          type: DataTypes.STRING(20),
-          allowNull: false,
-        },
         result: {
           type: DataTypes.STRING(50),
           allowNull: true,

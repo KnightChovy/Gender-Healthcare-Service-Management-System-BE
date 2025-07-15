@@ -53,11 +53,21 @@ const createTestResults = async (order_id, test_results) => {
     if (!service_id || !order_id || !conclusion) {
       throw new ApiError(400, 'Missing required fields: service_id, order_id, or conclusion');
     }
-    const testresult_id = `TR${Date.now()}${Math.floor(Math.random() * 10000)}`;
-    const medrecord_id = order_id;
+    // Generate a unique testresult_id (TR + 6 số)
+    let latest = await TestResultMySqlModel.findOne({
+      attributes: ['testresult_id'],
+      order: [['testresult_id', 'DESC']]
+    });
+    let nextId = 1;
+    if (latest && latest.testresult_id) {
+      const match = latest.testresult_id.match(/^TR(\d{6})$/);
+      if (match) {
+        nextId = parseInt(match[1], 10) + 1;
+      }
+    }
+    const testresult_id = `TR${String(nextId).padStart(6, '0')}`;
     const created = await TestResultMySqlModel.create({
       testresult_id,
-      medrecord_id,
       result,
       conclusion,
       normal_range,
