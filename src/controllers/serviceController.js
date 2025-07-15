@@ -43,8 +43,8 @@ const bookingService = async (req, res) => {
       serviceData,
       appointment_id,
       payment_method,
-      appointment_date,
-      appointment_time,
+      exam_date,
+      exam_time,
     } = requestData;
 
     const dataBooking = {
@@ -52,8 +52,8 @@ const bookingService = async (req, res) => {
       serviceData,
       appointment_id,
       payment_method,
-      appointment_date,
-      appointment_time,
+      exam_date,
+      exam_time,
     };
 
     console.log('dataBooking', dataBooking);

@@ -263,8 +263,8 @@ const bookingService = async (bookingData) => {
           service_id,
           appointment_id: appointment_id || null,
           testresult_id: null,
-          exam_date: null,
-          exam_time: null,
+          exam_date: bookingData.exam_date,
+          exam_time: bookingData.exam_time,
         },
         { transaction }
       );
