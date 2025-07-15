@@ -3,7 +3,7 @@ import { env } from '~/config/environment';
 import { MODELS } from '~/models/initModels';
 import ApiError from '~/utils/ApiError';
 import { hashPassword } from '~/utils/crypto';
-// import { CycleModel } from '~/models/cycleModel';
+import { CycleModel } from '~/models/cycleModel';
 
 const sendEmail = async (email) => {
   try {
@@ -1944,9 +1944,6 @@ const sendPillReminders = async () => {
     const currentTimeString = `${vietnamHours
       .toString()
       .padStart(2, '0')}:${vietnamMinutes.toString().padStart(2, '0')}`;
-
-    // Import chu kỳ model từ mongodb
-    const CycleModel = require('../models/cycleModel');
 
     // Lấy các chu kỳ từ MongoDB
     const cycles = await CycleModel.find();
