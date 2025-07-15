@@ -84,18 +84,6 @@ const createTestResults = async (order_id, test_results) => {
         );
       }
 
-      if (!MODELS.ServiceModel) {
-        throw new ApiError(500, 'ServiceModel is not properly initialized');
-      }
-
-      const serviceExists = await MODELS.ServiceModel.findOne({
-        where: { service_id: service_id },
-      });
-
-      if (!serviceExists) {
-        throw new ApiError(404, `Service with ID ${service_id} not found`);
-      }
-
       let testresult_id;
       try {
         let latest = await TestResultMySqlModel.findOne({
