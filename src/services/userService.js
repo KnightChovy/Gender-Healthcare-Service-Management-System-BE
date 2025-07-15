@@ -561,7 +561,6 @@ const getTestResults = async (userId, orderId = null) => {
       whereClause.order_id = orderId;
     }
 
-    // Lấy các đơn hàng của người dùng
     const orders = await MODELS.OrderModel.findAll({
       where: whereClause,
       order: [['created_at', 'DESC']],
@@ -576,7 +575,6 @@ const getTestResults = async (userId, orderId = null) => {
 
     const testResults = [];
 
-    // Lấy chi tiết và kết quả xét nghiệm cho mỗi đơn hàng
     for (const order of orders) {
       const orderDetails = await MODELS.OrderDetailModel.findAll({
         where: { order_id: order.order_id },
@@ -601,35 +599,39 @@ const getTestResults = async (userId, orderId = null) => {
       });
 
       for (const detail of orderDetails) {
-        // Chỉ xử lý các chi tiết đơn hàng đã có kết quả xét nghiệm
         if (detail.testresult_id) {
-          // Lấy kết quả xét nghiệm
-          const testResult = await MODELS.TestResultMySqlModel.findOne({
-            where: { testresult_id: detail.testresult_id },
-            attributes: [
-              'testresult_id',
-              'medrecord_id',
-              'result',
-              'conclusion',
-              'normal_range',
-              'recommendations',
-              'created_at',
-            ],
-          });
-
-          if (testResult) {
-            testResults.push({
-              order_id: order.order_id,
-              order_detail_id: detail.order_detail_id,
-              testresult_id: detail.testresult_id,
-              service: detail.service,
-              exam_date: detail.exam_date,
-              exam_time: detail.exam_time,
-              result: {
-                ...testResult.toJSON(),
-              },
-              created_at: order.created_at,
+          try {
+            const testResult = await MODELS.TestResultMySqlModel.findOne({
+              where: { testresult_id: detail.testresult_id },
+              attributes: [
+                'testresult_id',
+                'result',
+                'conclusion',
+                'normal_range',
+                'recommendations',
+                'created_at',
+              ],
             });
+
+            if (testResult) {
+              testResults.push({
+                order_id: order.order_id,
+                order_detail_id: detail.order_detail_id,
+                testresult_id: detail.testresult_id,
+                service: detail.service,
+                exam_date: detail.exam_date,
+                exam_time: detail.exam_time,
+                result: {
+                  ...testResult.toJSON(),
+                },
+                created_at: order.created_at,
+              });
+            }
+          } catch (resultError) {
+            console.error(
+              `Error fetching test result ${detail.testresult_id}:`,
+              resultError
+            );
           }
         }
       }

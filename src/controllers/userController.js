@@ -269,7 +269,6 @@ const getTestResults = async (req, res) => {
       });
     }
 
-    // Gọi service để lấy kết quả xét nghiệm
     const results = await userService.getTestResults(userId, order_id);
 
     return res.status(StatusCodes.OK).json({
