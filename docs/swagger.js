@@ -3442,20 +3442,20 @@
  *                       example: OD000007
  *                     result:
  *                       type: string
- *                       example: Không phát hiện kháng nguyên p24 hay kháng thể HIV trong máu.
+ *                       example: "Không phát hiện kháng nguyên p24 hay kháng thể HIV trong máu."
  *                     conclusion:
  *                       type: string
- *                       example: Không phát hiện virus HIV
+ *                       example: "Không phát hiện virus HIV"
  *                     normal_range:
  *                       type: string
  *                       example: good
  *                     recommendations:
  *                       type: string
- *                       example: ''
+ *                       example: ""
  *                     created_at:
  *                       type: string
  *                       format: date-time
- *                       example: '2025-07-13T19:43:21.586Z'
+ *                       example: "2025-07-13T19:43:21.586Z"
  *     responses:
  *       201:
  *         description: Test results created successfully

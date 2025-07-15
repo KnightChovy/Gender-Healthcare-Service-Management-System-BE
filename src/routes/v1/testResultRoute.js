@@ -7,6 +7,6 @@ const Router = express.Router();
 Router.get('/', testResultController.getAll);
 Router.get('/:id', testResultController.getById);
 Router.post('/create', testResultController.create);
-Router.post('/create-testResult', isAuth, testResultController.createMySqlResults);
+Router.post('/create-testResult', isAuth, testResultController.createTestResults);
 
-export const testResultRoute = Router; 
+export const testResultRoute = Router;
