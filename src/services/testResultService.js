@@ -44,6 +44,11 @@ const createTestResults = async (order_id, test_results) => {
     if (!Array.isArray(results) || results.length === 0) {
       throw new ApiError(400, 'Input must be a non-empty array');
     }
+
+    if (!MODELS || !MODELS.OrderModel) {
+      throw new ApiError(500, 'Database models are not properly initialized');
+    }
+
     const orderExists = await MODELS.OrderModel.findOne({
       where: { order_id: order_id },
     });
@@ -51,13 +56,20 @@ const createTestResults = async (order_id, test_results) => {
     if (!orderExists) {
       throw new ApiError(404, `Order with ID ${order_id} not found`);
     }
+
+    if (!MODELS.TestResultMySqlModel) {
+      throw new ApiError(
+        500,
+        'TestResultMySqlModel is not properly initialized'
+      );
+    }
+
     const TestResultMySqlModel = MODELS.TestResultMySqlModel;
     const createdResults = [];
 
     for (const item of results) {
       const {
         service_id,
-        order_id,
         result,
         conclusion,
         normal_range,
@@ -65,11 +77,15 @@ const createTestResults = async (order_id, test_results) => {
         created_at,
       } = item;
 
-      if (!service_id || !order_id || !conclusion) {
+      if (!service_id || !conclusion) {
         throw new ApiError(
           400,
-          'Missing required fields: service_id, order_id, or conclusion'
+          'Missing required fields: service_id or conclusion'
         );
+      }
+
+      if (!MODELS.ServiceModel) {
+        throw new ApiError(500, 'ServiceModel is not properly initialized');
       }
 
       const serviceExists = await MODELS.ServiceModel.findOne({
@@ -80,34 +96,47 @@ const createTestResults = async (order_id, test_results) => {
         throw new ApiError(404, `Service with ID ${service_id} not found`);
       }
 
-      // Generate a unique testresult_id (TR + 6 số)
-      let latest = await TestResultMySqlModel.findOne({
-        attributes: ['testresult_id'],
-        order: [['testresult_id', 'DESC']],
-      });
+      let testresult_id;
+      try {
+        let latest = await TestResultMySqlModel.findOne({
+          attributes: ['testresult_id'],
+          order: [['testresult_id', 'DESC']],
+        });
 
-      let nextId = 1;
-      if (latest && latest.testresult_id) {
-        const match = latest.testresult_id.match(/^TR(\d{6})$/);
-        if (match) {
-          nextId = parseInt(match[1], 10) + 1;
+        let nextId = 1;
+        if (latest && latest.testresult_id) {
+          const match = latest.testresult_id.match(/^TR(\d{6})$/);
+          if (match) {
+            nextId = parseInt(match[1], 10) + 1;
+          }
         }
+
+        testresult_id = `TR${String(nextId).padStart(6, '0')}`;
+      } catch (error) {
+        console.error('Error generating testresult_id:', error);
+        throw new ApiError(500, 'Error generating testresult_id');
       }
 
-      const testresult_id = `TR${String(nextId).padStart(6, '0')}`;
-      const created = await TestResultMySqlModel.create({
-        testresult_id,
-        result,
-        conclusion,
-        normal_range,
-        recommendations,
-        created_at: created_at ? new Date(created_at) : new Date(),
-      });
-      createdResults.push(created);
+      try {
+        const created = await TestResultMySqlModel.create({
+          testresult_id,
+          result: result || '',
+          conclusion: conclusion || '',
+          normal_range: normal_range || '',
+          recommendations: recommendations || '',
+          created_at: created_at ? new Date(created_at) : new Date(),
+        });
+
+        createdResults.push(created);
+      } catch (error) {
+        console.error('Error creating test result:', error);
+        throw new ApiError(500, `Error creating test result: ${error.message}`);
+      }
     }
+
     return createdResults;
   } catch (error) {
-    console.error('Error in createTestResults service:', error);
+    console.error('Error in createTestResults:', error);
     if (error instanceof ApiError) {
       throw error;
     }
