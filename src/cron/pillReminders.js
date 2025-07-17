@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import { emailService } from '../services/emailService.js';
 
 export const schedulePillReminders = () => {
-  cron.schedule('*/10 * * * *', async () => {
+  cron.schedule('*/3 * * * *', async () => {
     try {
       console.log('Đang kiểm tra và gửi nhắc nhở uống thuốc tránh thai...');
 
