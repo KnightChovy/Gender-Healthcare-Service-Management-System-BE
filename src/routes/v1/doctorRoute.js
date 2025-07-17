@@ -28,7 +28,7 @@ Router.route('/schedule').post(
 
 Router.route('/:doctor_id/available-timeslots').get(
   isAuth,
-  // cacheMiddleware('doctor_timeslots', 300),
+  cacheMiddleware('doctor_timeslots', 300),
   doctorController.getAvailableTimeslots
 );
 
