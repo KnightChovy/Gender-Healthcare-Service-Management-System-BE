@@ -174,7 +174,7 @@ const createTestResults = async (order_id, test_results) => {
         // Gọi API để gửi email thông báo
         try {
           axios
-            .post(`${env.API_URL}/v1/emails/test-result-notification`, {
+            .post(`${env.PORT}/v1/emails/test-result-notification`, {
               order_id,
               user_id: orderInfo.user_id,
             })
