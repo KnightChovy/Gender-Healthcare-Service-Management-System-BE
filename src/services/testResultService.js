@@ -1,6 +1,8 @@
 import ApiError from '~/utils/ApiError';
 import { TestResultModel } from '../models/testResultModel';
 import { MODELS } from '../models/initModels';
+import axios from 'axios';
+import env from '~/config/env';
 
 const getAll = async () => {
   try {
@@ -154,6 +156,41 @@ const createTestResults = async (order_id, test_results) => {
         console.error('Error creating test result:', error);
         throw new ApiError(500, `Error creating test result: ${error.message}`);
       }
+    }
+
+    // Cập nhật trạng thái đơn hàng
+    try {
+      await MODELS.OrderModel.update(
+        { status: 'Đã có kết quả' },
+        { where: { order_id: order_id } }
+      );
+
+      // Lấy thông tin đơn hàng để biết user_id
+      const orderInfo = await MODELS.OrderModel.findOne({
+        where: { order_id },
+      });
+
+      if (orderInfo) {
+        // Gọi API để gửi email thông báo
+        try {
+          axios
+            .post(`${env.API_URL}/v1/emails/test-result-notification`, {
+              order_id,
+              user_id: orderInfo.user_id,
+            })
+            .catch((err) => {
+              console.error(
+                'Không thể gửi email thông báo kết quả xét nghiệm:',
+                err.message
+              );
+            });
+        } catch (emailError) {
+          console.error('Lỗi khi gọi API gửi email:', emailError);
+          // Không ném lỗi để không ảnh hưởng đến việc tạo kết quả
+        }
+      }
+    } catch (updateError) {
+      console.error('Error updating order status:', updateError.message);
     }
 
     return createdResults;

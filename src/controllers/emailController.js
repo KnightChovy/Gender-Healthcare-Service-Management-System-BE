@@ -514,6 +514,60 @@ const sendAllPillReminders = async (req, res, next) => {
   }
 };
 
+const sendTestResultNotification = async (req, res) => {
+  try {
+    const { order_id, user_id } = req.body;
+
+    if (!order_id || !user_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: 'error',
+        message: 'order_id và user_id là bắt buộc',
+      });
+    }
+
+    console.log(
+      `Sending test result notification email for order: ${order_id}, user: ${user_id}`
+    );
+
+    const response = await emailService.sendTestResultNotificationEmail(
+      order_id,
+      user_id
+    );
+
+    if (response.status === 'error') {
+      const statusCode = response.message.includes('Không tìm thấy')
+        ? StatusCodes.NOT_FOUND
+        : StatusCodes.INTERNAL_SERVER_ERROR;
+
+      return res.status(statusCode).json({
+        status: 'error',
+        message: response.message,
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      status: 'success',
+      message: 'Email thông báo kết quả xét nghiệm đã được gửi thành công',
+      data: {
+        emailSent: true,
+        order_id,
+        user_id,
+        sentTo: response.sentTo,
+      },
+    });
+  } catch (error) {
+    console.error('Error sending test result notification email:', error);
+    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
+    return res.status(statusCode).json({
+      status: 'error',
+      message:
+        error.message ||
+        'Lỗi server khi gửi email thông báo kết quả xét nghiệm',
+      error: error.message,
+    });
+  }
+};
+
 export const emailController = {
   sendEmail,
   sendPaymentReminder,
@@ -527,4 +581,5 @@ export const emailController = {
   sendCycleNotification,
   sendPillReminder,
   sendAllPillReminders,
+  sendTestResultNotification,
 };
