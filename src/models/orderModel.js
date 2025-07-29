@@ -1,6 +1,6 @@
 // ~/models/orderModel.js
-import { DataTypes } from 'sequelize';
-import { GET_DB } from '~/config/mysql';
+import { DataTypes } from "sequelize";
+import { GET_DB } from "~/config/mysql";
 
 let Order = null;
 
@@ -8,7 +8,7 @@ const initOrderModel = () => {
   if (!Order) {
     const sequelize = GET_DB();
     Order = sequelize.define(
-      'Order',
+      "Order",
       {
         order_id: {
           type: DataTypes.STRING(20),
@@ -37,7 +37,7 @@ const initOrderModel = () => {
         },
       },
       {
-        tableName: 'orders',
+        tableName: "orders",
         timestamps: false,
       }
     );

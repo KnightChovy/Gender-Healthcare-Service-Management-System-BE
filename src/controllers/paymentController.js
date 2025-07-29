@@ -1,4 +1,4 @@
-import { paymentService } from '~/services/paymentService';
+import { paymentService } from "~/services/paymentService";
 
 const createCheckoutSession = async (req, res) => {
   try {
@@ -11,7 +11,22 @@ const createCheckoutSession = async (req, res) => {
     res.json({ url: session.url });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Có lỗi xảy ra' });
+    res.status(500).json({ error: "Có lỗi xảy ra" });
+  }
+};
+
+const paymentOrder = async (req, res) => {
+  try {
+    const { user_id, order_id, services } = req.body;
+    const session = await paymentService.paymentOrder(
+      user_id,
+      order_id,
+      services
+    );
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Có lỗi xảy ra" });
   }
 };
 
@@ -22,4 +37,5 @@ export const stripeWebhook = (req, res) => {
 export const paymentController = {
   createCheckoutSession,
   stripeWebhook,
+  paymentOrder,
 };
