@@ -2076,9 +2076,7 @@ const sendTestResultNotificationEmail = async (order_id, user_id) => {
         const serviceName = detail.service
           ? detail.service.name
           : 'Dịch vụ không xác định';
-        const hasResult = detail.testresult_id
-          ? '✓ Đã có kết quả'
-          : 'Đang xử lý';
+        const hasResult = detail.testresult_id ? 'Đã có kết quả' : 'Đang xử lý';
         return `<tr>
           <td style="padding: 10px; border-bottom: 1px solid #eee;">${serviceName}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; color: ${
@@ -2090,7 +2088,6 @@ const sendTestResultNotificationEmail = async (order_id, user_id) => {
       })
       .join('');
 
-    // Format ngày
     const today = new Date();
     const formattedDate = new Intl.DateTimeFormat('vi-VN', {
       day: '2-digit',
@@ -2100,7 +2097,6 @@ const sendTestResultNotificationEmail = async (order_id, user_id) => {
       minute: '2-digit',
     }).format(today);
 
-    // Tạo HTML email
     const emailContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
         <div style="text-align: center; margin-bottom: 20px;">
@@ -2166,7 +2162,6 @@ const sendTestResultNotificationEmail = async (order_id, user_id) => {
       </div>
     `;
 
-    // Tạo mailOptions
     const mailOptions = {
       from: `"GenCare" <${env.EMAIL_USERNAME}>`,
       to: user.email,
@@ -2174,7 +2169,6 @@ const sendTestResultNotificationEmail = async (order_id, user_id) => {
       html: emailContent,
     };
 
-    // Gửi email
     const info = await transporter.sendMail(mailOptions);
     console.log(`Email thông báo kết quả xét nghiệm đã gửi: ${info.messageId}`);
 
