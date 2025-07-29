@@ -1,6 +1,7 @@
 import ApiError from '~/utils/ApiError';
 import { TestResultModel } from '../models/testResultModel';
 import { MODELS } from '../models/initModels';
+import axios from 'axios';
 
 const getAll = async () => {
   try {
@@ -75,6 +76,7 @@ const createTestResults = async (order_id, test_results) => {
         normal_range,
         recommendations,
         created_at,
+        image,
       } = item;
 
       if (!service_id || !conclusion) {
@@ -113,6 +115,7 @@ const createTestResults = async (order_id, test_results) => {
           normal_range: normal_range || '',
           recommendations: recommendations || '',
           created_at: created_at ? new Date(created_at) : new Date(),
+          image: image || '',
         });
 
         if (MODELS.OrderDetailModel) {
@@ -154,6 +157,40 @@ const createTestResults = async (order_id, test_results) => {
         console.error('Error creating test result:', error);
         throw new ApiError(500, `Error creating test result: ${error.message}`);
       }
+    }
+
+    try {
+      await MODELS.OrderModel.update(
+        { status: 'Đã có kết quả' },
+        { where: { order_id: order_id } }
+      );
+
+      const orderInfo = await MODELS.OrderModel.findOne({
+        where: { order_id },
+      });
+
+      if (orderInfo) {
+        try {
+          axios
+            .post(
+              'http://52.4.72.106:3000/v1/emails/test-result-notification',
+              {
+                order_id,
+                user_id: orderInfo.user_id,
+              }
+            )
+            .catch((err) => {
+              console.error(
+                'Không thể gửi email thông báo kết quả xét nghiệm:',
+                err.message
+              );
+            });
+        } catch (emailError) {
+          console.error('Lỗi khi gọi API gửi email:', emailError);
+        }
+      }
+    } catch (updateError) {
+      console.error('Error updating order status:', updateError.message);
     }
 
     return createdResults;

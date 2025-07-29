@@ -164,7 +164,7 @@ const sendPaymentReminderEmail = async (appointmentId) => {
           </table>
         </div>
         
-        <div style="background-color: #fff8e1; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+        <div style="background-color: #f0f7ff; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
           <h3 style="margin-top: 0; color: #FF9800;">Hướng dẫn thanh toán</h3>
           <ol style="padding-left: 20px; margin-bottom: 0;">
             <li>Đăng nhập vào tài khoản của bạn trên Gender Healthcare</li>
@@ -274,7 +274,7 @@ const sendBookingConfirmationEmail = async (appointmentId) => {
         ? `${parseFloat(appointment.price_apm).toLocaleString('vi-VN')} VND`
         : '300.000 VND',
       appointmentMode: appointment.consultant_type,
-      meetingLink: 'https://meet.google.com/ymf-dwbi-uhy',
+      meetingLink: 'https://meet.google.com/gzq-fqau-uix',
       dashboardLink: 'http://localhost:5173/my-appointments',
     };
 
@@ -350,7 +350,7 @@ const sendBookingConfirmationEmail = async (appointmentId) => {
           <ul style="padding-left: 20px; margin-bottom: 0;">
             <li>Vui lòng có mặt trước giờ hẹn 5-10 phút để chuẩn bị</li>
             <li>Đối với tư vấn online: Sử dụng đường link sau để tham gia buổi tư vấn: <a href="${
-              userData.meetingLink || 'https://meet.google.com/ymf-dwbi-uhy'
+              userData.meetingLink || 'https://meet.google.com/gzq-fqau-uix'
             }" style="color: #1a73e8; text-decoration: underline;">Tham gia cuộc hẹn</a></li>
             <li>Chuẩn bị sẵn các câu hỏi hoặc thông tin y tế liên quan để buổi tư vấn hiệu quả hơn</li>
             <li>Nếu cần thay đổi lịch hẹn, vui lòng thông báo trước ít nhất 24 giờ</li>
@@ -955,7 +955,7 @@ const sendOrderCancellationEmail = async (
           </table>
         </div>
         
-        <div style="background-color: #fff5f5; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #e74c3c;">
+        <div style="background-color: #fff5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #e74c3c;">
           <h3 style="color: #e74c3c; margin-top: 0;">Dịch vụ đã hủy</h3>
           <table style="width: 100%; border-collapse: collapse;">
             <thead>
@@ -1596,7 +1596,7 @@ const sendOrderTestCompletionEmail = async (user_id, order_id) => {
               <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${order_id}</td>
             </tr>
             <tr>
-              <td style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Thời gian hoàn thành:</strong></td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #eee; width: 40%;"><strong>Thời gian hoàn thành:</strong></td>
               <td style="padding: 8px 0; border-bottom: 1px solid #eee;">${completionDateFormatted}</td>
             </tr>
           </table>
@@ -1788,7 +1788,7 @@ const sendCycleNotificationEmail = async (user, cycleData) => {
           <h3 style="color: #E9407A; margin-top: 0;">Nhật ký chu kỳ</h3>
           <p>Ghi lại các triệu chứng và cảm giác của bạn giúp theo dõi sức khỏe và phát hiện sớm các vấn đề.</p>
           <div style="text-align: center; margin-top: 15px;">
-            <a href="http://localhost:5173//menstrual-cycle" style="background-color: #E9407A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            <a href="http://localhost:5173/menstrual-cycle" style="background-color: #E9407A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
               Cập nhật nhật ký chu kỳ
             </a>
           </div>
@@ -1849,7 +1849,8 @@ const sendPillReminderEmail = async (user, cycleData) => {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-      weekday: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(today);
 
     const emailContent = `
@@ -1926,7 +1927,7 @@ const sendPillReminderEmail = async (user, cycleData) => {
 const sendPillReminders = async () => {
   try {
     const now = new Date();
-    const vietnamHours = (now.getUTCHours() + 7) % 24; 
+    const vietnamHours = (now.getUTCHours() + 7) % 24;
     const vietnamMinutes = now.getUTCMinutes();
 
     const currentTimeString = `${vietnamHours
@@ -1998,6 +1999,202 @@ const sendPillReminders = async () => {
     throw error;
   }
 };
+
+const sendTestResultNotificationEmail = async (order_id, user_id) => {
+  try {
+    // Khởi tạo transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: env.EMAIL_USERNAME,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    // Lấy thông tin người dùng
+    const user = await MODELS.UserModel.findOne({
+      where: { user_id },
+      attributes: ['user_id', 'email', 'first_name', 'last_name'],
+    });
+
+    if (!user) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy người dùng với ID: ${user_id}`,
+      };
+    }
+
+    // Lấy thông tin đơn hàng
+    const order = await MODELS.OrderModel.findOne({
+      where: { order_id },
+    });
+
+    if (!order) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy đơn hàng với ID: ${order_id}`,
+      };
+    }
+
+    // Kiểm tra xem đã có kết quả chưa
+    const orderDetails = await MODELS.OrderDetailModel.findAll({
+      where: { order_id },
+      include: [
+        {
+          model: MODELS.ServiceTestModel,
+          as: 'service',
+          attributes: ['name', 'description'],
+        },
+      ],
+    });
+
+    if (!orderDetails || orderDetails.length === 0) {
+      return {
+        status: 'error',
+        message: `Không tìm thấy chi tiết đơn hàng: ${order_id}`,
+      };
+    }
+
+    // Lọc các chi tiết đơn hàng có kết quả
+    const detailsWithResults = orderDetails.filter(
+      (detail) => detail.testresult_id
+    );
+
+    if (detailsWithResults.length === 0) {
+      return {
+        status: 'error',
+        message: `Đơn hàng ${order_id} chưa có kết quả xét nghiệm nào`,
+      };
+    }
+
+    // Tạo danh sách dịch vụ
+    const servicesList = orderDetails
+      .map((detail) => {
+        const serviceName = detail.service
+          ? detail.service.name
+          : 'Dịch vụ không xác định';
+        const hasResult = detail.testresult_id
+          ? '✓ Đã có kết quả'
+          : 'Đang xử lý';
+        return `<tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${serviceName}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; color: ${
+            detail.testresult_id ? '#4CAF50' : '#FF9800'
+          };">
+            <strong>${hasResult}</strong>
+          </td>
+        </tr>`;
+      })
+      .join('');
+
+    // Format ngày
+    const today = new Date();
+    const formattedDate = new Intl.DateTimeFormat('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(today);
+
+    // Tạo HTML email
+    const emailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="color: #4CAF50;">Kết quả xét nghiệm của bạn đã sẵn sàng!</h2>
+        </div>
+        
+        <p>Xin chào <strong>${user.first_name} ${user.last_name}</strong>,</p>
+        
+        <p>Chúng tôi vui mừng thông báo rằng kết quả xét nghiệm cho đơn hàng <strong>${order_id}</strong> của bạn đã có.</p>
+        
+        <div style="background-color: #ffffff; border-radius: 5px; padding: 15px; margin: 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color: #4CAF50; margin-top: 0;">Chi tiết dịch vụ xét nghiệm</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Tên dịch vụ</th>
+                <th style="padding: 10px; text-align: left; border-bottom: 2px solid #ddd;">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${servicesList}
+            </tbody>
+          </table>
+        </div>
+        
+        <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #4CAF50;">
+          <h3 style="color: #2e7d32; margin-top: 0;">Thông tin quan trọng</h3>
+          <p>Bạn có thể xem kết quả xét nghiệm bằng cách:</p>
+          <ol style="padding-left: 20px; margin-bottom: 0;">
+            <li>Đăng nhập vào tài khoản của bạn tại GenCare</li>
+            <li>Vào mục "Kết quả xét nghiệm" hoặc "Lịch sử đơn hàng"</li>
+            <li>Tìm đơn hàng với mã ${order_id}</li>
+            <li>Nhấp vào "Xem kết quả"</li>
+          </ol>
+        </div>
+        
+        <div style="text-align: center; margin: 25px 0;">
+          <a href="http://localhost:5173/" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            Xem kết quả xét nghiệm
+          </a>
+        </div>
+        
+        <div style="background-color: #fff8e1; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #FFC107;">
+          <h3 style="color: #FF9800; margin-top: 0;">Lưu ý</h3>
+          <ul style="padding-left: 20px; margin-bottom: 0;">
+            <li>Vui lòng đọc kỹ tất cả kết quả xét nghiệm</li>
+            <li>Nếu có bất kỳ chỉ số bất thường nào, hãy liên hệ với bác sĩ để được tư vấn</li>
+            <li>Để hiểu rõ hơn về kết quả xét nghiệm, bạn có thể đặt lịch tư vấn với bác sĩ chuyên khoa</li>
+          </ul>
+        </div>
+        
+        <p>Nếu bạn có thắc mắc về kết quả xét nghiệm hoặc cần hỗ trợ thêm, vui lòng liên hệ với đội ngũ chăm sóc khách hàng của chúng tôi.</p>
+        
+        <div style="text-align: center; margin-top: 20px; color: #555;">
+          <p>Ngày: ${formattedDate}</p>
+          <p>Email: support@gencare.vn | Hotline: 0907865147</p>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+          <p style="margin: 0;">Trân trọng,</p>
+          <p style="margin: 5px 0 0;"><strong>Đội ngũ GenCare</strong></p>
+        </div>
+      </div>
+    `;
+
+    // Tạo mailOptions
+    const mailOptions = {
+      from: `"GenCare" <${env.EMAIL_USERNAME}>`,
+      to: user.email,
+      subject: `Kết quả xét nghiệm đã có - Đơn hàng #${order_id}`,
+      html: emailContent,
+    };
+
+    // Gửi email
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Email thông báo kết quả xét nghiệm đã gửi: ${info.messageId}`);
+
+    return {
+      status: 'success',
+      message: 'Email thông báo kết quả xét nghiệm đã được gửi',
+      info: info.messageId,
+      sentTo: user.email,
+    };
+  } catch (error) {
+    console.error('Error sending test result notification email:', error);
+    return {
+      status: 'error',
+      message:
+        error.message || 'Lỗi khi gửi email thông báo kết quả xét nghiệm',
+      error: error.message,
+    };
+  }
+};
+
 export const emailService = {
   sendEmail,
   sendPaymentReminderEmail,
@@ -2012,4 +2209,5 @@ export const emailService = {
   sendCycleNotificationEmail,
   sendPillReminderEmail,
   sendPillReminders,
+  sendTestResultNotificationEmail,
 };

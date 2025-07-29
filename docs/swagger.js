@@ -3829,3 +3829,100 @@
  *                   type: string
  *                   example: "Lỗi server khi gửi email nhắc nhở uống thuốc"
  */
+
+/**
+ * @swagger
+ * /v1/emails/test-result-notification:
+ *   post:
+ *     summary: Gửi email thông báo kết quả xét nghiệm đã có
+ *     description: Gửi email thông báo cho người dùng khi kết quả xét nghiệm của họ đã có sẵn để xem
+ *     tags: [Emails]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - order_id
+ *               - user_id
+ *             properties:
+ *               order_id:
+ *                 type: string
+ *                 description: ID của đơn hàng có kết quả xét nghiệm
+ *                 example: "OD000123"
+ *               user_id:
+ *                 type: string
+ *                 description: ID của người dùng cần nhận thông báo
+ *                 example: "US000005"
+ *     responses:
+ *       200:
+ *         description: Email đã được gửi thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Email thông báo kết quả xét nghiệm đã được gửi thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     emailSent:
+ *                       type: boolean
+ *                       example: true
+ *                     order_id:
+ *                       type: string
+ *                       example: "OD000123"
+ *                     user_id:
+ *                       type: string
+ *                       example: "US000005"
+ *                     sentTo:
+ *                       type: string
+ *                       example: "user@example.com"
+ *       400:
+ *         description: Thiếu thông tin cần thiết
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "order_id và user_id là bắt buộc"
+ *       404:
+ *         description: Không tìm thấy đơn hàng, người dùng hoặc kết quả xét nghiệm
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy đơn hàng với ID: OD000123"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "error"
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi khi gửi email thông báo kết quả xét nghiệm"
+ */

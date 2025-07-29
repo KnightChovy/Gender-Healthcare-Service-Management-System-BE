@@ -38,4 +38,7 @@ Router.route('/send-all-pill-reminders').post(
   emailController.sendAllPillReminders
 );
 
+Router.route('/test-result-notification').post(
+  emailController.sendTestResultNotification
+);
 export const emailRoute = Router;

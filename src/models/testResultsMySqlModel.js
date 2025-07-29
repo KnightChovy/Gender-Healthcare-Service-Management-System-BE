@@ -34,6 +34,10 @@ const initTestResultModel = () => {
           type: DataTypes.DATE,
           allowNull: true,
         },
+        image: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
       },
       {
         tableName: 'test_results',
