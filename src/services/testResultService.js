@@ -2,7 +2,6 @@ import ApiError from '~/utils/ApiError';
 import { TestResultModel } from '../models/testResultModel';
 import { MODELS } from '../models/initModels';
 import axios from 'axios';
-import env from '~/config/environment';
 
 const getAll = async () => {
   try {
@@ -77,6 +76,7 @@ const createTestResults = async (order_id, test_results) => {
         normal_range,
         recommendations,
         created_at,
+        image,
       } = item;
 
       if (!service_id || !conclusion) {
@@ -115,6 +115,7 @@ const createTestResults = async (order_id, test_results) => {
           normal_range: normal_range || '',
           recommendations: recommendations || '',
           created_at: created_at ? new Date(created_at) : new Date(),
+          image: image || '',
         });
 
         if (MODELS.OrderDetailModel) {
@@ -158,20 +159,17 @@ const createTestResults = async (order_id, test_results) => {
       }
     }
 
-    // Cập nhật trạng thái đơn hàng
     try {
       await MODELS.OrderModel.update(
         { status: 'Đã có kết quả' },
         { where: { order_id: order_id } }
       );
 
-      // Lấy thông tin đơn hàng để biết user_id
       const orderInfo = await MODELS.OrderModel.findOne({
         where: { order_id },
       });
 
       if (orderInfo) {
-        // Gọi API để gửi email thông báo
         try {
           axios
             .post(
@@ -189,7 +187,6 @@ const createTestResults = async (order_id, test_results) => {
             });
         } catch (emailError) {
           console.error('Lỗi khi gọi API gửi email:', emailError);
-          // Không ném lỗi để không ảnh hưởng đến việc tạo kết quả
         }
       }
     } catch (updateError) {
