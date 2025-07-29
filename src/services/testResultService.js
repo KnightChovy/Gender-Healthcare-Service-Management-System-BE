@@ -2,7 +2,7 @@ import ApiError from '~/utils/ApiError';
 import { TestResultModel } from '../models/testResultModel';
 import { MODELS } from '../models/initModels';
 import axios from 'axios';
-import env from '~/config/env';
+import env from '~/config/environment';
 
 const getAll = async () => {
   try {

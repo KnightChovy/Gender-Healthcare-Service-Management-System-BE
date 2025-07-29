@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.26.10",
+    "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "data-fns": "^1.1.0",
