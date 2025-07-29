@@ -1788,7 +1788,7 @@ const sendCycleNotificationEmail = async (user, cycleData) => {
           <h3 style="color: #E9407A; margin-top: 0;">Nhật ký chu kỳ</h3>
           <p>Ghi lại các triệu chứng và cảm giác của bạn giúp theo dõi sức khỏe và phát hiện sớm các vấn đề.</p>
           <div style="text-align: center; margin-top: 15px;">
-            <a href="http://localhost:5173//menstrual-cycle" style="background-color: #E9407A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+            <a href="http://localhost:5173/menstrual-cycle" style="background-color: #E9407A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
               Cập nhật nhật ký chu kỳ
             </a>
           </div>
@@ -2138,7 +2138,7 @@ const sendTestResultNotificationEmail = async (order_id, user_id) => {
         </div>
         
         <div style="text-align: center; margin: 25px 0;">
-          <a href="${env.CLIENT_URL}/user/test-results/${order_id}" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+          <a href="http://localhost:5173/" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Xem kết quả xét nghiệm
           </a>
         </div>
