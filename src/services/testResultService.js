@@ -174,10 +174,13 @@ const createTestResults = async (order_id, test_results) => {
         // Gọi API để gửi email thông báo
         try {
           axios
-            .post(`${env.PORT}/v1/emails/test-result-notification`, {
-              order_id,
-              user_id: orderInfo.user_id,
-            })
+            .post(
+              'http://52.4.72.106:3000/v1/emails/test-result-notification',
+              {
+                order_id,
+                user_id: orderInfo.user_id,
+              }
+            )
             .catch((err) => {
               console.error(
                 'Không thể gửi email thông báo kết quả xét nghiệm:',
