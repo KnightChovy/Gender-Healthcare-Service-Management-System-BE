@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 
 const createStaff = async (req, res) => {
   try {
-    console.log("đã vô createStaff", req.body);
+    console.log('đã vô createStaff', req.body);
     const {
       username,
       password,
@@ -66,7 +66,7 @@ const createStaff = async (req, res) => {
 const deleteStaff = async (req, res) => {
   try {
     const { staff_id } = req.body;
-    console.log("Đã vô hàm delete");
+    console.log('Đã vô hàm delete');
     if (!staff_id) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: 'error',

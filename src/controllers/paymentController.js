@@ -1,4 +1,4 @@
-import { paymentService } from "~/services/paymentService";
+import { paymentService } from '~/services/paymentService';
 
 const createCheckoutSession = async (req, res) => {
   try {
@@ -11,7 +11,7 @@ const createCheckoutSession = async (req, res) => {
     res.json({ url: session.url });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Có lỗi xảy ra" });
+    res.status(500).json({ error: 'Có lỗi xảy ra' });
   }
 };
 
@@ -26,7 +26,7 @@ const paymentOrder = async (req, res) => {
     res.json({ url: session.url });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Có lỗi xảy ra" });
+    res.status(500).json({ error: 'Có lỗi xảy ra' });
   }
 };
 
