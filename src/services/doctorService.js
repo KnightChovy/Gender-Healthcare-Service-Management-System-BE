@@ -10,24 +10,36 @@ dotenv.config();
 
 const getAllDoctors = async () => {
   try {
-    const listAllDoctors = await doctorModel.findAllDoctors();
-
-    const formattedDoctors = listAllDoctors.map((doctor) => {
-      const plainDoctor = doctor.get({ plain: true });
-      if (plainDoctor.user) {
-        delete plainDoctor.user_id;
-        Object.assign(plainDoctor, plainDoctor.user);
-        delete plainDoctor.user;
-      }
-      return plainDoctor;
+    const doctors = await MODELS.DoctorModel.findAll({
+      include: [
+        {
+          model: MODELS.UserModel,
+          as: 'user',
+          attributes: [
+            'first_name',
+            'last_name',
+            'email',
+            'avatar',
+            'gender',
+            'phone',
+          ],
+          where: {
+            status: { [Op.ne]: 0 }, // Chỉ lấy bác sĩ có user status khác 0
+          },
+        },
+        {
+          model: MODELS.CertificateModel,
+          as: 'certificates',
+          attributes: ['certificate', 'specialization'],
+        },
+      ],
+      order: [['created_at', 'DESC']],
     });
-    return formattedDoctors;
+
+    return doctors;
   } catch (error) {
-    console.error('Error in doctorService.getAllDoctors:', error);
-    throw {
-      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-      message: error.message || 'Lỗi khi lấy danh sách bác sĩ',
-    };
+    console.error('Error getting all doctors:', error);
+    throw new Error('Lỗi khi lấy danh sách bác sĩ');
   }
 };
 
