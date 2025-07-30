@@ -8,7 +8,7 @@ const Router = express.Router();
 Router.route("/createStaff").post(
   isAuth,
   isAdmin,
-  validateCreateStaff,
+  // validateCreateStaff,
   adminController.createStaff
 );
 Router.route("/deleteStaff").patch(
