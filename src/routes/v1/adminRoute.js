@@ -9,6 +9,11 @@ Router.route("/createStaff").post(
   isAuth,
   isAdmin,
   validateCreateStaff,
+  adminController.createStaff
+);
+Router.route("/deleteStaff").patch(
+  isAuth,
+  isAdmin,
   adminController.deleteStaff
 );
 
