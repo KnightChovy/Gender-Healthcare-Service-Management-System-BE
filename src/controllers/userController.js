@@ -278,6 +278,49 @@ const cancelOrder = async (req, res, next) => {
   }
 };
 
+const cancelPendingOrder = async (req, res, next) => {
+  try {
+    const decoded = req.jwtDecoded;
+    const { order_id } = req.params;
+
+    if (decoded.data.role !== 'user') {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Bạn không có quyền này',
+      });
+    }
+
+    const updatedOrder = await userService.cancelPendingOrder(order_id);
+
+    try {
+      if (updatedOrder.email) {
+        await axios.post(
+          'http://52.4.72.106:8017/v1/emails/send-order-cancellation',
+          {
+            email: decoded.data.email,
+            user_id: decoded.data.user_id,
+            order_id: order_id,
+          }
+        );
+      }
+    } catch (emailError) {
+      console.error('Lỗi khi gửi email thông báo hủy đơn hàng:', emailError);
+    }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Hủy đơn hàng thành công',
+      data: updatedOrder,
+    });
+  } catch (error) {
+    const status = error instanceof ApiError ? error.statusCode : 500;
+    return res.status(status).json({
+      success: false,
+      message: error.message || 'Lỗi khi hủy đơn hàng',
+    });
+  }
+};
+
 export const userController = {
   getAllUsers,
   createUser,
@@ -290,4 +333,5 @@ export const userController = {
   getAllOrders,
   getTestResults,
   cancelOrder,
+  cancelPendingOrder,
 };

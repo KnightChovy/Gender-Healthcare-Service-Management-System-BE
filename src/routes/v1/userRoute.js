@@ -45,7 +45,7 @@ Router.route('/cancel-appointment').post(
 
 Router.route('/test-results').get(isAuth, userController.getTestResults);
 
-Router.route('/cancel-order').post(isAuth, userController.cancelOrder);
+Router.route('/cancel-order').post(isAuth, userController.cancelPendingOrder);
 
 // // User profile routes
 // Router.get('/profile/me', userController.getMyProfile)

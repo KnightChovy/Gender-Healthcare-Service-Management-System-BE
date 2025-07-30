@@ -582,6 +582,38 @@ const cancelOrder = async (order_id, user_id) => {
   }
 };
 
+const cancelPendingOrder = async (orderId) => {
+  try {
+    if (!orderId) {
+      throw ApiError(400, 'Thiếu mã đơn hàng');
+    }
+
+    const order = await MODELS.OrderModel.findOne({
+      where: { order_id: orderId },
+    });
+
+    if (!order) {
+      throw ApiError(404, 'Không tìm thấy đơn hàng');
+    }
+
+    if (order.order_status !== 'pending') {
+      throw ApiError(400, 'Chỉ có thể hủy đơn hàng đang chờ xử lý');
+    }
+
+    const result = await MODELS.OrderModel.update(
+      { order_status: 'cancelled' },
+      { where: { order_id: orderId, order_status: 'pending' } }
+    );
+
+    return result;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw ApiError(500, 'Lỗi khi hủy đơn hàng');
+  }
+};
+
 export const userService = {
   getAllUsers,
   createUser,
@@ -595,4 +627,5 @@ export const userService = {
   getTestResults,
   getUserById,
   cancelOrder,
+  cancelPendingOrder,
 };
