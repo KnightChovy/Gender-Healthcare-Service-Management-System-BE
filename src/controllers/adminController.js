@@ -73,7 +73,7 @@ const deleteStaff = async (req, res) => {
     }
 
     // Gọi service để cập nhật status về 0 (đã xóa)
-    const result = await adminService.deleteStaffById(staff_id);
+    const result = await adminService.deleteStaff(staff_id);
     return res.status(StatusCodes.OK).json({
       status: "success",
       message: "Xóa nhân viên thành công",

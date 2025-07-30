@@ -217,4 +217,5 @@ const deleteStaff = async (staff_id) => {
 };
 export const adminService = {
   createStaff,
+  deleteStaff,
 };
