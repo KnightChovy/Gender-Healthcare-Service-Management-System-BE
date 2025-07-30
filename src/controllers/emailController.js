@@ -245,7 +245,7 @@ const sendBookingServiceSuccess = async (req, res) => {
 
 const sendOrderCancellationNotification = async (req, res) => {
   try {
-    const { order_id, user_id, reason } = req.body;
+    const { order_id, user_id } = req.body;
 
     if (!order_id || !user_id) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -260,8 +260,7 @@ const sendOrderCancellationNotification = async (req, res) => {
 
     const response = await emailService.sendOrderCancellationEmail(
       order_id,
-      user_id,
-      reason
+      user_id
     );
 
     if (response.status === 'error') {

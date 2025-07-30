@@ -672,6 +672,101 @@ const getUserById = async (userId) => {
   }
 };
 
+const cancelOrder = async (order_id, user_id) => {
+  try {
+    const order = await MODELS.OrderModel.findOne({
+      where: { order_id },
+      include: [
+        {
+          model: MODELS.OrderDetailModel,
+          as: 'order_details',
+          include: [
+            {
+              model: MODELS.ServiceTestModel,
+              as: 'service',
+              attributes: ['name', 'price'],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!order) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        `Không tìm thấy đơn hàng với ID: ${order_id}`
+      );
+    }
+
+    if (order.user_id !== user_id) {
+      throw new ApiError(
+        StatusCodes.FORBIDDEN,
+        'Bạn không có quyền hủy đơn hàng này'
+      );
+    }
+
+    await order.update({
+      status: 'canceled',
+      updated_at: new Date(),
+    });
+
+    if (order.order_details && order.order_details.length > 0) {
+      for (const detail of order.order_details) {
+        if (detail.appointment_id) {
+          try {
+            await MODELS.AppointmentModel.update(
+              {
+                status: 'canceled',
+              },
+              { where: { appointment_id: detail.appointment_id } }
+            );
+          } catch (apptError) {
+            console.error('Lỗi khi hủy lịch hẹn:', apptError);
+          }
+        }
+      }
+    }
+
+    const user = await MODELS.UserModel.findOne({
+      where: { user_id },
+      attributes: ['email', 'first_name', 'last_name'],
+    });
+
+    const services = order.order_details
+      ? order.order_details.map((detail) => ({
+          name: detail.service ? detail.service.name : 'Dịch vụ không xác định',
+          price: detail.service ? detail.service.price : 0,
+        }))
+      : [];
+
+    const total_amount = services.reduce(
+      (sum, service) => sum + (service.price || 0),
+      0
+    );
+
+    return {
+      order_id,
+      status: 'canceled',
+      user_id,
+      email: user?.email,
+      user_name: user ? `${user.first_name} ${user.last_name}` : '',
+      services,
+      total_amount,
+      message: 'Đơn hàng đã được hủy thành công',
+      cancel_time: new Date(),
+    };
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      `Lỗi khi hủy đơn hàng: ${error.message}`
+    );
+  }
+};
+
 export const userService = {
   getAllUsers,
   createUser,
@@ -685,4 +780,5 @@ export const userService = {
   getAllOrders,
   getTestResults,
   getUserById,
+  cancelOrder,
 };

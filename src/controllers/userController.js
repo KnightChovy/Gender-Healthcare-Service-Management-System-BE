@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { userService } from '~/services/userService';
 import { clearCache } from '~/middlewares/cacheMiddleware';
 import ApiError from '~/utils/ApiError';
+import axios from 'axios';
 
 const getAllUsers = async (req, res) => {
   try {
@@ -288,6 +289,55 @@ const getTestResults = async (req, res) => {
   }
 };
 
+const cancelOrder = async (req, res, next) => {
+  try {
+    const { order_id } = req.body;
+    const user_id = req.jwtDecoded.data.user_id;
+
+    if (!order_id) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'ID đơn hàng là bắt buộc',
+      });
+    }
+
+    const result = await userService.cancelOrder(order_id, user_id);
+
+    try {
+      if (result.email) {
+        await axios.post(
+          'http://52.4.72.106:8017/v1/emails/send-order-cancellation',
+          {
+            email: result.email,
+            user_id: user_id,
+            order_id: order_id,
+          }
+        );
+      }
+    } catch (emailError) {
+      console.error('Lỗi khi gửi email thông báo hủy đơn hàng:', emailError);
+    }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Hủy đơn hàng thành công',
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error in cancelOrder controller:', error);
+    if (error instanceof ApiError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+      });
+    }
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Lỗi khi hủy đơn hàng',
+    });
+  }
+};
+
 export const userController = {
   getAllUsers,
   createUser,
@@ -300,4 +350,5 @@ export const userController = {
   getUserTestAppointments,
   getAllOrders,
   getTestResults,
+  cancelOrder,
 };
