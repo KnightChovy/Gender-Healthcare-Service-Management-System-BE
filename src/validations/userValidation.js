@@ -370,7 +370,7 @@ export const validateCreateStaff = (req, res, next) => {
   const { role } = req.body;
 
   const { error } = staffSchema.validate(req.body, { abortEarly: false });
-
+  console.log("Staff validation result:", error);
   if (error) {
     const errorMessages = error.details.map((detail) => detail.message);
     console.error("Validation errors:", errorMessages);
