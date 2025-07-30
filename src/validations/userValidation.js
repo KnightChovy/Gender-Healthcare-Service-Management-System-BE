@@ -380,7 +380,7 @@ export const validateCreateStaff = (req, res, next) => {
       errors: errorMessages,
     });
   }
-
+  console.log("Staff validation passed");
   if (role === "doctor") {
     if (req.body.experience_year && isNaN(Number(req.body.experience_year))) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -398,6 +398,7 @@ export const validateCreateStaff = (req, res, next) => {
   }
 
   delete req.body.confirm_password;
+  console.log("Staff validation completed, proceeding to next middleware");
   next();
 };
 
