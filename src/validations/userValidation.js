@@ -323,40 +323,40 @@ const staffSchema = Joi.object({
 
   birthday: Joi.date().allow(null).optional(),
 
-  experience_year: Joi.when("role", {
-    is: "doctor",
+  experience_year: Joi.when('role', {
+    is: 'doctor',
     then: Joi.number().integer().min(0).required().messages({
-      "number.base": "Số năm kinh nghiệm phải là số",
-      "number.integer": "Số năm kinh nghiệm phải là số nguyên",
-      "number.min": "Số năm kinh nghiệm không được âm",
-      "any.required": "Số năm kinh nghiệm là bắt buộc cho bác sĩ",
+      'number.base': 'Số năm kinh nghiệm phải là số',
+      'number.integer': 'Số năm kinh nghiệm phải là số nguyên',
+      'number.min': 'Số năm kinh nghiệm không được âm',
+      'any.required': 'Số năm kinh nghiệm là bắt buộc cho bác sĩ',
     }),
     otherwise: Joi.number().optional(),
   }),
 
-  bio: Joi.when("role", {
-    is: "doctor",
-    then: Joi.string().max(1000).allow("", null).messages({
-      "string.max": "Tiểu sử không được quá 1000 ký tự",
+  bio: Joi.when('role', {
+    is: 'doctor',
+    then: Joi.string().max(1000).allow('', null).messages({
+      'string.max': 'Tiểu sử không được quá 1000 ký tự',
     }),
-    otherwise: Joi.string().allow("", null).optional(),
+    otherwise: Joi.string().allow('', null).optional(),
   }),
 
-  specialization: Joi.when("role", {
-    is: "doctor",
+  specialization: Joi.when('role', {
+    is: 'doctor',
     then: Joi.string().required().messages({
-      "string.empty": "Chuyên khoa không được để trống",
-      "any.required": "Chuyên khoa là bắt buộc cho bác sĩ",
+      'string.empty': 'Chuyên khoa không được để trống',
+      'any.required': 'Chuyên khoa là bắt buộc cho bác sĩ',
     }),
-    otherwise: Joi.string().allow("", null).optional(),
+    otherwise: Joi.string().allow('', null).optional(),
   }),
 
-  certificate: Joi.when("role", {
-    is: "doctor",
+  certificate: Joi.when('role', {
+    is: 'doctor',
     then: Joi.array().items(Joi.string()).min(1).required().messages({
-      "array.base": "Chứng chỉ phải là một mảng",
-      "array.min": "Phải có ít nhất một chứng chỉ",
-      "any.required": "Chứng chỉ là bắt buộc cho bác sĩ",
+      'array.base': 'Chứng chỉ phải là một mảng',
+      'array.min': 'Phải có ít nhất một chứng chỉ',
+      'any.required': 'Chứng chỉ là bắt buộc cho bác sĩ',
     }),
     otherwise: Joi.array().items(Joi.string()).optional(),
   }),
