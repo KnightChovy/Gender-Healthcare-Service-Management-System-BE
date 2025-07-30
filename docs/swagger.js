@@ -3926,3 +3926,139 @@
  *                   type: string
  *                   example: "Lỗi khi gửi email thông báo kết quả xét nghiệm"
  */
+
+/**
+ * @swagger
+ * /v1/users/cancel-order:
+ *   post:
+ *     summary: Hủy đơn hàng đang chờ xử lý
+ *     description: Cho phép người dùng hủy đơn hàng của họ khi đơn hàng đang ở trạng thái chờ xử lý
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - order_id
+ *             properties:
+ *               order_id:
+ *                 type: string
+ *                 description: ID của đơn hàng cần hủy
+ *                 example: "OD000123"
+ *     responses:
+ *       200:
+ *         description: Hủy đơn hàng thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Hủy đơn hàng thành công"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     order_id:
+ *                       type: string
+ *                       example: "OD000123"
+ *                     status:
+ *                       type: string
+ *                       example: "Đã hủy"
+ *                     user_id:
+ *                       type: string
+ *                       example: "US000005"
+ *                     services:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                             example: "Xét nghiệm máu tổng quát"
+ *                           price:
+ *                             type: number
+ *                             example: 650000
+ *                     total_amount:
+ *                       type: number
+ *                       example: 650000
+ *                     message:
+ *                       type: string
+ *                       example: "Đơn hàng đã được hủy thành công"
+ *                     cancel_time:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-07-31T10:15:30.000Z"
+ *       400:
+ *         description: Dữ liệu không hợp lệ hoặc đơn hàng không thể hủy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Không thể hủy đơn hàng có trạng thái: Đã hoàn thành"
+ *       401:
+ *         description: Không được xác thực
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Bạn cần đăng nhập để thực hiện hành động này"
+ *       403:
+ *         description: Không có quyền hủy đơn hàng này
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Bạn không có quyền hủy đơn hàng này"
+ *       404:
+ *         description: Không tìm thấy đơn hàng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Không tìm thấy đơn hàng với ID: OD000123"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: "Lỗi khi hủy đơn hàng: Internal Server Error"
+ */

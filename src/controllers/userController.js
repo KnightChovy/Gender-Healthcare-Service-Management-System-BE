@@ -243,21 +243,6 @@ const cancelPendingOrder = async (req, res) => {
 
     const updatedOrder = await userService.cancelPendingOrder(order_id);
 
-    try {
-      if (updatedOrder.email) {
-        await axios.post(
-          'http://52.4.72.106:3000/v1/emails/send-order-cancellation',
-          {
-            email: decoded.data.email,
-            user_id: decoded.data.user_id,
-            order_id: order_id,
-          }
-        );
-      }
-    } catch (emailError) {
-      console.error('Lỗi khi gửi email thông báo hủy đơn hàng:', emailError);
-    }
-
     return res.status(StatusCodes.OK).json({
       success: true,
       message: 'Hủy đơn hàng thành công',
