@@ -65,6 +65,7 @@ const createStaff = async (req, res) => {
 const deleteStaff = async (req, res) => {
   try {
     const { staff_id } = req.body;
+    console.log("đã vô hàm delete");
     if (!staff_id) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         status: "error",
