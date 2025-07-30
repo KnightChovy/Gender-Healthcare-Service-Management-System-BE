@@ -46,7 +46,7 @@ const initDoctorModel = () => {
     );
     // Associations should be set up after all models are initialized (see associations.js or main setup)
     // Use setupDoctorAssociations from associations.js
-  } 
+  }
   return Doctor;
 };
 
@@ -98,7 +98,7 @@ const findOneDoctor = async (options = {}) => {
           'avatar',
           'address',
           'status',
-          'birthday'
+          'birthday',
         ],
       },
       {

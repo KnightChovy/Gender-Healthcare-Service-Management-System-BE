@@ -42,4 +42,4 @@ const initDetailAppointmentTestModel = () => {
 
 export const detailAppointmentTestModel = {
   initDetailAppointmentTestModel,
-}; 
+};

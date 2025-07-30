@@ -1,15 +1,15 @@
-import { Sequelize } from "sequelize";
-import { env } from "~/config/environment";
-import { MODELS } from "~/models/initModels";
-import ApiError from "~/utils/ApiError";
-import { GET_DB } from "~/config/mysql"; // Thêm import này
+import { Sequelize } from 'sequelize';
+import { env } from '~/config/environment';
+import { MODELS } from '~/models/initModels';
+import ApiError from '~/utils/ApiError';
+import { GET_DB } from '~/config/mysql'; // Thêm import này
 
 const getAllServices = async () => {
   try {
     const services = await MODELS.ServiceTestModel.findAll();
     return services;
   } catch (error) {
-    throw new Error("Failed to get all services: " + error.message);
+    throw new Error('Failed to get all services: ' + error.message);
   }
 };
 
@@ -142,7 +142,7 @@ const bookingService = async (bookingData) => {
       bookingData;
 
     if (!user_id || !Array.isArray(serviceData) || serviceData.length === 0) {
-      throw new ApiError(400, "Vui lòng chọn ít nhất một dịch vụ");
+      throw new ApiError(400, 'Vui lòng chọn ít nhất một dịch vụ');
     }
 
     let nonDuplicateServices = [];
@@ -150,7 +150,7 @@ const bookingService = async (bookingData) => {
 
     if (user_id) {
       const orders = await MODELS.OrderModel.findAll({
-        where: { user_id: user_id, order_status: "pending" },
+        where: { user_id: user_id, order_status: 'pending' },
         transaction,
       });
 
@@ -164,31 +164,31 @@ const bookingService = async (bookingData) => {
         pendingServiceIDs.push(...ids);
       }
 
-      console.log("pendingServiceIDs", pendingServiceIDs);
+      console.log('pendingServiceIDs', pendingServiceIDs);
 
       service_ids = serviceData.map((service) => service.service_id);
       const duplicateChecks = service_ids.filter((id) =>
         pendingServiceIDs.includes(id)
       );
 
-      console.log("duplicateChecks", duplicateChecks);
-      console.log("serviceData", serviceData);
+      console.log('duplicateChecks', duplicateChecks);
+      console.log('serviceData', serviceData);
 
       nonDuplicateServices = service_ids.filter(
         (service_id) => !duplicateChecks.includes(service_id)
       );
-      console.log("nonDuplicateServices", nonDuplicateServices);
+      console.log('nonDuplicateServices', nonDuplicateServices);
 
       if (nonDuplicateServices.length <= 0) {
         await transaction.rollback();
         throw new ApiError(
           400,
-          "Tất cả dịch vụ bạn chọn đã có trong đơn hàng chờ xác nhận. Vui lòng chọn dịch vụ khác."
+          'Tất cả dịch vụ bạn chọn đã có trong đơn hàng chờ xác nhận. Vui lòng chọn dịch vụ khác.'
         );
       }
     }
 
-    let order_type = "directly";
+    let order_type = 'directly';
     if (appointment_id) {
       const appointment = await MODELS.AppointmentModel.findOne({
         where: { appointment_id: appointment_id },
@@ -196,33 +196,33 @@ const bookingService = async (bookingData) => {
       });
 
       if (appointment) {
-        const isCompleted = appointment.status === "completed";
+        const isCompleted = appointment.status === 'completed';
         if (!isCompleted) {
           await transaction.rollback();
           throw new ApiError(
             400,
-            "Cuộc hẹn phải hoàn thành trước khi đặt dịch vụ"
+            'Cuộc hẹn phải hoàn thành trước khi đặt dịch vụ'
           );
         }
-        order_type = "with_consultan";
+        order_type = 'with_consultan';
       }
     }
 
     const latestOrder = await MODELS.OrderModel.findOne({
-      attributes: ["order_id"],
-      order: [["order_id", "DESC"]],
+      attributes: ['order_id'],
+      order: [['order_id', 'DESC']],
       transaction,
     });
 
     let baseOrderId = 1;
     if (latestOrder && latestOrder.order_id) {
-      const lastIdNum = parseInt(latestOrder.order_id.replace("OD", ""), 10);
+      const lastIdNum = parseInt(latestOrder.order_id.replace('OD', ''), 10);
       baseOrderId = lastIdNum + 1;
     }
 
-    const order_id = "OD" + String(baseOrderId).padStart(6, "0");
+    const order_id = 'OD' + String(baseOrderId).padStart(6, '0');
     const now = new Date();
-    if (payment_method === "card") {
+    if (payment_method === 'card') {
       // Handle card payment processing
     }
     const order = await MODELS.OrderModel.create(
@@ -231,22 +231,22 @@ const bookingService = async (bookingData) => {
         user_id,
         order_type,
         payment_method,
-        order_status: "pending",
+        order_status: 'pending',
         created_at: now,
       },
       { transaction }
     );
 
     const latestOrderDetail = await MODELS.OrderDetailModel.findOne({
-      attributes: ["order_detail_id"],
-      order: [["order_detail_id", "DESC"]],
+      attributes: ['order_detail_id'],
+      order: [['order_detail_id', 'DESC']],
       transaction,
     });
 
     let baseOrderDetailId = 1;
     if (latestOrderDetail && latestOrderDetail.order_detail_id) {
       const lastDetailIdNum = parseInt(
-        latestOrderDetail.order_detail_id.replace("ODT", ""),
+        latestOrderDetail.order_detail_id.replace('ODT', ''),
         10
       );
       baseOrderDetailId = lastDetailIdNum + 1;
@@ -256,7 +256,7 @@ const bookingService = async (bookingData) => {
     for (let i = 0; i < nonDuplicateServices.length; i++) {
       const service_id = nonDuplicateServices[i];
       const order_detail_id =
-        "ODT" + String(baseOrderDetailId + i).padStart(6, "0");
+        'ODT' + String(baseOrderDetailId + i).padStart(6, '0');
 
       const orderDetail = await MODELS.OrderDetailModel.create(
         {
@@ -277,7 +277,7 @@ const bookingService = async (bookingData) => {
     await transaction.commit();
 
     return {
-      message: "Đặt dịch vụ thành công",
+      message: 'Đặt dịch vụ thành công',
       order,
       order_details: orderDetails,
       skipped_services: service_ids.filter(
@@ -290,17 +290,17 @@ const bookingService = async (bookingData) => {
       try {
         await transaction.rollback();
       } catch (rollbackError) {
-        console.error("Lỗi khi rollback:", rollbackError);
+        console.error('Lỗi khi rollback:', rollbackError);
       }
     }
 
-    console.error("Lỗi trong bookingService:", error);
+    console.error('Lỗi trong bookingService:', error);
 
     if (error instanceof ApiError) {
       throw error;
     }
 
-    throw new ApiError(500, "Không thể đặt dịch vụ: " + error.message);
+    throw new ApiError(500, 'Không thể đặt dịch vụ: ' + error.message);
   }
 };
 
@@ -309,17 +309,17 @@ const handlePaymentOrder = async (order_id) => {
   try {
     if (order_id) {
       const isUpdate = await MODELS.OrderModel.update(
-        { order_status: "paid" },
+        { order_status: 'paid' },
         { where: { order_id } }
       );
     } else {
-      throw new ApiError(400, "ID đơn hàng không hợp lệ");
+      throw new ApiError(400, 'ID đơn hàng không hợp lệ');
     }
   } catch (error) {
-    console.error("Lỗi khi xử lý thanh toán đơn hàng:", error);
+    console.error('Lỗi khi xử lý thanh toán đơn hàng:', error);
     throw new ApiError(
       500,
-      "Không thể xử lý thanh toán đơn hàng: " + error.message
+      'Không thể xử lý thanh toán đơn hàng: ' + error.message
     );
   }
 };
