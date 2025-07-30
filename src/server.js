@@ -85,7 +85,7 @@ const startServer = () => {
     await CONNECT_DB();
     await connectMongoDB();
     // console.log('connecting redis...');
-    // await connectRedis();
+    await connectRedis();
     // Initialize all models and set up associations
     initAllModels();
     startServer();

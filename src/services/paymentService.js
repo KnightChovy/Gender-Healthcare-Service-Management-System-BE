@@ -101,10 +101,9 @@ const stripeWebhookService = (req, res) => {
       } else if (type === "order") {
         const order_id = session.metadata?.order_id;
         if (order_id) {
-          // Xử lý đơn hàng nếu cần
           serviceService.handlePaymentOrder(order_id);
         } else {
-          console.warn("⚠️ Không tìm thấy order_id trong metadata.");
+          console.warn("Không tìm thấy order_id trong metadata.");
         }
       }
       break;

@@ -1,19 +1,17 @@
-import ApiError from '~/utils/ApiError';
-import { comparePassword, hashPassword } from '~/utils/crypto';
-import { StatusCodes } from 'http-status-codes';
-import { MODELS } from '~/models/initModels';
-import { Op } from 'sequelize';
-import { doctorModel } from '~/models/doctorModel';
+import ApiError from "~/utils/ApiError";
+import { comparePassword, hashPassword } from "~/utils/crypto";
+import { StatusCodes } from "http-status-codes";
+import { MODELS } from "~/models/initModels";
 
 const getAllUsers = async () => {
   try {
     const findAllUsers = await MODELS.UserModel.findAll();
     if (!findAllUsers) {
-      throw new ApiError(404, 'No users found');
+      throw new ApiError(404, "No users found");
     }
     return findAllUsers;
   } catch (error) {
-    throw new ApiError(500, 'Failed to retrieve users');
+    throw new ApiError(500, "Failed to retrieve users");
   }
 };
 
@@ -23,39 +21,39 @@ const createUser = async (userData) => {
       where: { username: userData.username },
     });
     if (existingUser) {
-      throw new ApiError(409, 'User with this username already exists');
+      throw new ApiError(409, "User with this username already exists");
     }
     userData.password = hashPassword(userData.password);
 
     // Generate user_id if not provided
     if (!userData.user_id) {
       const latestUser = await MODELS.UserModel.findOne({
-        order: [['user_id', 'DESC']],
+        order: [["user_id", "DESC"]],
       });
       let nextId = 1;
       if (latestUser) {
         const latestId = parseInt(latestUser.user_id.substring(2));
         nextId = latestId + 1;
       }
-      userData.user_id = `US${nextId.toString().padStart(6, '0')}`;
+      userData.user_id = `US${nextId.toString().padStart(6, "0")}`;
     }
 
     const now = new Date();
     userData.created_at = now;
     userData.updated_at = now;
-    if (!userData.role) userData.role = 'user';
+    if (!userData.role) userData.role = "user";
     if (!userData.status) userData.status = 1;
 
     const newUser = await MODELS.UserModel.create(userData);
     if (!newUser) {
-      throw new ApiError(500, 'Failed to create user');
+      throw new ApiError(500, "Failed to create user");
     }
     return newUser;
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(500, 'Failed to create user');
+    throw new ApiError(500, "Failed to create user");
   }
 };
 
@@ -65,7 +63,7 @@ const updateUser = async (userId, userData) => {
       where: { user_id: userId },
     });
     if (!existingUser) {
-      throw new ApiError(404, 'Không tìm thấy người dùng');
+      throw new ApiError(404, "Không tìm thấy người dùng");
     }
     if (userData.password) {
       delete userData.password;
@@ -76,15 +74,15 @@ const updateUser = async (userId, userData) => {
       where: { user_id: userId },
     });
     if (!updatedUser) {
-      throw new ApiError(500, 'Cập nhật thông tin không thành công');
+      throw new ApiError(500, "Cập nhật thông tin không thành công");
     }
-    console.log('updatee user', updatedUser);
+    console.log("updatee user", updatedUser);
     return updatedUser;
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(500, 'Cập nhật thông tin không thành công');
+    throw new ApiError(500, "Cập nhật thông tin không thành công");
   }
 };
 
@@ -92,11 +90,11 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
   try {
     const user = await MODELS.UserModel.findOne({ where: { user_id: userId } });
     if (!user) {
-      throw new ApiError(404, 'Không tìm thấy người dùng');
+      throw new ApiError(404, "Không tìm thấy người dùng");
     }
     const isMatch = comparePassword(currentPassword, user.password);
     if (!isMatch) {
-      throw new ApiError(400, 'Mật khẩu hiện tại không đúng');
+      throw new ApiError(400, "Mật khẩu hiện tại không đúng");
     }
     const hashedPassword = hashPassword(newPassword);
     await MODELS.UserModel.update(
@@ -108,15 +106,15 @@ const changePassword = async (userId, { currentPassword, newPassword }) => {
     if (error instanceof ApiError) {
       throw error;
     }
-    throw new ApiError(500, 'Đổi mật khẩu không thành công');
+    throw new ApiError(500, "Đổi mật khẩu không thành công");
   }
 };
 
 const getUserProfile = async (userId) => {
   try {
-    console.log('Finding user with ID:', userId);
+    console.log("Finding user with ID:", userId);
     const user = await MODELS.UserModel.findOne({ where: { user_id: userId } });
-    console.log('User found:', user ? 'Yes' : 'No');
+    console.log("User found:", user ? "Yes" : "No");
     if (!user) {
       throw {
         statusCode: StatusCodes.NOT_FOUND,
@@ -139,196 +137,13 @@ const getUserProfile = async (userId) => {
     };
     return userProfile;
   } catch (error) {
-    console.error('Error in getUserProfile:', error);
+    console.error("Error in getUserProfile:", error);
     throw error.statusCode
       ? error
       : {
           statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
-          message: 'Lỗi khi lấy thông tin người dùng: ' + (error.message || ''),
+          message: "Lỗi khi lấy thông tin người dùng: " + (error.message || ""),
         };
-  }
-};
-
-const createStaff = async (staffData) => {
-  try {
-    const existingUser = await MODELS.UserModel.findOne({
-      where: {
-        [Op.or]: [{ username: staffData.username }, { email: staffData.email }],
-      },
-    });
-
-    if (existingUser) {
-      throw new ApiError(
-        409,
-        'User with this username or email already exists'
-      );
-    }
-
-    staffData.password = hashPassword(staffData.password);
-
-    const latestUser = await MODELS.UserModel.findOne({
-      order: [['user_id', 'DESC']],
-    });
-
-    let nextId = 1;
-    if (latestUser) {
-      const latestId = parseInt(latestUser.user_id.substring(2));
-      nextId = latestId + 1;
-    }
-    const userId = `US${nextId.toString().padStart(6, '0')}`;
-    const now = new Date();
-
-    // Tạo người dùng mới
-    const newUser = await MODELS.UserModel.create({
-      user_id: userId,
-      first_name: staffData.first_name,
-      last_name: staffData.last_name,
-      username: staffData.username,
-      email: staffData.email,
-      password: staffData.password,
-      gender: staffData.gender,
-      phone: staffData.phone,
-      role: staffData.role,
-      status: 1,
-      birthday: staffData.birthday || null,
-      created_at: now,
-      updated_at: now,
-    });
-
-    if (staffData.role === 'doctor') {
-      const latestDoctor = await MODELS.DoctorModel.findOne({
-        order: [['doctor_id', 'DESC']],
-      });
-
-      let doctorId = 'DR000001';
-      if (latestDoctor && latestDoctor.doctor_id) {
-        try {
-          const matches = latestDoctor.doctor_id.match(/^DR(\d+)$/);
-          if (matches && matches[1]) {
-            const latestId = parseInt(matches[1]);
-            doctorId = `DR${(latestId + 1).toString().padStart(6, '0')}`;
-          }
-        } catch (parseError) {
-          console.warn(
-            'Error parsing doctor ID, using default:',
-            parseError.message
-          );
-        }
-      }
-
-      try {
-        const doctorData = {
-          doctor_id: doctorId,
-          user_id: userId,
-          first_name: staffData.first_name,
-          last_name: staffData.last_name,
-          bio: staffData.bio || '',
-          experience_year: parseInt(staffData.experience_year || '0'),
-        };
-
-        await MODELS.DoctorModel.create(doctorData);
-
-        if (
-          (staffData.certificate && staffData.certificate.length > 0) ||
-          staffData.specialization
-        ) {
-          const Certificate = doctorModel.initCertificateModel();
-
-          const latestCertificate = await Certificate.findOne({
-            order: [['certificates_id', 'DESC']],
-          });
-
-          let certIdCounter = 1;
-          if (latestCertificate && latestCertificate.certificates_id) {
-            try {
-              const matches =
-                latestCertificate.certificates_id.match(/^CT(\d+)$/);
-              if (matches && matches[1]) {
-                certIdCounter = parseInt(matches[1]) + 1;
-              }
-            } catch (parseError) {
-              console.warn(
-                'Error parsing certificate ID, using default:',
-                parseError.message
-              );
-            }
-          }
-
-          if (staffData.certificate && Array.isArray(staffData.certificate)) {
-            for (let i = 0; i < staffData.certificate.length; i++) {
-              const currentCertId = `CT${(certIdCounter + i)
-                .toString()
-                .padStart(6, '0')}`;
-
-              await Certificate.create({
-                certificates_id: currentCertId,
-                doctor_id: doctorId,
-                certificate: staffData.certificate[i],
-                specialization: staffData.specialization || null,
-              });
-
-              console.log(
-                `Created certificate ${currentCertId} for doctor ${doctorId}`
-              );
-            }
-          } else if (staffData.specialization) {
-            const certId = `CT${certIdCounter.toString().padStart(6, '0')}`;
-
-            await Certificate.create({
-              certificates_id: certId,
-              doctor_id: doctorId,
-              certificate: 'Chuyên khoa',
-              specialization: staffData.specialization,
-            });
-
-            console.log(
-              `Created default certificate ${certId} for doctor ${doctorId}`
-            );
-          }
-        }
-
-        console.log(`Doctor created successfully with ID: ${doctorId}`);
-
-        return {
-          user_id: newUser.user_id,
-          username: newUser.username,
-          email: newUser.email,
-          phone: newUser.phone,
-          role: newUser.role,
-          first_name: newUser.first_name,
-          last_name: newUser.last_name,
-          doctor_id: doctorId,
-          experience_year: parseInt(staffData.experience_year || '0'),
-          bio: staffData.bio || '',
-          specialization: staffData.specialization || null,
-          certificate: staffData.certificate || [],
-        };
-      } catch (doctorError) {
-        console.error('Error creating doctor:', doctorError);
-        // Nếu không tạo được bác sĩ, xóa user đã tạo
-        await MODELS.UserModel.destroy({ where: { user_id: userId } });
-        throw new ApiError(
-          500,
-          `Failed to create doctor record: ${doctorError.message}`
-        );
-      }
-    }
-
-    return {
-      user_id: newUser.user_id,
-      username: newUser.username,
-      email: newUser.email,
-      phone: newUser.phone,
-      role: newUser.role,
-      first_name: newUser.first_name,
-      last_name: newUser.last_name,
-    };
-  } catch (error) {
-    console.error('Error in createStaff:', error);
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw new ApiError(500, `Failed to create staff: ${error.message}`);
   }
 };
 
@@ -338,11 +153,11 @@ const getServicesByUserId = async (user_id) => {
       where: { user_id: user_id },
     });
     if (!order) {
-      throw new ApiError(404, 'Không tìm thấy dịch vụ');
+      throw new ApiError(404, "Không tìm thấy dịch vụ");
     }
     return order;
   } catch (error) {
-    throw new ApiError(500, 'Lỗi khi lấy dịch vụ');
+    throw new ApiError(500, "Lỗi khi lấy dịch vụ");
   }
 };
 
@@ -358,28 +173,28 @@ const cancelAppointment = async (appointmentId, userId) => {
     if (!appointment) {
       throw new ApiError(
         404,
-        'Không tìm thấy cuộc hẹn hoặc bạn không có quyền hủy cuộc hẹn này'
+        "Không tìm thấy cuộc hẹn hoặc bạn không có quyền hủy cuộc hẹn này"
       );
     }
 
     if (
-      appointment.status === 'completed' ||
-      appointment.status === 'rejected'
+      appointment.status === "completed" ||
+      appointment.status === "rejected"
     ) {
       throw new ApiError(
         400,
-        'Không thể hủy cuộc hẹn đã hoàn thành hoặc đã bị từ chối'
+        "Không thể hủy cuộc hẹn đã hoàn thành hoặc đã bị từ chối"
       );
     }
 
     await appointment.update({
-      status: 'rejected',
+      status: "rejected",
       updated_at: new Date(),
     });
 
     if (appointment.timeslot_id) {
       await MODELS.TimeslotModel.update(
-        { status: 'available' },
+        { status: "available" },
         {
           where: { timeslot_id: appointment.timeslot_id },
         }
@@ -388,11 +203,11 @@ const cancelAppointment = async (appointmentId, userId) => {
 
     return {
       appointment_id: appointmentId,
-      status: 'rejected',
+      status: "rejected",
       cancelled_at: new Date(),
     };
   } catch (error) {
-    console.error('Error in cancelAppointment service:', error);
+    console.error("Error in cancelAppointment service:", error);
     throw error;
   }
 };
@@ -400,12 +215,12 @@ const cancelAppointment = async (appointmentId, userId) => {
 const getUserTestAppointments = async (userId) => {
   try {
     if (!userId) {
-      throw new ApiError(400, 'User ID is required');
+      throw new ApiError(400, "User ID is required");
     }
 
     const user = await MODELS.UserModel.findOne({
       where: { user_id: userId },
-      attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+      attributes: ["user_id", "first_name", "last_name", "email", "phone"],
     });
 
     if (!user) {
@@ -414,7 +229,7 @@ const getUserTestAppointments = async (userId) => {
 
     const orders = await MODELS.OrderModel.findAll({
       where: { user_id: userId },
-      order: [['created_at', 'DESC']],
+      order: [["created_at", "DESC"]],
     });
 
     if (!orders || orders.length === 0) {
@@ -434,13 +249,13 @@ const getUserTestAppointments = async (userId) => {
         include: [
           {
             model: MODELS.ServiceTestModel,
-            as: 'service',
+            as: "service",
             attributes: [
-              'service_id',
-              'name',
-              'price',
-              'description',
-              'preparation_guidelines',
+              "service_id",
+              "name",
+              "price",
+              "description",
+              "preparation_guidelines",
             ],
           },
         ],
@@ -470,7 +285,7 @@ const getUserTestAppointments = async (userId) => {
       totalAmount,
     };
   } catch (error) {
-    console.error('Error in getUserTestAppointments service:', error);
+    console.error("Error in getUserTestAppointments service:", error);
     throw error;
   }
 };
@@ -478,12 +293,12 @@ const getUserTestAppointments = async (userId) => {
 const getAllOrders = async () => {
   try {
     const orders = await MODELS.OrderModel.findAll({
-      order: [['created_at', 'DESC']],
+      order: [["created_at", "DESC"]],
       include: [
         {
           model: MODELS.UserModel,
-          as: 'user',
-          attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+          as: "user",
+          attributes: ["user_id", "first_name", "last_name", "email", "phone"],
         },
       ],
     });
@@ -494,17 +309,17 @@ const getAllOrders = async () => {
     for (const order of orders) {
       const orderDetails = await MODELS.OrderDetailModel.findAll({
         where: { order_id: order.order_id },
-        attributes: ['order_detail_id', 'exam_date', 'exam_time'],
+        attributes: ["order_detail_id", "exam_date", "exam_time"],
         include: [
           {
             model: MODELS.ServiceTestModel,
-            as: 'service',
+            as: "service",
             attributes: [
-              'service_id',
-              'name',
-              'price',
-              'description',
-              'result_wait_time',
+              "service_id",
+              "name",
+              "price",
+              "description",
+              "result_wait_time",
             ],
           },
         ],
@@ -540,7 +355,7 @@ const getAllOrders = async () => {
       total_amount: totalAmount,
     };
   } catch (error) {
-    console.error('Error in getAllOrders service:', error);
+    console.error("Error in getAllOrders service:", error);
     throw error;
   }
 };
@@ -549,7 +364,7 @@ const getTestResults = async (userId, orderId = null) => {
   try {
     const user = await MODELS.UserModel.findOne({
       where: { user_id: userId },
-      attributes: ['user_id', 'first_name', 'last_name', 'email', 'phone'],
+      attributes: ["user_id", "first_name", "last_name", "email", "phone"],
     });
 
     if (!user) {
@@ -563,7 +378,7 @@ const getTestResults = async (userId, orderId = null) => {
 
     const orders = await MODELS.OrderModel.findAll({
       where: whereClause,
-      order: [['created_at', 'DESC']],
+      order: [["created_at", "DESC"]],
     });
 
     if (!orders || orders.length === 0) {
@@ -579,20 +394,20 @@ const getTestResults = async (userId, orderId = null) => {
       const orderDetails = await MODELS.OrderDetailModel.findAll({
         where: { order_id: order.order_id },
         attributes: [
-          'order_detail_id',
-          'exam_date',
-          'exam_time',
-          'testresult_id',
+          "order_detail_id",
+          "exam_date",
+          "exam_time",
+          "testresult_id",
         ],
         include: [
           {
             model: MODELS.ServiceTestModel,
-            as: 'service',
+            as: "service",
             attributes: [
-              'service_id',
-              'name',
-              'description',
-              'result_wait_time',
+              "service_id",
+              "name",
+              "description",
+              "result_wait_time",
             ],
           },
         ],
@@ -604,12 +419,12 @@ const getTestResults = async (userId, orderId = null) => {
             const testResult = await MODELS.TestResultMySqlModel.findOne({
               where: { testresult_id: detail.testresult_id },
               attributes: [
-                'testresult_id',
-                'result',
-                'conclusion',
-                'normal_range',
-                'recommendations',
-                'created_at',
+                "testresult_id",
+                "result",
+                "conclusion",
+                "normal_range",
+                "recommendations",
+                "created_at",
               ],
             });
 
@@ -642,18 +457,18 @@ const getTestResults = async (userId, orderId = null) => {
       results: testResults,
     };
   } catch (error) {
-    console.error('Error in getTestResults service:', error);
+    console.error("Error in getTestResults service:", error);
     throw error instanceof ApiError
       ? error
-      : new ApiError(500, 'Lỗi khi lấy kết quả xét nghiệm');
+      : new ApiError(500, "Lỗi khi lấy kết quả xét nghiệm");
   }
 };
 
 const getUserById = async (userId) => {
   try {
-    console.log('Finding user with ID:', userId);
+    console.log("Finding user with ID:", userId);
     const user = await MODELS.UserModel.findOne({ where: { user_id: userId } });
-    console.log('User found:', user ? 'Yes' : 'No');
+    console.log("User found:", user ? "Yes" : "No");
     if (!user) {
       throw new ApiError(
         StatusCodes.NOT_FOUND,
@@ -662,12 +477,12 @@ const getUserById = async (userId) => {
     }
     return user;
   } catch (error) {
-    console.error('Error in getUserById:', error);
+    console.error("Error in getUserById:", error);
     throw error instanceof ApiError
       ? error
       : new ApiError(
           StatusCodes.INTERNAL_SERVER_ERROR,
-          'Lỗi khi lấy thông tin người dùng: ' + (error.message || '')
+          "Lỗi khi lấy thông tin người dùng: " + (error.message || "")
         );
   }
 };

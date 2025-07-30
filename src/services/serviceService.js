@@ -222,7 +222,9 @@ const bookingService = async (bookingData) => {
 
     const order_id = "OD" + String(baseOrderId).padStart(6, "0");
     const now = new Date();
-
+    if (payment_method === "card") {
+      // Handle card payment processing
+    }
     const order = await MODELS.OrderModel.create(
       {
         order_id,
