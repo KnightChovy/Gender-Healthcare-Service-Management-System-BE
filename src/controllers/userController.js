@@ -278,10 +278,10 @@ const cancelOrder = async (req, res, next) => {
   }
 };
 
-const cancelPendingOrder = async (req, res, next) => {
+const cancelPendingOrder = async (req, res) => {
   try {
+    const { order_id } = req.body;
     const decoded = req.jwtDecoded;
-    const { order_id } = req.params;
 
     if (decoded.data.role !== 'user') {
       return res.status(StatusCodes.UNAUTHORIZED).json({
