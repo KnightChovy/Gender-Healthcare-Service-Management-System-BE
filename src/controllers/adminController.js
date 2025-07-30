@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 
 const createStaff = async (req, res) => {
   try {
+    console.log("đã vô createStaff", req.body);
     const {
       username,
       password,
