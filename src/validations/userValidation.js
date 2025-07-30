@@ -365,8 +365,9 @@ const staffSchema = Joi.object({
 });
 
 export const validateCreateStaff = (req, res, next) => {
-  console.log("Staff validation data:", req.body);
   console.log("đã vô validate");
+
+  console.log("Staff validation data:", req.body);
   const { role } = req.body;
 
   const { error } = staffSchema.validate(req.body, { abortEarly: false });
